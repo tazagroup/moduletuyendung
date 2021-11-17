@@ -34,6 +34,7 @@ const Table = () => {
     const [rowData, setRowData] = useState({})
     const tableRef = React.useRef();
     const headers = [
+        { title: "#", field: "id", },
         { title: "Vị trí tuyển dụng", field: "position", },
         { title: "Nhân sự hiện có", field: "employee", type: "numeric" },
         { title: "Nhân sự cần tuyển", field: "recruit", type: "numeric" },

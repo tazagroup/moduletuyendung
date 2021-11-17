@@ -2,3 +2,6 @@ svg{
     width:22px !important;
     height:22px !important;
 }
+input{
+    text-align: right;
+}

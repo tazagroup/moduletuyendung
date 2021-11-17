@@ -8,11 +8,12 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import ModalCreateItem from "./ModalCreateItem"
-import TicketStatus from './TicketStatus'
-import { getStatusRendering } from './utils/index'
+import FormControl from '@mui/material/FormControl';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import TicketStatus from './TicketStatus'
+import { getStatusRendering } from './utils/index'
 export default function Table() {
     const dispatch = useDispatch()
     const [rowData, setRowData] = useState({});
@@ -23,8 +24,8 @@ export default function Table() {
     useEffect(() => {
         console.log(tableRef)
         setTimeout(() => {
-            const hiddenButton = document.getElementsByClassName("MuiButtonBase-root-195 MuiIconButton-root-321 MuiIconButton-colorInherit-324")[2]
-            hiddenButton.style.display = "none"
+            // const hiddenButton = document.getElementsByClassName("MuiButtonBase-root-195 MuiIconButton-root-321 MuiIconButton-colorInherit-324")[2]
+            // hiddenButton.style.display = "none"
         }, 1000)
     }, [])
     const headers = [
@@ -34,7 +35,7 @@ export default function Table() {
             // editable: 'never',
             align: "center",
             editComponent: props => (
-                <div style={{ textAlign: "right" }}>
+                <div style={{ textAlign: "right", paddingRight: "5px" }}>
                     <p>{props.value}</p>
                 </div>
             ),
@@ -71,7 +72,8 @@ export default function Table() {
             title: "Thời gian thử việc",
             field: "probationary",
             type: "date",
-            dateSetting: { locale: "en-GB" }
+            dateSetting: { locale: "en-GB" },
+            customFilterAndSearch: (term, rowData) => console.log(term, rowData)
         },
         {
             title: "Thời gian tiếp nhận",
@@ -89,7 +91,8 @@ export default function Table() {
         },
         {
             title: "Trạng thái",
-            field: "status"
+            field: "status",
+            align: "center"
         },
         {
             title: "Giám đốc phê duyệt",
@@ -97,20 +100,24 @@ export default function Table() {
             lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
             render: (item) => getStatusRendering(item),
             editComponent: props => (
-                <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    value={props.value}
-                    onChange={e => props.onChange(e.target.value)}
-                    label="Giám đốc phê duyệt"
-                >
-                    <MenuItem value="">
-                        <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={0}>Chờ xử lí</MenuItem>
-                    <MenuItem value={1}>Đã duyệt</MenuItem>
-                    <MenuItem value={2}>Từ chối</MenuItem>
-                </Select>
+                <FormControl variant="standard" sx={{ m: 1, minWidth: 150, textAlign: "right", fontSize: "16px" }}>
+                    <Select
+                        labelId="demo-simple-select-standard-label"
+                        id="demo-simple-select-standard"
+                        value={props.value}
+                        onChange={(e) => { props.onChange(e.target.value) }}
+                        style={{ fontSize: "16px" }}
+                        label="Giám đốc phê duyệt"
+                        fullWidth
+                    >
+                        <MenuItem value="">
+                            <em>None</em>
+                        </MenuItem>
+                        <MenuItem value={0}>Chờ xử lí</MenuItem>
+                        <MenuItem value={1}>Đã duyệt</MenuItem>
+                        <MenuItem value={2}>Từ chối</MenuItem>
+                    </Select>
+                </FormControl>
             )
         }
     ];
@@ -169,6 +176,14 @@ export default function Table() {
                     paging: true,
                     filtering: isFiltering,
                 }}
+                components={{
+                    Action: (props) => {
+                        if (props.action.tooltip == "Add") {
+                            return <></>
+                        }
+                        return <MTableAction {...props} />
+                    }
+                }}
                 columns={columns}
                 data={data}
                 actions={[
@@ -215,8 +230,9 @@ export default function Table() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                <MenuItem onClick={handleCopy}>Copy</MenuItem>
+                <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
+                <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
+                <MenuItem onClick={handleCopy}>Tạo hồ sơ</MenuItem>
             </Menu>
         </Fragment>
     );

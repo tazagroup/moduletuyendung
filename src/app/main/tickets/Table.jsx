@@ -12,7 +12,7 @@ import TicketStatus from './TicketStatus'
 import { getStatusRendering } from './utils/index'
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { Button } from '@mui/material';
+import Select from '@mui/material/Select';
 export default function Table() {
     const dispatch = useDispatch()
     const [rowData, setRowData] = useState({});
@@ -28,6 +28,25 @@ export default function Table() {
         }, 1000)
     }, [])
     const headers = [
+        {
+            title: "#",
+            field: "id",
+            // editable: 'never',
+            align: "center",
+            editComponent: props => (
+                <div style={{ textAlign: "right" }}>
+                    <p>{props.value}</p>
+                </div>
+            ),
+            render: rowData => (
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    <IconButton aria-label="Example" onClick={(event) => { handleClick(event, rowData) }}>
+                        <MoreVertIcon />
+                    </IconButton >
+                    <p>{rowData.id}</p>
+                </div>
+            )
+        },
         {
             title: "Vị trí tuyển dụng",
             field: "position"
@@ -76,14 +95,30 @@ export default function Table() {
             title: "Giám đốc phê duyệt",
             field: "gdpd",
             lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            render: (item) => getStatusRendering(item)
+            render: (item) => getStatusRendering(item),
+            editComponent: props => (
+                <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={props.value}
+                    onChange={e => props.onChange(e.target.value)}
+                    label="Giám đốc phê duyệt"
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={0}>Chờ xử lí</MenuItem>
+                    <MenuItem value={1}>Đã duyệt</MenuItem>
+                    <MenuItem value={2}>Từ chối</MenuItem>
+                </Select>
+            )
         }
     ];
     const flagColumns = headers.map(item => ({ ...item, align: "right", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
     const [columns, setColumns] = useState(flagColumns)
     const [data, setData] = useState([
-        { position: 1, employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
-        { position: 1, employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+        { id: 1, position: "Marketing", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+        { id: 2, position: "Telesale", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
     ]);
     const open = Boolean(anchorEl);
     const handleClick = (event, row) => {
@@ -143,14 +178,6 @@ export default function Table() {
                         isFreeAction: true,
                         onClick: (event) => setIsFiltering(state => !state)
                     },
-                    {
-                        icon: MoreVertIcon,
-                        tooltip: "Menu",
-                        isFreeAction: false,
-                        onClick: (event, row) => {
-                            handleClick(event, row);
-                        }
-                    }
                 ]}
                 editable={{
                     isEditHidden: (rowData) => rowData,
@@ -172,7 +199,7 @@ export default function Table() {
                         showColumnsTitle: "Hiển thị cột",
                     },
                     header: {
-                        actions: "#"
+                        actions: ""
                     }
                 }}
                 icons={{

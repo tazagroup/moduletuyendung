@@ -1,5 +1,6 @@
 import React from 'react'
 import Table from './Table'
+import Test from './Test'
 import FusePageSimple from '@fuse/core/FusePageSimple';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
 import { Tabs, Tab, Box } from '@material-ui/core';

@@ -9,54 +9,85 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import ModalCreateItem from "./ModalCreateItem"
 import TicketStatus from './TicketStatus'
-
 import { getStatusRendering } from './utils/index'
-
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-const ticketStatus = [
-    { id: 0, title: "Chờ xử lí" },
-    { id: 1, title: "Đã duyệt" },
-    { id: 2, title: "Từ chối" }
-]
-
-const Table = () => {
-    useEffect(() => {
-        const hiddenButton = document.getElementsByClassName("MuiButtonBase-root-195 MuiIconButton-root-343 MuiIconButton-colorInherit-346")[2]
-        hiddenButton.style.display = "none"
-        const status = {}
-        ticketStatus.map(item => status[item.id] = item.title)
-        setStatus(status)
-    }, [])
+import { Button } from '@mui/material';
+export default function Table() {
     const dispatch = useDispatch()
+    const [rowData, setRowData] = useState({});
+    const [initialData, setInitialData] = useState({})
     const [isFiltering, setIsFiltering] = useState(false)
-    const [status, setStatus] = useState({})
-    const [rowData, setRowData] = useState({})
-    const tableRef = React.useRef();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const tableRef = useRef();
+    useEffect(() => {
+        console.log(tableRef)
+        setTimeout(() => {
+            const hiddenButton = document.getElementsByClassName("MuiButtonBase-root-195 MuiIconButton-root-321 MuiIconButton-colorInherit-324")[2]
+            hiddenButton.style.display = "none"
+        }, 1000)
+    }, [])
     const headers = [
-        { title: "Vị trí tuyển dụng", field: "position", },
-        { title: "Nhân sự hiện có", field: "employee", type: "numeric" },
-        { title: "Nhân sự cần tuyển", field: "recruit", type: "numeric" },
-        { title: "Mức lương dự kiến", field: "salary", type: "currency", currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 } },
-        { title: "Thời gian thử việc", field: "probationary", type: "date", dateSetting: { locale: "en-GB" } },
-        { title: "Thời gian tiếp nhận", field: "reception", type: "date", dateSetting: { locale: "en-GB" } },
-        { title: "Lí do tuyển dụng", field: "reasons" },
-        { title: "Mô tả công việc", field: "mtcv" },
-        { title: "Trạng thái", field: "status" },
-        { title: "Giám đốc phê duyệt", field: "gdpd", lookup: status, render: (rowData) => getStatusRendering(rowData) },
-    ]
-    const columns = headers.map(item => ({ ...item, align: "right", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
+        {
+            title: "Vị trí tuyển dụng",
+            field: "position"
+        },
+        {
+            title: "Nhân sự hiện có",
+            field: "employee",
+            type: 'numeric'
+        },
+        {
+            title: "Nhân sự cần tuyển",
+            field: "recruit",
+            type: "numeric"
+        },
+        {
+            title: "Mức lương dự kiến",
+            field: "salary",
+            type: "currency",
+            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 }
+        },
+        {
+            title: "Thời gian thử việc",
+            field: "probationary",
+            type: "date",
+            dateSetting: { locale: "en-GB" }
+        },
+        {
+            title: "Thời gian tiếp nhận",
+            field: "reception",
+            type: "date",
+            dateSetting: { locale: "en-GB" }
+        },
+        {
+            title: "Lí do tuyển dụng",
+            field: "reason"
+        },
+        {
+            title: "Mô tả công việc",
+            field: "description"
+        },
+        {
+            title: "Trạng thái",
+            field: "status"
+        },
+        {
+            title: "Giám đốc phê duyệt",
+            field: "gdpd",
+            lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
+            render: (item) => getStatusRendering(item)
+        }
+    ];
+    const flagColumns = headers.map(item => ({ ...item, align: "right", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
+    const [columns, setColumns] = useState(flagColumns)
     const [data, setData] = useState([
-        { id: '1', position: "Marketing", employee: "10", recruit: "5", salary: "5000000", probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reasons: "Thiếu", mtcv: "...", status: "1", gdpd: "1" },
-        { id: '2', position: "Telesale", employee: "10", recruit: "5", salary: "5000000", probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reasons: "Thiếu", mtcv: "...", status: "1", gdpd: "2" },
-        { id: '3', position: "IT", employee: "5", recruit: "2", salary: "5000000", probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reasons: "Thiếu", mtcv: "...", status: "1", gdpd: "2" },
-        { id: '4', position: "IT", employee: "5", recruit: "2", salary: "5000000", probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reasons: "Thiếu", mtcv: "...", status: "1", gdpd: "0" },
-    ])
-    const [anchorEl, setAnchorEl] = React.useState(null);
-    const [initialState, setInitialState] = React.useState({})
+        { position: 1, employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+        { position: 1, employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+    ]);
     const open = Boolean(anchorEl);
     const handleClick = (event, row) => {
-        setRowData(row)
+        setRowData(row);
         setAnchorEl(event.currentTarget);
     };
     const handleClose = () => {
@@ -64,7 +95,7 @@ const Table = () => {
     };
     const handleEdit = () => {
         setAnchorEl(null);
-        setInitialState({ ...rowData, name: null })
+        setInitialData({ ...rowData, name: null })
         tableRef.current.dataManager.changeRowEditing(rowData, 'update');
         tableRef.current.setState({
             ...tableRef.current.dataManager.getRenderState(),
@@ -73,20 +104,17 @@ const Table = () => {
     }
     const handleCopy = () => {
         setAnchorEl(null);
-        setInitialState({ ...rowData, name: null })
+        setInitialData({ ...rowData, name: null })
         tableRef.current.dataManager.changeRowEditing();
         tableRef.current.setState({
             ...tableRef.current.dataManager.getRenderState(),
             showAddRow: !tableRef.current.state.showAddRow
         });
-        console.log(tableRef.current.state)
     }
     return (
         <Fragment>
-            <TicketStatus />
             <MaterialTable
                 tableRef={tableRef}
-                initialFormData={initialState}
                 title={<>
                     <Tooltip title="Tạo hồ sơ tuyển dụng">
                         <IconButton onClick={() => dispatch(openDialog({
@@ -98,15 +126,16 @@ const Table = () => {
                         </IconButton>
                     </Tooltip>
                 </>}
-                columns={columns}
-                data={data}
+                initialFormData={initialData}
                 options={{
+                    showDetailPanelIcon: false,
+                    columnsButton: true,
                     search: false,
                     paging: true,
                     filtering: isFiltering,
-                    columnsButton: true
                 }}
-                icons={{ ViewColumn: ViewColumnIcon }}
+                columns={columns}
+                data={data}
                 actions={[
                     {
                         icon: 'search',
@@ -116,14 +145,15 @@ const Table = () => {
                     },
                     {
                         icon: MoreVertIcon,
-                        tooltip: 'Menu',
+                        tooltip: "Menu",
                         isFreeAction: false,
                         onClick: (event, row) => {
-                            handleClick(event, row)
+                            handleClick(event, row);
                         }
                     }
                 ]}
                 editable={{
+                    isEditHidden: (rowData) => rowData,
                     onRowAdd: (newData) =>
                         Promise.resolve(setData([...data, newData])),
                     onRowUpdate: (newData, oldData) =>
@@ -133,7 +163,6 @@ const Table = () => {
                                 const index = oldData.tableData.id;
                                 dataUpdate[index] = newData;
                                 setData([...dataUpdate]);
-
                                 resolve();
                             }, 1000);
                         }),
@@ -146,13 +175,9 @@ const Table = () => {
                         actions: "#"
                     }
                 }}
-                onFilterChange={(e) => {
-                    console.log(e)
-                    console.log(tableRef.current.dataManager.filteredData.length)
+                icons={{
+                    ViewColumn: ViewColumnIcon,
                 }}
-            // onRowClick={(e, data) => {
-            //     //Handle row click
-            // }}
             />
             <Menu
                 id="basic-menu"
@@ -163,12 +188,9 @@ const Table = () => {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
-                <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
-                <MenuItem onClick={handleClose}>Tạo hồ sơ</MenuItem>
+                <MenuItem onClick={handleEdit}>Edit</MenuItem>
+                <MenuItem onClick={handleCopy}>Copy</MenuItem>
             </Menu>
-        </Fragment >
-    )
+        </Fragment>
+    );
 }
-
-export default Table

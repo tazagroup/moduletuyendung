@@ -7,25 +7,34 @@ import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 import ModalCreateItem from "./ModalCreateItem"
 import TicketStatus from './TicketStatus'
 import { getStatusRendering } from './utils/index'
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import axios from 'axios'
 export default function Table() {
     const dispatch = useDispatch()
+    const [data, setData] = useState([])
     const [rowData, setRowData] = useState({});
     const [initialData, setInitialData] = useState({})
     const [isFiltering, setIsFiltering] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null);
     const tableRef = useRef();
-    useEffect(() => {
-
-    }, [])
+    //TEST FETCHING
+    const [isFetching, setIsFetching] = useState(false)
+    useEffect(async () => {
+        const response = await axios.get('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets')
+        if (response) {
+            const responseData = response.data
+            const data = responseData.map(({ id: key, ...item }) => ({
+                key,
+                ...item,
+            }))
+            setData(data)
+        }
+    }, [isFetching])
     const headers = [
         {
             title: "#",
@@ -52,78 +61,73 @@ export default function Table() {
         },
         {
             title: "Vị trí tuyển dụng",
-            field: "position"
+            field: "Vitri"
         },
         {
             title: "Nhân sự hiện có",
-            field: "employee",
+            field: "SLHientai",
             type: 'numeric'
         },
         {
             title: "Nhân sự cần tuyển",
-            field: "recruit",
+            field: "SLCantuyen",
             type: "numeric"
         },
         {
             title: "Mức lương dự kiến",
-            field: "salary",
+            field: "LuongDK",
             type: "currency",
             currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 }
         },
         {
             title: "Thời gian thử việc",
-            field: "probationary",
+            field: "TGThuviec",
             type: "date",
             dateSetting: { locale: "en-GB" }
         },
         {
             title: "Thời gian tiếp nhận",
-            field: "reception",
+            field: "TiepnhanNS",
             type: "date",
             dateSetting: { locale: "en-GB" }
         },
         {
             title: "Lí do tuyển dụng",
-            field: "reason"
+            field: "Lydo"
         },
         {
-            title: "Mô tả công việc",
-            field: "description"
+            title: "Mô tả tuyển dụng",
+            field: "MotaTD"
         },
-        {
-            title: "Trạng thái",
-            field: "status"
-        },
-        {
-            title: "Giám đốc phê duyệt",
-            field: "gdpd",
-            lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            render: (item) => getStatusRendering(item),
-            editComponent: props => (
-                <Select
-                    labelId="demo-simple-select-standard-label"
-                    id="demo-simple-select-standard"
-                    value={props.value}
-                    onChange={e => props.onChange(e.target.value)}
-                    label="Giám đốc phê duyệt"
-                >
-                    <MenuItem value="">
-                        <em>None</em>
-                    </MenuItem>
-                    <MenuItem value={0}>Chờ xử lí</MenuItem>
-                    <MenuItem value={1}>Đã duyệt</MenuItem>
-                    <MenuItem value={2}>Từ chối</MenuItem>
-                </Select>
-            )
-        }
+        // {
+        //     title: "Trạng thái",
+        //     field: "status"
+        // },
+        // {
+        //     title: "Giám đốc phê duyệt",
+        //     field: "gdpd",
+        //     lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
+        //     render: (item) => getStatusRendering(item),
+        //     editComponent: props => (
+        //         <Select
+        //             labelId="demo-simple-select-standard-label"
+        //             id="demo-simple-select-standard"
+        //             value={props.value}
+        //             onChange={e => props.onChange(e.target.value)}
+        //             label="Giám đốc phê duyệt"
+        //         >
+        //             <MenuItem value="">
+        //                 <em>None</em>
+        //             </MenuItem>
+        //             <MenuItem value={0}>Chờ xử lí</MenuItem>
+        //             <MenuItem value={1}>Đã duyệt</MenuItem>
+        //             <MenuItem value={2}>Từ chối</MenuItem>
+        //         </Select>
+        //     )
+        // }
     ];
     const flagColumns = headers.map(item => ({ ...item, align: "right", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
     const [columns, setColumns] = useState(flagColumns)
-    const [data, setData] = useState([
-        { key: 1, position: "Marketing", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
-        { key: 2, position: "Telesale", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
-
-    ]);
     const open = Boolean(anchorEl);
     const handleClick = (event, row) => {
         setRowData(row);
@@ -158,7 +162,7 @@ export default function Table() {
                     <Tooltip title="Tạo hồ sơ tuyển dụng">
                         <IconButton
                             onClick={() => dispatch(openDialog({
-                                children: <ModalCreateItem />,
+                                children: <ModalCreateItem setIsFetching={setIsFetching} />,
                             }))}
                             variant="contained"
                             color="secondary"
@@ -174,6 +178,14 @@ export default function Table() {
                     search: false,
                     paging: true,
                     filtering: isFiltering,
+                }}
+                components={{
+                    Action: props => {
+                        if (props.action.tooltip === "Add") {
+                            return <div></div>
+                        }
+                        return <MTableAction {...props} />
+                    }
                 }}
                 columns={columns}
                 data={data}
@@ -202,6 +214,7 @@ export default function Table() {
                                 const dataUpdate = [...data];
                                 const index = oldData.tableData.id;
                                 dataUpdate[index] = newData;
+                                axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index+1}`, newData)
                                 setData([...dataUpdate]);
                             }, 1000);
                         }),

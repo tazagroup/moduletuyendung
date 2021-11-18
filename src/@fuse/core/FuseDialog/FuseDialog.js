@@ -12,6 +12,8 @@ function FuseDialog(props) {
       open={state}
       onClose={(ev) => dispatch(closeDialog())}
       aria-labelledby="fuse-dialog-title"
+      maxWidth='lg'
+      fullWidth={true}
       classes={{
         paper: 'rounded-8',
       }}

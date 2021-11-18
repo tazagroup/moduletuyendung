@@ -15,9 +15,24 @@ const TicketStatus = () => {
             <TimelineItem>
                 <TimelineSeparator>
                     <TimelineDot color="secondary" />
+                </TimelineSeparator>
+                <TimelineContent style={{ wordBreak: "break-all", flexBasis: "250px", textAlign: "left", display: "flex" }}>
+                    <p style={{ marginTop: "3px", marginRight: "3px" }}>{item}</p>
+                    <Tooltip title="Đã duyệt">
+                        <InfoIcon />
+                    </Tooltip>
+                </TimelineContent>
+            </TimelineItem>
+        )
+    }
+    const CustomTimelineConnector = ({ item }) => {
+        return (
+            <TimelineItem>
+                <TimelineSeparator>
+                    <TimelineDot color="secondary" />
                     <TimelineConnector />
                 </TimelineSeparator>
-                <TimelineContent style={{ wordBreak: "break-all", flexBasis: "150px", textAlign: "left", display: "flex" }}>
+                <TimelineContent style={{ wordBreak: "break-all", flexBasis: "250px", textAlign: "left", display: "flex" }}>
                     <p style={{ marginTop: "3px", marginRight: "3px" }}>{item}</p>
                     <Tooltip title="Đã duyệt">
                         <InfoIcon />
@@ -33,29 +48,28 @@ const TicketStatus = () => {
                     <Grid item xs={3}>
                         <h1>Ban quản lí</h1>
                         <Timeline>
-                            <CustomTimeline item="Duyệt đợt 1" />
-                            <CustomTimeline item="Duyệt đợt 2" />
+                            <CustomTimeline item="B1:Quản lí phê duyệt" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
                         <h1>Ban tuyển dụng</h1>
                         <Timeline>
-                            <CustomTimeline item="Duyệt đợt 1" />
-                            <CustomTimeline item="Duyệt đợt 2" />
+                            <CustomTimelineConnector item="B2:Tiếp nhận tuyển dụng" />
+                            <CustomTimelineConnector item="B4:Triển khai tuyển dụng" />
+                            <CustomTimeline item="B7:Thực hiện tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
                         <h1>Ban giám đốc</h1>
                         <Timeline>
-                            <CustomTimeline item="Duyệt đợt 1" />
-                            <CustomTimeline item="Duyệt đợt 2" />
+                            <CustomTimelineConnector item="B3:Phê duyệt phiếu" />
+                            <CustomTimeline item="B5:Phê duyệt tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
                         <h1>Ban kế toán</h1>
                         <Timeline>
-                            <CustomTimeline item="Duyệt đợt 1" />
-                            <CustomTimeline item="Duyệt đợt 2" />
+                            <CustomTimeline item="B6:Xác nhận thanh toán" />
                         </Timeline>
                     </Grid>
                 </Grid>

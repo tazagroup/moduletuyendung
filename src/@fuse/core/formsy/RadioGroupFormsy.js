@@ -31,8 +31,12 @@ function RadioGroupFormsy(props) {
     <FormControl
       error={Boolean((!props.isPristine && props.showRequired) || errorMessage)}
       className={props.className}
-    >
-      <FormControl component="fieldset" required={props.required} error={Boolean(errorMessage)}>
+      variant="standard">
+      <FormControl
+        component="fieldset"
+        required={props.required}
+        error={Boolean(errorMessage)}
+        variant="standard">
         {props.label && <FormLabel component="legend">{props.label}</FormLabel>}
         <RadioGroup {...importedProps} value={value || null} onChange={changeValue} />
         {Boolean(errorMessage) && <FormHelperText>{errorMessage}</FormHelperText>}

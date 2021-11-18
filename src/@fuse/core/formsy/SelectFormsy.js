@@ -59,7 +59,12 @@ function SelectFormsy(props) {
       variant={importedProps.variant}
     >
       {props.label && <InputLabel htmlFor={props.name}>{props.label}</InputLabel>}
-      <Select {...importedProps} value={value} onChange={changeValue} input={input()} />
+      <Select
+        {...importedProps}
+        value={value}
+        onChange={changeValue}
+        input={input()}
+        variant="standard" />
       {Boolean(errorMessage) && <FormHelperText>{errorMessage}</FormHelperText>}
     </FormControl>
   );

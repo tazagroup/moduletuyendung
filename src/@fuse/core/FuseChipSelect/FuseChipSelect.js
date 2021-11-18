@@ -124,7 +124,7 @@ function Control(props) {
         },
       }}
       {...props.selectProps.textFieldProps}
-    />
+      variant="standard" />
   );
 }
 

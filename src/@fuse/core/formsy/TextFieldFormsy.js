@@ -52,7 +52,7 @@ function TextFieldFormsy(props) {
       value={value}
       error={Boolean((!props.isPristine && props.showRequired) || errorMessage)}
       helperText={errorMessage}
-    />
+      variant="standard" />
   );
 }
 

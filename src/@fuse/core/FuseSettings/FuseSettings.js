@@ -206,7 +206,7 @@ function FuseSettings(props) {
                 name={target}
                 control={control}
                 render={({ field }) => (
-                  <FormControl component="fieldset" className={classes.formControl}>
+                  <FormControl component="fieldset" className={classes.formControl} variant="standard">
                     <FormLabel component="legend" className="text-14">
                       {formControl.title}
                     </FormLabel>
@@ -237,7 +237,7 @@ function FuseSettings(props) {
                 name={target}
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <FormControl component="fieldset" className={classes.formControl}>
+                  <FormControl component="fieldset" className={classes.formControl} variant="standard">
                     <FormLabel component="legend" className="text-14">
                       {formControl.title}
                     </FormLabel>
@@ -302,7 +302,7 @@ function FuseSettings(props) {
           name="layout.style"
           control={control}
           render={({ field }) => (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" className={classes.formControl} variant="standard">
               <FormLabel component="legend" className="text-14">
                 Style
               </FormLabel>
@@ -336,7 +336,7 @@ function FuseSettings(props) {
           name="theme.main"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" className={classes.formControl} variant="standard">
               <FormLabel component="legend" className="text-14">
                 Main
               </FormLabel>
@@ -349,7 +349,7 @@ function FuseSettings(props) {
           name="theme.navbar"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" className={classes.formControl} variant="standard">
               <FormLabel component="legend" className="text-14">
                 Navbar
               </FormLabel>
@@ -363,7 +363,7 @@ function FuseSettings(props) {
           name="theme.toolbar"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" className={classes.formControl} variant="standard">
               <FormLabel component="legend" className="text-14">
                 Toolbar
               </FormLabel>
@@ -377,7 +377,7 @@ function FuseSettings(props) {
           name="theme.footer"
           control={control}
           render={({ field: { onChange, value } }) => (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" className={classes.formControl} variant="standard">
               <FormLabel component="legend" className="text-14">
                 Footer
               </FormLabel>
@@ -391,7 +391,7 @@ function FuseSettings(props) {
         name="customScrollbars"
         control={control}
         render={({ field: { onChange, value } }) => (
-          <FormControl component="fieldset" className={classes.formControl}>
+          <FormControl component="fieldset" className={classes.formControl} variant="standard">
             <FormLabel component="legend" className="text-14">
               Custom Scrollbars
             </FormLabel>
@@ -408,7 +408,7 @@ function FuseSettings(props) {
         name="direction"
         control={control}
         render={({ field }) => (
-          <FormControl component="fieldset" className={classes.formControl}>
+          <FormControl component="fieldset" className={classes.formControl} variant="standard">
             <FormLabel component="legend" className="text-14">
               Direction
             </FormLabel>

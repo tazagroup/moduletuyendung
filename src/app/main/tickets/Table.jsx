@@ -7,13 +7,15 @@ import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 import ModalCreateItem from "./ModalCreateItem"
-import FormControl from '@mui/material/FormControl';
+import TicketStatus from './TicketStatus'
+import { getStatusRendering } from './utils/index'
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import TicketStatus from './TicketStatus'
-import { getStatusRendering } from './utils/index'
 export default function Table() {
     const dispatch = useDispatch()
     const [rowData, setRowData] = useState({});
@@ -22,29 +24,29 @@ export default function Table() {
     const [anchorEl, setAnchorEl] = useState(null);
     const tableRef = useRef();
     useEffect(() => {
-        console.log(tableRef)
-        setTimeout(() => {
-            // const hiddenButton = document.getElementsByClassName("MuiButtonBase-root-195 MuiIconButton-root-321 MuiIconButton-colorInherit-324")[2]
-            // hiddenButton.style.display = "none"
-        }, 1000)
+
     }, [])
     const headers = [
         {
             title: "#",
-            field: "id",
+            field: "key",
             // editable: 'never',
             align: "center",
-            editComponent: props => (
-                <div style={{ textAlign: "right", paddingRight: "5px" }}>
-                    <p>{props.value}</p>
-                </div>
-            ),
+            editComponent: props => {
+                return (
+                    <div>
+                    </div>
+                )
+            },
             render: rowData => (
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <IconButton aria-label="Example" onClick={(event) => { handleClick(event, rowData) }}>
+                    <IconButton
+                        aria-label="Example"
+                        onClick={(event) => { handleClick(event, rowData) }}
+                        size="large">
                         <MoreVertIcon />
                     </IconButton >
-                    <p>{rowData.id}</p>
+                    <p>{rowData.key}</p>
                 </div>
             )
         },
@@ -72,8 +74,7 @@ export default function Table() {
             title: "Thời gian thử việc",
             field: "probationary",
             type: "date",
-            dateSetting: { locale: "en-GB" },
-            customFilterAndSearch: (term, rowData) => console.log(term, rowData)
+            dateSetting: { locale: "en-GB" }
         },
         {
             title: "Thời gian tiếp nhận",
@@ -91,8 +92,7 @@ export default function Table() {
         },
         {
             title: "Trạng thái",
-            field: "status",
-            align: "center"
+            field: "status"
         },
         {
             title: "Giám đốc phê duyệt",
@@ -100,32 +100,29 @@ export default function Table() {
             lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
             render: (item) => getStatusRendering(item),
             editComponent: props => (
-                <FormControl variant="standard" sx={{ m: 1, minWidth: 150, textAlign: "right", fontSize: "16px" }}>
-                    <Select
-                        labelId="demo-simple-select-standard-label"
-                        id="demo-simple-select-standard"
-                        value={props.value}
-                        onChange={(e) => { props.onChange(e.target.value) }}
-                        style={{ fontSize: "16px" }}
-                        label="Giám đốc phê duyệt"
-                        fullWidth
-                    >
-                        <MenuItem value="">
-                            <em>None</em>
-                        </MenuItem>
-                        <MenuItem value={0}>Chờ xử lí</MenuItem>
-                        <MenuItem value={1}>Đã duyệt</MenuItem>
-                        <MenuItem value={2}>Từ chối</MenuItem>
-                    </Select>
-                </FormControl>
+                <Select
+                    labelId="demo-simple-select-standard-label"
+                    id="demo-simple-select-standard"
+                    value={props.value}
+                    onChange={e => props.onChange(e.target.value)}
+                    label="Giám đốc phê duyệt"
+                >
+                    <MenuItem value="">
+                        <em>None</em>
+                    </MenuItem>
+                    <MenuItem value={0}>Chờ xử lí</MenuItem>
+                    <MenuItem value={1}>Đã duyệt</MenuItem>
+                    <MenuItem value={2}>Từ chối</MenuItem>
+                </Select>
             )
         }
     ];
     const flagColumns = headers.map(item => ({ ...item, align: "right", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
     const [columns, setColumns] = useState(flagColumns)
     const [data, setData] = useState([
-        { id: 1, position: "Marketing", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
-        { id: 2, position: "Telesale", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+        { key: 1, position: "Marketing", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+        { key: 2, position: "Telesale", employee: 10, recruit: 5, salary: 5000000, probationary: "2020-06-13T12:00:00", reception: "2020-06-13T12:00:00", reason: "1", description: "...", status: "OK", gdpd: "1" },
+
     ]);
     const open = Boolean(anchorEl);
     const handleClick = (event, row) => {
@@ -159,11 +156,13 @@ export default function Table() {
                 tableRef={tableRef}
                 title={<>
                     <Tooltip title="Tạo hồ sơ tuyển dụng">
-                        <IconButton onClick={() => dispatch(openDialog({
-                            children: <ModalCreateItem />
-                        }))}
+                        <IconButton
+                            onClick={() => dispatch(openDialog({
+                                children: <ModalCreateItem />,
+                            }))}
                             variant="contained"
-                            color="secondary">
+                            color="secondary"
+                            size="large">
                             <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                         </IconButton>
                     </Tooltip>
@@ -175,14 +174,6 @@ export default function Table() {
                     search: false,
                     paging: true,
                     filtering: isFiltering,
-                }}
-                components={{
-                    Action: (props) => {
-                        if (props.action.tooltip == "Add") {
-                            return <></>
-                        }
-                        return <MTableAction {...props} />
-                    }
                 }}
                 columns={columns}
                 data={data}
@@ -197,15 +188,21 @@ export default function Table() {
                 editable={{
                     isEditHidden: (rowData) => rowData,
                     onRowAdd: (newData) =>
-                        Promise.resolve(setData([...data, newData])),
+                        new Promise((resolve, reject) => {
+                            setTimeout(() => {
+                                newData.key = data.length + 1
+                                setData([...data, newData]);
+                                resolve();
+                            }, 1000);
+                        }),
                     onRowUpdate: (newData, oldData) =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
+                                resolve();
                                 const dataUpdate = [...data];
                                 const index = oldData.tableData.id;
                                 dataUpdate[index] = newData;
                                 setData([...dataUpdate]);
-                                resolve();
                             }, 1000);
                         }),
                 }}
@@ -230,9 +227,8 @@ export default function Table() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
-                <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
-                <MenuItem onClick={handleCopy}>Tạo hồ sơ</MenuItem>
+                <MenuItem onClick={handleEdit}>Edit</MenuItem>
+                <MenuItem onClick={handleCopy}>Copy</MenuItem>
             </Menu>
         </Fragment>
     );

@@ -60,6 +60,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
     }
     //CREATE TICKETS
     const handleCreateTickets = async () => {
+        const LuongDK = values.split(',').join('').split('đ')[0]
         const bodyData = {
             Vitri: Vitri,
             SLHientai: SLHientai,
@@ -71,7 +72,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
             YeucauTD: YeucauTD,
             Pheduyet: [],
             idTao: "TazaGroup",
-            LuongDK: values,
+            LuongDK: LuongDK,
         }
         const response = await axios.post('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets', bodyData)
         console.log(response)

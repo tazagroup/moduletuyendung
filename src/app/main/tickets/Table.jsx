@@ -156,6 +156,7 @@ export default function Table() {
     }
     return (
         <Fragment>
+            <TicketStatus />
             <MaterialTable
                 tableRef={tableRef}
                 title={<>
@@ -214,7 +215,7 @@ export default function Table() {
                                 const dataUpdate = [...data];
                                 const index = oldData.tableData.id;
                                 dataUpdate[index] = newData;
-                                axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index+1}`, newData)
+                                axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index + 1}`, newData)
                                 setData([...dataUpdate]);
                             }, 1000);
                         }),

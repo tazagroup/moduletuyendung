@@ -30,16 +30,18 @@ function UserMenu(props) {
       <Button className="min-h-40 min-w-40 px-0 md:px-16 py-0 md:py-6" onClick={userMenuClick}>
         <div className="hidden md:flex flex-col mx-4 items-end">
           <Typography component="span" className="font-semibold flex">
-            {user.data.displayName}
+            {/* {user.data.displayName} */}Pham Chi Kiet
           </Typography>
           <Typography className="text-11 font-medium capitalize" color="textSecondary">
-            {user.role.toString()}
-            {(!user.role || (Array.isArray(user.role) && user.role.length === 0)) && 'Guest'}
+            {/* {user.role.toString()} */}
+            Admin
+            {/* {(!user.role || (Array.isArray(user.role) && user.role.length === 0)) && 'Guest'} */}
           </Typography>
         </div>
 
         {user.data.photoURL ? (
-          <Avatar className="md:mx-4" alt="user photo" src={user.data.photoURL} />
+          // <Avatar className="md:mx-4" alt="user photo" src={user.data.photoURL} />
+          <Avatar className="md:mx-4">K</Avatar>
         ) : (
           <Avatar className="md:mx-4">{user.data.displayName[0]}</Avatar>
         )}

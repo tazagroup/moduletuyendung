@@ -9,15 +9,29 @@ import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import InfoIcon from '@mui/icons-material/Info';
+import { makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles({
+    timeline: {
+        wordBreak: "break-all",
+        flexBasis: "250px",
+        textAlign: "left",
+        display: "flex",
+        paddingTop: "4px",
+        paddingLeft: "8px",
+        wordSpacing: "1px"
+    },
+})
 const TicketStatus = () => {
+    const classes = useStyles()
     const CustomTimeline = ({ item }) => {
         return (
             <TimelineItem>
                 <TimelineSeparator>
                     <TimelineDot color="secondary" />
                 </TimelineSeparator>
-                <TimelineContent style={{ wordBreak: "break-all", flexBasis: "250px", textAlign: "left", display: "flex" }}>
-                    <p style={{ marginTop: "3px", marginRight: "3px" }}>{item}</p>
+                <TimelineContent className={classes.timeline}>
+                    <p style={{ marginTop: "3px" }}>{item}</p>
                     <Tooltip title="Đã duyệt">
                         <InfoIcon />
                     </Tooltip>
@@ -32,8 +46,8 @@ const TicketStatus = () => {
                     <TimelineDot color="secondary" />
                     <TimelineConnector />
                 </TimelineSeparator>
-                <TimelineContent style={{ wordBreak: "break-all", flexBasis: "250px", textAlign: "left", display: "flex" }}>
-                    <p style={{ marginTop: "3px", marginRight: "3px" }}>{item}</p>
+                <TimelineContent className={classes.timeline}>
+                    <p style={{ marginTop: "3px" }}>{item}</p>
                     <Tooltip title="Đã duyệt">
                         <InfoIcon />
                     </Tooltip>

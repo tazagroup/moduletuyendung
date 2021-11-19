@@ -8,7 +8,6 @@ import DateFnsUtils from '@date-io/date-fns';
 import AppContext from './AppContext';
 import routes from './fuse-configs/routesConfig';
 import store from './store';
-
 const jss = create({
   ...jssPreset(),
   plugins: [...jssPreset().plugins, jssExtend(), rtl()],

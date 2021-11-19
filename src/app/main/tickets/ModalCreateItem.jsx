@@ -11,7 +11,9 @@ import NumberFormat from 'react-number-format';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import TextareaAutosize from '@mui/material/TextareaAutosize';
 import axios from 'axios';
+import * as moment from 'moment';
 //FORM
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -28,16 +30,12 @@ const schema = yup.object().shape({
     idTao: yup.string(),
 });
 const useStyles = makeStyles({
-    wrapperArea: {
-        border: "1px solid #bbbec4",
-        marginTop: 10,
-        borderRadius: "3px",
-        padding: 5,
-    },
     textarea: {
         width: "100%",
-        backgroundColor: "transparent",
-        outline: "none"
+        margin: "10px 0",
+        padding: "10px",
+        paddingLeft: "0px",
+        borderBottom: "1px solid #bbbec4",
     }
 })
 
@@ -73,25 +71,25 @@ const ModalCreateItem = ({ setIsFetching }) => {
     }
     //CREATE TICKETS
     const handleCreateTickets = async (e) => {
-        console.log(e)
-        // const LuongDK = values.split(',').join('').split('đ')[0]
-        // const bodyData = {
-        //     Vitri: Vitri,
-        //     SLHientai: SLHientai,
-        //     SLCantuyen: SLCantuyen,
-        //     TGThuviec: selectedDate.toLocaleDateString('en-GB'),
-        //     TiepnhanNS: selectedDate2.toLocaleDateString('en-GB'),
-        //     Lydo: otherReason ? otherReason : reasons,
-        //     MotaTD: MotaTD,
-        //     YeucauTD: YeucauTD,
-        //     Pheduyet: [],
-        //     idTao: "TazaGroup",
-        //     LuongDK: LuongDK,
-        // }
-        // const response = await axios.post('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets', bodyData)
-        // console.log(response)
-        // setIsFetching(true)
-        // dispatch(closeDialog())
+        const LuongDK = values.split(',').join('').split('đ')[0]
+        const bodyData = {
+            Vitri: e.Vitri,
+            SLHientai: e.SLHientai,
+            SLCantuyen: e.SLCantuyen,
+            TGThuviec: selectedDate.toISOString(),
+            TiepnhanNS: selectedDate2.toISOString(),
+            Lydo: otherReason ? otherReason : reasons,
+            MotaTD: e.MotaTD,
+            YeucauTD: e.YeucauTD,
+            Pheduyet: [],
+            idTao: "TazaGroup",
+            LuongDK: LuongDK,
+        }
+        const step = { id: 1, nguoiDuyet: censor, status: 0, ngayTao: new Date().toISOString() }
+        bodyData.Pheduyet.push(step)
+        const response = await axios.post('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets', bodyData)
+        setIsFetching(true)
+        dispatch(closeDialog())
     }
 
     return (
@@ -137,7 +135,6 @@ const ModalCreateItem = ({ setIsFetching }) => {
                                 thousandSeparator={true}
                                 value={values}
                                 onChange={handleCurrencyChange}
-                                {...register("LuongDK")}
                                 autoComplete="off"
                                 suffix="đ"
                                 fullWidth
@@ -183,10 +180,10 @@ const ModalCreateItem = ({ setIsFetching }) => {
                                     views={['year', 'month', 'day']}
                                     label="Thời gian thử việc"
                                     value={selectedDate}
-                                    {...register("TGThuviec")}
                                     onChange={(newValue) => {
                                         setSelectedDate(newValue);
                                     }}
+                                    inputFormat="dd/MM/yyyy"
                                     renderInput={(params) => <TextField {...params} fullWidth />}
                                 />
                             </LocalizationProvider>
@@ -196,7 +193,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
                                 <DatePicker
                                     views={['year', 'month', 'day']}
                                     label="Thời gian tiếp nhận"
-                                    {...register("TiepnhanNS")}
+                                    inputFormat="dd/MM/yyyy"
                                     value={selectedDate2}
                                     onChange={(newValue) => {
                                         setSelectedDate2(newValue);
@@ -216,15 +213,14 @@ const ModalCreateItem = ({ setIsFetching }) => {
                             />
                         </Grid>
                     </Grid>
-                    <div className={classes.wrapperArea}>
-                        <textarea className={classes.textarea}
-                            rows="10" cols="10"
-                            placeholder="Yêu cầu tuyển dụng:"
-                            autoFocus
+                    <Grid item xs={12}>
+                        <TextareaAutosize
+                            aria-label="empty textarea"
+                            placeholder="Yêu cầu tuyển dụng"
+                            className={classes.textarea}
                             {...register("YeucauTD")}
-                        >
-                        </textarea>
-                    </div>
+                        />
+                    </Grid>
                     <FormControl variant="standard" fullWidth>
                         <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Chọn quản lí duyệt</InputLabel>
                         <Select

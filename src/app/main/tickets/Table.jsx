@@ -15,7 +15,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios'
 import { DatePicker } from "react-rainbow-components";
-
+import CustomEdit from './CustomEdit';
 const convertProperty = (array) => {
     console.log(array)
     return Object.assign({}, array)
@@ -126,96 +126,44 @@ export default function Table() {
         {
             title: "Bước 1", field: "0.status",
             lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: ({ onChange, onRowDataChange, rowData, ...props }) => {
-                const onCustomChange = value => {
-                    const newValue = { ...rowData }
-                    if (value === "1") {
-                        const step = { id: 2, nguoiDuyet: "Kiệt", status: 0, ngayTao: new Date().toISOString() }
-                        newValue["1"] = step
-                    }
-                    newValue['0'].nguoiDuyet = "Chí Kiệt"
-                    newValue['0'].status = value
-                    newValue['0'].ngayTao = new Date().toLocaleDateString("en-GB")
-                    onRowDataChange(newValue);
-                };
-                return <MTableEditField onChange={onCustomChange} {...props} />
-            }
+            editComponent: (props) => (
+                <CustomEdit item={props} step={1} />
+            )
         },
         { title: "Quản lí duyệt", field: "0.nguoiDuyet" },
         {
             title: "Bước 2", field: "1.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: ({ onChange, onRowDataChange, rowData, ...props }) => {
-                const onCustomChange = value => {
-                    const newValue = { ...rowData }
-                    if (value === "1") {
-                        const step = { id: 3, nguoiDuyet: "Kiệt", status: 0, ngayTao: new Date().toISOString() }
-                        newValue["2"] = step
-                    }
-                    newValue['1'].nguoiDuyet = "Chí Kiệt"
-                    newValue['1'].status = value
-                    newValue['1'].ngayTao = new Date().toLocaleDateString("en-GB")
-                    onRowDataChange(newValue);
-                };
-                return <MTableEditField onChange={onCustomChange} {...props} />
-            }
+            editComponent: (props) => (
+                <CustomEdit item={props} step={2} />
+            )
         },
         { title: "Tuyển dụng tiếp nhận", field: "1.nguoiDuyet" },
         {
             title: "Bước 3", field: "2.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: ({ onChange, onRowDataChange, rowData, ...props }) => {
-                const onCustomChange = value => {
-                    const newValue = { ...rowData }
-                    if (value === "1") {
-                        const step = { id: 4, nguoiDuyet: "Kiệt", status: 0, ngayTao: new Date().toISOString() }
-                        newValue["3"] = step
-                    }
-                    newValue['2'].nguoiDuyet = "Chí Kiệt"
-                    newValue['2'].status = value
-                    newValue['2'].ngayTao = new Date().toLocaleDateString("en-GB")
-                    onRowDataChange(newValue);
-                };
-                return <MTableEditField onChange={onCustomChange} {...props} />
-            }
+            editComponent: (props) => (
+                <CustomEdit item={props} step={3} />
+            )
         },
         { title: "Giám đốc duyệt yctd", field: "2.nguoiDuyet" },
         {
             title: "Bước 4", field: "3.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: ({ onChange, onRowDataChange, rowData, ...props }) => {
-                const onCustomChange = value => {
-                    const newValue = { ...rowData }
-                    if (value === "1") {
-                        const step = { id: 5, nguoiDuyet: "Kiệt", status: 0, ngayTao: new Date().toISOString() }
-                        newValue["4"] = step
-                    }
-                    newValue['3'].nguoiDuyet = "Chí Kiệt"
-                    newValue['3'].status = value
-                    newValue['3'].ngayTao = new Date().toLocaleDateString("en-GB")
-                    onRowDataChange(newValue);
-                };
-                return <MTableEditField onChange={onCustomChange} {...props} />
-            }
+            editComponent: (props) => (
+                <CustomEdit item={props} step={4} />
+            )
         },
         { title: "Triển khai tuyển dụng", field: "3.nguoiDuyet" },
         {
             title: "Bước 5", field: "4.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: ({ onChange, onRowDataChange, rowData, ...props }) => {
-                const onCustomChange = value => {
-                    const newValue = { ...rowData }
-                    if (value === "1") {
-                        const step = { id: 6, nguoiDuyet: "Kiệt", status: 0, ngayTao: new Date().toISOString() }
-                        newValue["5"] = step
-                    }
-                    newValue['4'].nguoiDuyet = "Chí Kiệt"
-                    newValue['4'].status = value
-                    newValue['4'].ngayTao = new Date().toLocaleDateString("en-GB")
-                    onRowDataChange(newValue);
-                };
-                return <MTableEditField onChange={onCustomChange} {...props} />
-            }
+            editComponent: (props) => (
+                <CustomEdit item={props} step={5} />
+            )
         },
         { title: "Giám đốc duyệt td", field: "4.nguoiDuyet" },
         {
             title: "Bước 6", field: "5.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
+            editComponent: (props) => (
+                <CustomEdit item={props} step={6} />
+            )
         },
         { title: "Kế toán xác nhận ns", field: "5.nguoiDuyet" },
     ];

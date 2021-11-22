@@ -50,13 +50,13 @@ export default function Table() {
     const [data, setData] = useState([])
     const [rowData, setRowData] = useState({});
     const [initialData, setInitialData] = useState({})
+    const [dataStatus, setDataStatus] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
+    const [isCC, setIsCC] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null);
     const tableRef = useRef();
     //TEST FETCHING
     const [isFetching, setIsFetching] = useState(false)
-    //TEST CREATE CANDIDATE
-    const [isCC, setIsCC] = useState(false)
     useEffect(async () => {
         const response = await axios.get('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets')
         if (response) {
@@ -155,7 +155,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BQL']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} />
+                        <CustomStep key={item.id} item={item} data={rowData} />
                     )
                 })
             }
@@ -165,13 +165,11 @@ export default function Table() {
             field: "BTD",
             render: (rowData) => {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BTD']
-                return <div style={{ display: "flex" }}>
-                    {arraySteps.map(item => {
-                        return (
-                            <CustomStep key={item.id} item={item} />
-                        )
-                    })}
-                </div>
+                return arraySteps.map(item => {
+                    return (
+                        <CustomStep key={item.id} item={item} />
+                    )
+                })
             }
         },
         {
@@ -234,7 +232,7 @@ export default function Table() {
     }
     return (
         <Fragment>
-            <TicketStatus />
+            {/* {dataStatus && <TicketStatus item={dataStatus} />} */}
             <MaterialTable
                 tableRef={tableRef}
                 title={<>
@@ -317,10 +315,16 @@ export default function Table() {
                     },
                     header: {
                         actions: ""
+                    },
+                    body: {
+                        emptyDataSourceMessage: "Không có dữ liệu hiển thị..."
                     }
                 }}
                 icons={{
                     ViewColumn: ViewColumnIcon,
+                }}
+                onRowClick={(event, rowData) => {
+                    setDataStatus(rowData)
                 }}
             />
             <Menu

@@ -8,7 +8,8 @@ input {
 }
 
 /* Headers table  */
-.MuiTableCell-root-339.MuiTableCell-head-340 {
+.MuiTableCell-root-339.MuiTableCell-head-340,
+.MuiButtonBase-root-195.MuiTableSortLabel-root-328 {
     flex-direction: column !important;
 }
 
@@ -37,4 +38,17 @@ input {
 .sc-fYiAbW.sc-dTdPqK.hPPIzc.sc-eMigcr.dxkQqS.sc-eMigcr.dxkQqS {
     width: 150px;
     padding: 15px;
+}
+/* Timeline  */
+.timeline.success {
+    background-color: rgb(19, 218, 19);
+}
+.timeline.fail {
+    background-color: red;
+}
+.timeline.pending {
+    background-color: rgb(219, 219, 70);
+}
+.timeline.disabled {
+    background-color: gray;
 }

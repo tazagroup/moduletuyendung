@@ -22,16 +22,24 @@ const useStyles = makeStyles({
         wordSpacing: "1px"
     },
 })
-const TicketStatus = () => {
+const TicketStatus = ({ item }) => {
+    const steps = item['Pheduyet']
     const classes = useStyles()
-    const CustomTimeline = ({ item }) => {
+    const CustomTimeline = ({ item, title }) => {
+        let classStatus = "disabled"
+        if (item) {
+            const { status } = item
+            if (status === "0") { classStatus = "wait" }
+            else if (status === "1") { classStatus = "success" }
+            else { classStatus = "fail" }
+        }
         return (
             <TimelineItem>
                 <TimelineSeparator>
-                    <TimelineDot color="secondary" />
+                    <TimelineDot className={`timeline ${classStatus}`} />
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
-                    <p style={{ marginTop: "3px" }}>{item}</p>
+                    <p style={{ marginTop: "3px" }}>{title}</p>
                     <Tooltip title="Đã duyệt">
                         <InfoIcon />
                     </Tooltip>
@@ -39,15 +47,22 @@ const TicketStatus = () => {
             </TimelineItem>
         )
     }
-    const CustomTimelineConnector = ({ item }) => {
+    const CustomTimelineConnector = ({ item, title }) => {
+        let classStatus = "disabled"
+        if (item) {
+            const { status } = item
+            if (status === "0") { classStatus = "wait" }
+            else if (status === "1") { classStatus = "success" }
+            else { classStatus = "fail" }
+        }
         return (
             <TimelineItem>
                 <TimelineSeparator>
-                    <TimelineDot color="secondary" />
+                    <TimelineDot className={`timeline ${classStatus}`} />
                     <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
-                    <p style={{ marginTop: "3px" }}>{item}</p>
+                    <p style={{ marginTop: "3px" }}>{title}</p>
                     <Tooltip title="Đã duyệt">
                         <InfoIcon />
                     </Tooltip>
@@ -62,28 +77,28 @@ const TicketStatus = () => {
                     <Grid item xs={3}>
                         <h1>Ban quản lí</h1>
                         <Timeline>
-                            <CustomTimeline item="B1:Quản lí phê duyệt" />
+                            <CustomTimeline item={steps[0]} title="B1:Duyệt phiếu tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
                         <h1>Ban tuyển dụng</h1>
                         <Timeline>
-                            <CustomTimelineConnector item="B2:Tiếp nhận tuyển dụng" />
-                            <CustomTimelineConnector item="B4:Triển khai tuyển dụng" />
-                            <CustomTimeline item="B7:Thực hiện tuyển dụng" />
+                            <CustomTimelineConnector item={steps[1]} title="B2:Tiếp nhận tuyển dụng" />
+                            <CustomTimelineConnector item={steps[3]} title="B4:Triển khai tuyển dụng" />
+                            <CustomTimeline item={steps[6]} title="B7:Thực hiện tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
                         <h1>Ban giám đốc</h1>
                         <Timeline>
-                            <CustomTimelineConnector item="B3:Phê duyệt phiếu" />
-                            <CustomTimeline item="B5:Phê duyệt tuyển dụng" />
+                            <CustomTimelineConnector item={steps[2]} title="B3:Phê duyệt phiếu" />
+                            <CustomTimeline item={steps[4]} title="B5:Phê duyệt tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
                         <h1>Ban kế toán</h1>
                         <Timeline>
-                            <CustomTimeline item="B6:Xác nhận thanh toán" />
+                            <CustomTimeline item={steps[5]} title="B6:Xác nhận thanh toán" />
                         </Timeline>
                     </Grid>
                 </Grid>

@@ -4,11 +4,11 @@ const CustomEdit = ({ item, step }) => {
     const { onChange, onRowDataChange, rowData, ...props } = item
     const onCustomChange = value => {
         const newValue = { ...rowData }
-        if (value === "1") {
-            // Next step 
-            const newStep = { id: step + 1, nguoiDuyet: "", status: 0, ngayTao: new Date().toISOString() }
-            newValue[`${step}`] = newStep
-        }
+        // if (value === "1") {
+        //     // Next step 
+        //     const newStep = { id: step + 1, nguoiDuyet: "", status: 0, ngayTao: new Date().toISOString() }
+        //     newValue[`${step}`] = newStep
+        // }
         //Current user & step
         newValue[`${step - 1}`].nguoiDuyet = "Chí Kiệt"
         newValue[`${step - 1}`].status = value

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { closeDialog } from 'app/store/fuse/dialogSlice';
+import { closeDialog, openDialog } from 'app/store/fuse/dialogSlice';
 import { DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid, InputLabel } from '@mui/material';
@@ -12,11 +12,13 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
+import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
-import * as moment from 'moment';
 //FORM
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
+//COMPONENTS
+import CreateCandidate from './../candidate/CreateCandidate'
 import * as yup from "yup"
 const schema = yup.object().shape({
     Vitri: yup.string(),
@@ -36,6 +38,7 @@ const useStyles = makeStyles({
         padding: "10px",
         paddingLeft: "0px",
         borderBottom: "1px solid #bbbec4",
+        fontSize: "19px"
     }
 })
 
@@ -95,7 +98,9 @@ const ModalCreateItem = ({ setIsFetching }) => {
     return (
         <React.Fragment >
             <form onSubmit={handleSubmit(handleCreateTickets)}>
-                <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "15px", fontWeight: "bold" }}>Phiếu yêu cầu tuyển dụng</DialogTitle>
+                <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Phiếu yêu cầu tuyển dụng
+                </DialogTitle>
+                <CloseIcon />
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
@@ -231,6 +236,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
                             label="Chọn quản lí duyệt"
                             placeholder="Chọn quản lí duyệt"
                             MenuProps={{ disablePortal: true }}
+                            style={{ fontSize: "19px" }}
                         >
                             <MenuItem value="">
                                 <em>None</em>

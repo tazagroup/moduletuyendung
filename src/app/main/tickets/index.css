@@ -1,8 +1,40 @@
-svg{
-    width:22px !important;
-    height:22px !important;
+svg {
+    width: 22px !important;
+    height: 22px !important;
 }
-input{
+input {
     text-align: left;
-    font-size:20px !important;
+    font-size: 20px !important;
+}
+
+/* Headers table  */
+.MuiTableCell-root-339.MuiTableCell-head-340 {
+    flex-direction: column !important;
+}
+
+/* Edit input  */
+.MuiInputBase-root-409 {
+    margin-top: 1px;
+    font-size: 19px !important;
+}
+
+/* Icon Table  */
+.icon__table {
+    width: 16px !important;
+    height: 16px !important;
+}
+.icon__table.success {
+    fill: rgb(19, 218, 19);
+}
+.icon__table.fail {
+    fill: red;
+}
+.icon__table.wait {
+    fill: yellow;
+}
+
+/* Calendar edit  */
+.sc-fYiAbW.sc-dTdPqK.hPPIzc.sc-eMigcr.dxkQqS.sc-eMigcr.dxkQqS {
+    width: 150px;
+    padding: 15px;
 }

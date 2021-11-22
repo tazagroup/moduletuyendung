@@ -7,8 +7,6 @@ import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
-import ModalCreateItem from "./ModalCreateItem"
-import TicketStatus from './TicketStatus'
 import { getStatusRendering } from './utils/index'
 import { TextField, makeStyles } from '@material-ui/core';
 import Menu from '@mui/material/Menu';
@@ -16,9 +14,35 @@ import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios'
 import { DatePicker } from "react-rainbow-components";
 import CustomEdit from './CustomEdit';
+import ModalCreateItem from "./ModalCreateItem"
+import TicketStatus from './TicketStatus'
+import CreateCandidate from './../candidate/CreateCandidate'
+import CustomStep from './CustomStep'
 const convertProperty = (array) => {
-    console.log(array)
-    return Object.assign({}, array)
+    const arrayResult = {
+        BQL: [],
+        BTD: [],
+        BGD: [],
+        BKT: []
+    }
+    const stepBTD = [1, 3, 6]
+    const stepBGD = [2, 4]
+    array.reduce(function (result, item, index) {
+        if (item.id === 0) {
+            result['BQL'].push(item);
+        }
+        else if (stepBTD.includes(index)) {
+            result['BTD'].push(item);
+        }
+        else if (stepBGD.includes(index)) {
+            result['BGD'].push(item);
+        }
+        else {
+            result['BKT'].push(item);
+        }
+        return result;
+    }, arrayResult);
+    return arrayResult
 }
 
 export default function Table() {
@@ -31,13 +55,14 @@ export default function Table() {
     const tableRef = useRef();
     //TEST FETCHING
     const [isFetching, setIsFetching] = useState(false)
+    //TEST CREATE CANDIDATE
+    const [isCC, setIsCC] = useState(false)
     useEffect(async () => {
         const response = await axios.get('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets')
         if (response) {
             const responseData = response.data
-            const data = responseData.map(({ id: key, Pheduyet, ...item }) => ({
+            const data = responseData.map(({ id: key, ...item }) => ({
                 key,
-                ...convertProperty(Pheduyet),
                 ...item,
             }))
             setData(data)
@@ -121,51 +146,58 @@ export default function Table() {
         },
         {
             title: "Mô tả tuyển dụng",
-            field: "MotaTD"
+            field: "MotaTD",
         },
         {
-            title: "Bước 1", field: "0.status",
-            lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: (props) => (
-                <CustomEdit item={props} step={1} />
-            )
+            title: "Ban quản lí",
+            field: "BQL",
+            render: (rowData) => {
+                const arraySteps = convertProperty(rowData['Pheduyet'])['BQL']
+                return arraySteps.map(item => {
+                    return (
+                        <CustomStep key={item.id} item={item} />
+                    )
+                })
+            }
         },
-        { title: "Quản lí duyệt", field: "0.nguoiDuyet" },
         {
-            title: "Bước 2", field: "1.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: (props) => (
-                <CustomEdit item={props} step={2} />
-            )
+            title: "Ban tuyển dụng",
+            field: "BTD",
+            render: (rowData) => {
+                const arraySteps = convertProperty(rowData['Pheduyet'])['BTD']
+                return <div style={{ display: "flex" }}>
+                    {arraySteps.map(item => {
+                        return (
+                            <CustomStep key={item.id} item={item} />
+                        )
+                    })}
+                </div>
+            }
         },
-        { title: "Tuyển dụng tiếp nhận", field: "1.nguoiDuyet" },
         {
-            title: "Bước 3", field: "2.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: (props) => (
-                <CustomEdit item={props} step={3} />
-            )
+            title: "Ban giám đốc ",
+            field: "BGĐ",
+            render: (rowData) => {
+                const arraySteps = convertProperty(rowData['Pheduyet'])['BGD']
+                return arraySteps.map(item => {
+                    return (
+                        <CustomStep key={item.id} item={item} />
+                    )
+                })
+            }
         },
-        { title: "Giám đốc duyệt yctd", field: "2.nguoiDuyet" },
         {
-            title: "Bước 4", field: "3.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: (props) => (
-                <CustomEdit item={props} step={4} />
-            )
-        },
-        { title: "Triển khai tuyển dụng", field: "3.nguoiDuyet" },
-        {
-            title: "Bước 5", field: "4.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: (props) => (
-                <CustomEdit item={props} step={5} />
-            )
-        },
-        { title: "Giám đốc duyệt td", field: "4.nguoiDuyet" },
-        {
-            title: "Bước 6", field: "5.status", lookup: { 0: "Chờ xử lí", 1: "Đã duyệt", 2: "Từ chối" },
-            editComponent: (props) => (
-                <CustomEdit item={props} step={6} />
-            )
-        },
-        { title: "Kế toán xác nhận ns", field: "5.nguoiDuyet" },
+            title: "Ban kế toán ",
+            field: "BKT",
+            render: (rowData) => {
+                const arraySteps = convertProperty(rowData['Pheduyet'])['BKT']
+                return arraySteps.map(item => {
+                    return (
+                        <CustomStep key={item.id} item={item} />
+                    )
+                })
+            }
+        }
     ];
 
     const flagColumns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
@@ -196,6 +228,9 @@ export default function Table() {
             ...tableRef.current.dataManager.getRenderState(),
             showAddRow: !tableRef.current.state.showAddRow
         });
+    }
+    const handleCreate = () => {
+        setIsCC(true)
     }
     return (
         <Fragment>
@@ -297,9 +332,11 @@ export default function Table() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleEdit}>Edit</MenuItem>
-                <MenuItem onClick={handleCopy}>Copy</MenuItem>
+                <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
+                <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
+                <MenuItem onClick={handleCreate}>Tạo hồ sơ</MenuItem>
             </Menu>
+            {isCC && <CreateCandidate open={isCC} item={rowData} />}
         </Fragment>
     );
 }

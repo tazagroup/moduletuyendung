@@ -37,6 +37,7 @@
         "material-table": "^1.69.3",
         "mobile-detect": "1.4.5",
         "moment": "2.29.1",
+        "mui-nested-menu": "^1.0.9",
         "notistack": "1.0.10",
         "perfect-scrollbar": "1.5.2",
         "prismjs": "1.24.1",

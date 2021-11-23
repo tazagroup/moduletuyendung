@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { closeDialog, openDialog } from 'app/store/fuse/dialogSlice';
+import { closeDialog } from 'app/store/fuse/dialogSlice';
 import { DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid, InputLabel } from '@mui/material';
@@ -32,6 +32,12 @@ const schema = yup.object().shape({
     idTao: yup.string(),
 });
 const useStyles = makeStyles({
+    title: {
+        width: "100%",
+        textAlign: "center",
+        fontSize: "20px !important",
+        fontWeight: "bold !important"
+    },
     textarea: {
         width: "100%",
         margin: "10px 0",
@@ -39,6 +45,12 @@ const useStyles = makeStyles({
         paddingLeft: "0px",
         borderBottom: "1px solid #bbbec4",
         fontSize: "19px"
+    },
+    icon: {
+        position: "absolute",
+        right: "20px",
+        top: "20px",
+        cursor: "pointer"
     }
 })
 
@@ -91,16 +103,16 @@ const ModalCreateItem = ({ setIsFetching }) => {
         const step = { id: 1, nguoiDuyet: censor, status: 0, ngayTao: new Date().toISOString() }
         bodyData.Pheduyet.push(step)
         const response = await axios.post('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets', bodyData)
-        setIsFetching(true)
+        setIsFetching(state => !state)
         dispatch(closeDialog())
     }
 
     return (
         <React.Fragment >
             <form onSubmit={handleSubmit(handleCreateTickets)}>
-                <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Phiếu yêu cầu tuyển dụng
+                <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
                 </DialogTitle>
-                <CloseIcon />
+                <CloseIcon className={classes.icon} onClick={() => { dispatch(closeDialog()) }} />
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
@@ -238,9 +250,6 @@ const ModalCreateItem = ({ setIsFetching }) => {
                             MenuProps={{ disablePortal: true }}
                             style={{ fontSize: "19px" }}
                         >
-                            <MenuItem value="">
-                                <em>None</em>
-                            </MenuItem>
                             <MenuItem value={"Nguyen Van A"}>Nguyen Van A</MenuItem>
                             <MenuItem value={"Nguyen Van B"}>Nguyen Van B</MenuItem>
                             <MenuItem value={"Nguyen Van C"}>Nguyen Van C</MenuItem>

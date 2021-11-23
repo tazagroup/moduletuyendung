@@ -1,36 +1,97 @@
-import React, { Fragment } from 'react'
+import React, { useState, Fragment } from 'react'
+import { useDispatch } from 'react-redux';
+import { openDialog } from 'app/store/fuse/dialogSlice';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
+import ErrorIcon from '@mui/icons-material/Error';
 import axios from 'axios'
-const CustomStep = ({ item, data }) => {
+import ModalUpdateItem from './ModalUpdateItem'
+
+
+const CustomStep = ({ item, data, setIsFetching }) => {
+    const dispatch = useDispatch()
     const steps = data['Pheduyet']
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const idTicket = data.key
+    const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleOpen = (e) => {
         const currentPos = item.id + 1
-        if (currentPos === steps.length || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === "0")) {
+        /*
+        CAN CLICK BUTTON WHEN : 
+         - Ticket's status unequal 3 ( edit mode )
+         - Ticket's step equal array steps
+         - If the current step is in mode edit, only previous step can change mode
+        */
+        if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
             setAnchorEl(e.currentTarget)
         }
     }
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleApprove = () => {
+    const handleApprove = async (e) => {
         handleClose()
+        const value = e.target.innerText
         //Change status of step
         const newValue = { ...item, status: 1 }
         steps[`${newValue.id}`] = { ...newValue }
-        const newStep = { id: item + 1, status: 0, ...item }
-        //Add new steps
-
+        const nextStep = steps[`${newValue.id + 1}`]
+        if (nextStep) {
+            steps[`${newValue.id + 1}`] = { ...nextStep, status: 0 }
+        }
+        else {
+            if (item.id === 1 || item.id === 3) {
+                //Choose a censor
+                const newStep = { id: item.id + 1, status: 0, nguoiDuyet: value, ngayTao: new Date().toISOString() }
+                steps.push(newStep)
+                dispatch(openDialog({
+                    children: <ModalUpdateItem
+                        data={data} censor={value}
+                        setIsFetching={setIsFetching} />
+                }))
+            }
+            //Add new steps ( - step 6th )
+            else if (item.id !== 6) {
+                //Current user check
+                const newStep = { id: item.id + 1, status: 0, nguoiDuyet: "User", ngayTao: new Date().toISOString() }
+                steps.push(newStep)
+            }
+        }
+        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
+            Pheduyet: steps
+        })
+        setIsFetching(state => !state)
+    }
+    const handleRefuse = async (e) => {
+        handleClose()
+        const newValue = { ...item, status: 2 }
+        steps[`${newValue.id}`] = { ...newValue }
+        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
+            Pheduyet: steps
+        })
+        setIsFetching(state => !state)
+    }
+    const handleEdit = async (e) => {
+        handleClose()
+        const newValue = { ...item, status: 3 }
+        //Change previous step's status
+        const previousStep = steps[`${newValue.id - 1}`]
+        steps[`${newValue.id - 1}`] = { ...previousStep, status: 0 }
+        steps[`${newValue.id}`] = { ...newValue }
+        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
+            Pheduyet: steps
+        })
+        setIsFetching(state => !state)
     }
     const checkStatus = (status) => {
         let variable;
-        if (status === "0") variable = <HourglassFullIcon className="icon__table wait" onClick={handleOpen} />
-        else if (status === "1") variable = <CheckCircleIcon className="icon__table success" onClick={handleOpen} />
+        if (status === 0) variable = <HourglassFullIcon className="icon__table wait" onClick={handleOpen} />
+        else if (status === 1) variable = <CheckCircleIcon className="icon__table success" onClick={handleOpen} />
+        else if (status === 3) variable = <ErrorIcon className="icon__table warning" onClick={handleOpen} />
         else variable = <CancelIcon className="icon__table fail" onClick={handleOpen} />
         return (
             <Fragment>
@@ -47,9 +108,18 @@ const CustomStep = ({ item, data }) => {
                 open={open}
                 onClose={handleClose}
             >
-                {item.status !== "1" && <MenuItem onClick={handleApprove}>Phê duyệt</MenuItem>}
-                {item.status !== "2" && <MenuItem>Từ chối</MenuItem>}
-                {item.status !== "0" && <MenuItem>Chờ xử lí</MenuItem>}
+                {item.status !== 1 &&
+                    (item.id === 1 || item.id === 3) ? <NestedMenuItem
+                        label={"Phê duyệt"}
+                        parentMenuOpen={open}
+                    >
+                    <MenuItem onClick={handleApprove}>Phạm Chí Kiệt</MenuItem>
+                    <MenuItem >Phạm Chí Kiệt</MenuItem>
+                    <MenuItem >Phạm Chí Kiệt</MenuItem>
+                </NestedMenuItem> : <MenuItem onClick={handleApprove}>Phê duyệt</MenuItem>
+                }
+                {item.status !== 2 && <MenuItem onClick={handleRefuse}>Từ chối</MenuItem>}
+                {(item.status !== 3 && item.status !== "0") && <MenuItem onClick={handleEdit}>Xử lí</MenuItem>}
             </Menu>
         </div >
     )

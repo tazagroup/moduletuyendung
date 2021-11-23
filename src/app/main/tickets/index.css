@@ -6,10 +6,11 @@ input {
     text-align: left;
     font-size: 20px !important;
 }
-
+textarea:disabled {
+    color: rgb(149, 156, 169) !important;
+}
 /* Headers table  */
-.MuiTableCell-root-339.MuiTableCell-head-340,
-.MuiButtonBase-root-195.MuiTableSortLabel-root-328 {
+thead tr th {
     flex-direction: column !important;
 }
 
@@ -33,7 +34,9 @@ input {
 .icon__table.wait {
     fill: yellow;
 }
-
+.icon__table.warning {
+    fill: orangered;
+}
 /* Calendar edit  */
 .sc-fYiAbW.sc-dTdPqK.hPPIzc.sc-eMigcr.dxkQqS.sc-eMigcr.dxkQqS {
     width: 150px;

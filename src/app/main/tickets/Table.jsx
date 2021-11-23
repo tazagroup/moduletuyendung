@@ -7,8 +7,6 @@ import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
-import { getStatusRendering } from './utils/index'
-import { TextField, makeStyles } from '@material-ui/core';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import axios from 'axios'
@@ -18,6 +16,7 @@ import ModalCreateItem from "./ModalCreateItem"
 import TicketStatus from './TicketStatus'
 import CreateCandidate from './../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
+import { getStatusRendering } from './utils';
 const convertProperty = (array) => {
     const arrayResult = {
         BQL: [],
@@ -52,6 +51,7 @@ export default function Table() {
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [isCC, setIsCC] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null);
     const tableRef = useRef();
@@ -66,6 +66,7 @@ export default function Table() {
                 ...item,
             }))
             setData(data)
+            setIsLoading(false)
         }
     }, [isFetching])
     const headers = [
@@ -92,20 +93,9 @@ export default function Table() {
                 </div>
             )
         },
-        {
-            title: "Vị trí tuyển dụng",
-            field: "Vitri"
-        },
-        {
-            title: "Nhân sự hiện có",
-            field: "SLHientai",
-            type: 'numeric'
-        },
-        {
-            title: "Nhân sự cần tuyển",
-            field: "SLCantuyen",
-            type: "numeric"
-        },
+        { title: "Vị trí tuyển dụng", field: "Vitri" },
+        { title: "Nhân sự hiện có", field: "SLHientai", type: 'numeric' },
+        { title: "Nhân sự cần tuyển", field: "SLCantuyen", type: "numeric" },
         {
             title: "Mức lương dự kiến",
             field: "LuongDK",
@@ -140,14 +130,31 @@ export default function Table() {
                 />
             )
         },
+        { title: "Lí do tuyển dụng", field: "Lydo" },
+        { title: "Mô tả tuyển dụng", field: "MotaTD", },
+        { title: "Nguồn", field: "Nguon", },
         {
-            title: "Lí do tuyển dụng",
-            field: "Lydo"
+            title: "Thời gian mua",
+            field: "TGMua",
+            type: "date",
+            dateSetting: { locale: "en-GB" },
+            editComponent: (props) => (
+                <DatePicker
+                    locale="en-GB"
+                    value={props.value}
+                    onChange={(date) => props.onChange(date)}
+                    style={{ marginTop: "9px" }}
+                />
+            )
         },
         {
-            title: "Mô tả tuyển dụng",
-            field: "MotaTD",
+            title: "Chi phí",
+            field: "Chiphi",
+            type: "currency",
+            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 }
         },
+        { title: "Hình thức", field: "Hinhthuc", },
+        { title: "Tình trạng", field: "Tinhtrang", render: (rowData) => getStatusRendering(rowData) },
         {
             title: "Ban quản lí",
             field: "BQL",
@@ -155,7 +162,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BQL']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} />
+                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
             }
@@ -167,7 +174,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BTD']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} />
+                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
             }
@@ -179,7 +186,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BGD']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} />
+                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
             }
@@ -191,7 +198,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BKT']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} />
+                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
             }
@@ -230,117 +237,115 @@ export default function Table() {
     const handleCreate = () => {
         setIsCC(true)
     }
-    return (
-        <Fragment>
-            {/* {dataStatus && <TicketStatus item={dataStatus} />} */}
-            <MaterialTable
-                tableRef={tableRef}
-                title={<>
-                    <Tooltip title="Tạo hồ sơ tuyển dụng">
-                        <IconButton
-                            onClick={() => dispatch(openDialog({
-                                children: <ModalCreateItem setIsFetching={setIsFetching} />,
-                            }))}
-                            variant="contained"
-                            color="secondary"
-                            size="large">
-                            <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
-                        </IconButton>
-                    </Tooltip>
-                </>}
-                initialFormData={initialData}
-                options={{
-                    showDetailPanelIcon: false,
-                    columnsButton: true,
-                    search: false,
-                    paging: true,
-                    filtering: isFiltering,
-                }}
-                components={{
-                    Action: props => {
-                        if (props.action.tooltip === "Add") {
-                            return <div></div>
-                        }
-                        return <MTableAction {...props} />
-                    },
-                }}
-                columns={columns}
-                data={data}
-                actions={[
-                    {
-                        icon: 'search',
-                        tooltip: 'Lọc',
-                        isFreeAction: true,
-                        onClick: (event) => setIsFiltering(state => !state)
-                    },
-                ]}
-                editable={{
-                    isEditHidden: (rowData) => rowData,
-                    onRowAdd: (newData) =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                newData.key = data.length + 1
-                                setData([...data, newData]);
-                                resolve();
-                            }, 1000);
-                        }),
-                    onRowUpdate: (newData, oldData) =>
-                        new Promise((resolve, reject) => {
-                            setTimeout(() => {
-                                resolve();
-                                const dataUpdate = [...data];
-                                const index = oldData.tableData.id;
-                                dataUpdate[index] = newData;
-                                setData([...dataUpdate]);
-                                newData.Pheduyet = []
-                                //6 steps
-                                for (let i = 0; i < 6; i++) {
-                                    if (newData[`${i}`] && Object.keys(newData[`${i}`]).length !== 0) {
-                                        newData[`${i}`].id = i
-                                        newData[`${i}`].ngayTao = new Date().toLocaleDateString("en-GB")
-                                        newData.Pheduyet.push(newData[`${i}`])
-                                        delete newData[`${i}`]
-                                    }
-                                    else {
-                                        delete newData[`${i}`]
-                                    }
-                                }
-                                axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index + 1}`, newData)
-                            }, 1000);
-                        }),
-                }}
-                localization={{
-                    toolbar: {
-                        showColumnsTitle: "Hiển thị cột",
-                    },
-                    header: {
-                        actions: ""
-                    },
-                    body: {
-                        emptyDataSourceMessage: "Không có dữ liệu hiển thị..."
+    return isLoading ? <div>Loading...</div> : <Fragment>
+        {/* {dataStatus && <TicketStatus item={dataStatus} />} */}
+        <MaterialTable
+            tableRef={tableRef}
+            title={<>
+                <Tooltip title="Tạo hồ sơ tuyển dụng">
+                    <IconButton
+                        onClick={() => dispatch(openDialog({
+                            children: <ModalCreateItem setIsFetching={setIsFetching} />,
+                        }))}
+                        variant="contained"
+                        color="secondary"
+                        size="large">
+                        <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
+                    </IconButton>
+                </Tooltip>
+            </>}
+            initialFormData={initialData}
+            options={{
+                showDetailPanelIcon: false,
+                columnsButton: true,
+                search: false,
+                paging: true,
+                filtering: isFiltering,
+            }}
+            components={{
+                Action: props => {
+                    if (props.action.tooltip === "Add") {
+                        return <div></div>
                     }
-                }}
-                icons={{
-                    ViewColumn: ViewColumnIcon,
-                }}
-                onRowClick={(event, rowData) => {
-                    setDataStatus(rowData)
-                }}
-            />
-            <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-                MenuListProps={{
-                    'aria-labelledby': 'basic-button',
-                }}
-            >
-                <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
-                <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
-                <MenuItem onClick={handleCreate}>Tạo hồ sơ</MenuItem>
-            </Menu>
-            {isCC && <CreateCandidate open={isCC} item={rowData} />}
-        </Fragment>
-    );
+                    return <MTableAction {...props} />
+                },
+            }}
+            columns={columns}
+            data={data}
+            actions={[
+                {
+                    icon: 'search',
+                    tooltip: 'Lọc',
+                    isFreeAction: true,
+                    onClick: (event) => setIsFiltering(state => !state)
+                },
+            ]}
+            editable={{
+                isEditHidden: (rowData) => rowData,
+                onRowAdd: (newData) =>
+                    new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            newData.key = data.length + 1
+                            setData([...data, newData]);
+                            resolve();
+                        }, 1000);
+                    }),
+                onRowUpdate: (newData, oldData) =>
+                    new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            resolve();
+                            const dataUpdate = [...data];
+                            const index = oldData.tableData.id;
+                            dataUpdate[index] = newData;
+                            setData([...dataUpdate]);
+                            newData.Pheduyet = []
+                            //6 steps
+                            for (let i = 0; i < 6; i++) {
+                                if (newData[`${i}`] && Object.keys(newData[`${i}`]).length !== 0) {
+                                    newData[`${i}`].id = i
+                                    newData[`${i}`].ngayTao = new Date().toLocaleDateString("en-GB")
+                                    newData.Pheduyet.push(newData[`${i}`])
+                                    delete newData[`${i}`]
+                                }
+                                else {
+                                    delete newData[`${i}`]
+                                }
+                            }
+                            axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index + 1}`, newData)
+                        }, 1000);
+                    }),
+            }}
+            localization={{
+                toolbar: {
+                    showColumnsTitle: "Hiển thị cột",
+                },
+                header: {
+                    actions: ""
+                },
+                body: {
+                    emptyDataSourceMessage: "Không có dữ liệu hiển thị..."
+                }
+            }}
+            icons={{
+                ViewColumn: ViewColumnIcon,
+            }}
+            onRowClick={(event, rowData) => {
+                setDataStatus(rowData)
+            }}
+        />
+        <Menu
+            id="basic-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            MenuListProps={{
+                'aria-labelledby': 'basic-button',
+            }}
+        >
+            <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
+            <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
+            <MenuItem onClick={handleCreate}>Tạo hồ sơ</MenuItem>
+        </Menu>
+        {isCC && <CreateCandidate open={isCC} item={rowData} />}
+    </Fragment>
 }

@@ -42,20 +42,17 @@ function ToolbarLayout1(props) {
                 <Hidden mdDown>
                   {(config.navbar.style === 'style-3' ||
                     config.navbar.style === 'style-3-dense') && (
-                    <NavbarToggleButton className="w-40 h-40 p-0 mx-0" />
-                  )}
-
+                      <NavbarToggleButton className="w-40 h-40 p-0 mx-0" />
+                    )}
                   {config.navbar.style === 'style-1' && !navbar.open && (
                     <NavbarToggleButton className="w-40 h-40 p-0 mx-0" />
                   )}
                 </Hidden>
-
                 <Hidden lgUp>
                   <NavbarToggleButton className="w-40 h-40 p-0 mx-0 sm:mx-8" />
                 </Hidden>
               </>
             )}
-
             <Hidden mdDown>
               <FuseShortcuts />
             </Hidden>

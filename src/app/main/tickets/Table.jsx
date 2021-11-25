@@ -2,9 +2,11 @@ import React, { Fragment, useRef, useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux';
 import { openDialog } from 'app/store/fuse/dialogSlice';
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
+import TextField from '@mui/material/TextField';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
@@ -14,6 +16,7 @@ import { DatePicker } from "react-rainbow-components";
 import CustomEdit from './CustomEdit';
 import ModalCreateItem from "./ModalCreateItem"
 import TicketStatus from './TicketStatus'
+import EmptyStatus from './EmptyStatus'
 import CreateCandidate from './../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
 import { getStatusRendering } from './utils';
@@ -132,29 +135,57 @@ export default function Table() {
         },
         { title: "Lí do tuyển dụng", field: "Lydo" },
         { title: "Mô tả tuyển dụng", field: "MotaTD", },
-        { title: "Nguồn", field: "Nguon", },
+        {
+            title: "Nguồn", field: "Nguon",
+            emptyValue: () => <ClearIcon />,
+            editComponent: (item) => {
+                const steps = item.rowData['Pheduyet'].length
+                return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            }
+        },
         {
             title: "Thời gian mua",
             field: "TGMua",
             type: "date",
             dateSetting: { locale: "en-GB" },
-            editComponent: (props) => (
-                <DatePicker
-                    locale="en-GB"
-                    value={props.value}
-                    onChange={(date) => props.onChange(date)}
-                    style={{ marginTop: "9px" }}
-                />
-            )
+            emptyValue: () => <ClearIcon />,
+            editComponent: (item) => {
+                const steps = item.rowData['Pheduyet'].length
+                return steps >= 3 ?
+                    <DatePicker
+                        locale="en-GB"
+                        value={item.value}
+                        onChange={(date) => props.onChange(date)}
+                        style={{ marginTop: "9px" }}
+                    /> : <></>
+            }
         },
         {
             title: "Chi phí",
             field: "Chiphi",
             type: "currency",
-            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 }
+            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
+            render: (rowData) => { return rowData.Chiphi == "" ? <ClearIcon /> : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rowData.Chiphi) },
+            editComponent: (item) => {
+                const steps = item.rowData['Pheduyet'].length
+                return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            }
         },
-        { title: "Hình thức", field: "Hinhthuc", },
-        { title: "Tình trạng", field: "Tinhtrang", render: (rowData) => getStatusRendering(rowData) },
+        {
+            title: "Hình thức", field: "Hinhthuc", lookup: { 0: "Thanh toán tiền mặt", 1: "Chuyển khoản" },
+            render: (rowData) => {
+                return rowData.Hinhthuc === "" ? <ClearIcon /> : rowData.Hinhthuc
+            },
+            editComponent: (item) => {
+                const steps = item.rowData['Pheduyet'].length
+                return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            }
+        },
+        {
+            title: "Tình trạng", field: "Tinhtrang", lookup: { 0: "Chưa thanh toán", 1: "Đã thanh toán" },
+            render: (rowData) => getStatusRendering(rowData),
+            editComponent: (rowData) => <></>
+        },
         {
             title: "Ban quản lí",
             field: "BQL",
@@ -165,7 +196,8 @@ export default function Table() {
                         <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
-            }
+            },
+            editComponent: (rowData) => <></>
         },
         {
             title: "Ban tuyển dụng",
@@ -177,7 +209,8 @@ export default function Table() {
                         <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
-            }
+            },
+            editComponent: (rowData) => <></>
         },
         {
             title: "Ban giám đốc ",
@@ -189,7 +222,8 @@ export default function Table() {
                         <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
-            }
+            },
+            editComponent: (rowData) => <></>
         },
         {
             title: "Ban kế toán ",
@@ -201,7 +235,8 @@ export default function Table() {
                         <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
                     )
                 })
-            }
+            },
+            editComponent: (rowData) => <></>
         }
     ];
 
@@ -238,7 +273,7 @@ export default function Table() {
         setIsCC(true)
     }
     return isLoading ? <div>Loading...</div> : <Fragment>
-        {/* {dataStatus && <TicketStatus item={dataStatus} />} */}
+        {dataStatus ? <TicketStatus item={dataStatus} /> : <EmptyStatus />}
         <MaterialTable
             tableRef={tableRef}
             title={<>
@@ -298,19 +333,6 @@ export default function Table() {
                             const index = oldData.tableData.id;
                             dataUpdate[index] = newData;
                             setData([...dataUpdate]);
-                            newData.Pheduyet = []
-                            //6 steps
-                            for (let i = 0; i < 6; i++) {
-                                if (newData[`${i}`] && Object.keys(newData[`${i}`]).length !== 0) {
-                                    newData[`${i}`].id = i
-                                    newData[`${i}`].ngayTao = new Date().toLocaleDateString("en-GB")
-                                    newData.Pheduyet.push(newData[`${i}`])
-                                    delete newData[`${i}`]
-                                }
-                                else {
-                                    delete newData[`${i}`]
-                                }
-                            }
                             axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index + 1}`, newData)
                         }, 1000);
                     }),

@@ -9,6 +9,9 @@ input {
 textarea:disabled {
     color: rgb(149, 156, 169) !important;
 }
+textarea::placeholder {
+    font-size: 13px !important;
+}
 /* Headers table  */
 thead tr th {
     flex-direction: column !important;
@@ -19,7 +22,15 @@ thead tr th {
     margin-top: 1px;
     font-size: 19px !important;
 }
-
+.MuiFormControl-root-594.MuiTextField-root-635 input {
+    min-width: 100px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+.MuiSelect-select-698.MuiSelect-select-698 {
+    margin-top: 8px;
+}
 /* Icon Table  */
 .icon__table {
     width: 16px !important;

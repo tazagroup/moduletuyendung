@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Tooltip from '@mui/material/Tooltip';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import Timeline from '@material-ui/lab/Timeline'
 import TimelineItem from '@material-ui/lab/TimelineItem';
 import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
@@ -10,7 +10,7 @@ import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import InfoIcon from '@mui/icons-material/Info';
 import { makeStyles } from '@material-ui/core';
-
+import { styled } from '@mui/material/styles';
 const useStyles = makeStyles({
     timeline: {
         wordBreak: "break-all",
@@ -22,6 +22,34 @@ const useStyles = makeStyles({
         wordSpacing: "1px"
     },
 })
+
+const CustomTitle = ({ item }) => {
+    const createdAt = new Date(`${item.ngayTao}`).toLocaleDateString("en-GB")
+    const updatedAt = new Date(`${item.ngayUpdate}`).toLocaleDateString("en-GB")
+    const status = item.status !== 0 ? (item.status === 1 ? "Đã duyệt" : "Từ chối") : "Chờ duyệt"
+
+    return (
+        <React.Fragment>
+            <p>Trạng thái : {status}</p>
+            {item.status === 2 && <p>Lý do : {item.Lydo}</p>}
+            <p>Người duyệt : {item.nguoiDuyet}</p>
+            <p>Ngày tạo : {createdAt}</p>
+            {item.status !== 0 && <p>Ngày cập nhật : {updatedAt}</p>}
+        </React.Fragment>
+    )
+}
+
+const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: '#f5f5f9',
+        color: 'rgba(0, 0, 0, 0.87)',
+        maxWidth: 220,
+        fontSize: theme.typography.pxToRem(12),
+        border: '1px solid #dadde9',
+    },
+}));
 const TicketStatus = ({ item }) => {
     const steps = item['Pheduyet']
     const classes = useStyles()
@@ -29,8 +57,8 @@ const TicketStatus = ({ item }) => {
         let classStatus = "disabled"
         if (item) {
             const { status } = item
-            if (status === "0") { classStatus = "wait" }
-            else if (status === "1") { classStatus = "success" }
+            if (status === 0) { classStatus = "wait" }
+            else if (status === 1) { classStatus = "success" }
             else { classStatus = "fail" }
         }
         return (
@@ -40,9 +68,9 @@ const TicketStatus = ({ item }) => {
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
                     <p style={{ marginTop: "3px" }}>{title}</p>
-                    <Tooltip title="Đã duyệt">
+                    <CustomTooltip title={item ? <CustomTitle item={item} /> : "Chờ xử lí"}>
                         <InfoIcon />
-                    </Tooltip>
+                    </CustomTooltip>
                 </TimelineContent>
             </TimelineItem>
         )
@@ -51,8 +79,8 @@ const TicketStatus = ({ item }) => {
         let classStatus = "disabled"
         if (item) {
             const { status } = item
-            if (status === "0") { classStatus = "wait" }
-            else if (status === "1") { classStatus = "success" }
+            if (status === 0) { classStatus = "wait" }
+            else if (status === 1) { classStatus = "success" }
             else { classStatus = "fail" }
         }
         return (
@@ -63,9 +91,9 @@ const TicketStatus = ({ item }) => {
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
                     <p style={{ marginTop: "3px" }}>{title}</p>
-                    <Tooltip title="Đã duyệt">
+                    <CustomTooltip title={item ? <CustomTitle item={item} /> : "Chờ xử lí"}>
                         <InfoIcon />
-                    </Tooltip>
+                    </CustomTooltip>
                 </TimelineContent>
             </TimelineItem>
         )

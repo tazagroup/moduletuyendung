@@ -11,6 +11,7 @@ import NumberFormat from 'react-number-format';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
@@ -21,15 +22,11 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import CreateCandidate from './../candidate/CreateCandidate'
 import * as yup from "yup"
 const schema = yup.object().shape({
-    Vitri: yup.string(),
-    SLHientai: yup.number(),
-    SLCantuyen: yup.number(),
-    LuongDK: yup.number(),
-    TGThuviec: yup.date(),
-    TiepnhanNS: yup.date(),
-    MotaTD: yup.string(),
-    YeucauTD: yup.string(),
-    idTao: yup.string(),
+    Vitri: yup.string().required(),
+    SLHientai: yup.number().required(),
+    SLCantuyen: yup.number().required(),
+    MotaTD: yup.string().required(),
+    YeucauTD: yup.string().required(),
 });
 const useStyles = makeStyles({
     title: {
@@ -41,8 +38,7 @@ const useStyles = makeStyles({
     textarea: {
         width: "100%",
         margin: "10px 0",
-        padding: "10px",
-        paddingLeft: "0px",
+        padding: "10px 10px 0 0",
         borderBottom: "1px solid #bbbec4",
         fontSize: "19px"
     },
@@ -58,6 +54,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
     const dispatch = useDispatch();
     const classes = useStyles()
     const [values, setValues] = useState('');
+    const [isValueEmpty, setIsValueEmpty] = useState(false)
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [selectedDate2, setSelectedDate2] = useState(new Date())
     const [reasons, setReasons] = useState('');
@@ -68,6 +65,9 @@ const ModalCreateItem = ({ setIsFetching }) => {
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
+    const { Vitri, SLHientai, SLCantuyen, MotaTD, YeucauTD } = errors
+    const reasonCondition = isOther ? otherReason == "" : reasons == ""
+    const disabledButton = (Vitri || SLHientai || SLCantuyen || MotaTD || YeucauTD || values == "" || reasonCondition || censor == '') ? true : false
     const handleCurrencyChange = (event) => {
         setValues(event.target.value)
     };
@@ -99,8 +99,13 @@ const ModalCreateItem = ({ setIsFetching }) => {
             Pheduyet: [],
             idTao: "TazaGroup",
             LuongDK: LuongDK,
+            Nguon: "",
+            TGMua: "",
+            Chiphi: "",
+            Hinhthuc: "",
+            Tinhtrang: ""
         }
-        const step = { id: 1, nguoiDuyet: censor, status: 0, ngayTao: new Date().toISOString() }
+        const step = { id: 0, nguoiDuyet: censor, status: 0, ngayTao: new Date().toISOString() }
         bodyData.Pheduyet.push(step)
         const response = await axios.post('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets', bodyData)
         setIsFetching(state => !state)
@@ -117,7 +122,8 @@ const ModalCreateItem = ({ setIsFetching }) => {
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
                             <TextField
-                                // helperText="Please enter your name"
+                                error={Vitri ? true : false}
+                                helperText={Vitri ? "Vui lòng điền vị trí tuyển dụng" : ""}
                                 id="demo-helper-text-aligned"
                                 label="Vị trí tuyển dụng"
                                 fullWidth
@@ -128,6 +134,8 @@ const ModalCreateItem = ({ setIsFetching }) => {
                         <Grid item xs={12} md={3}>
                             <TextField
                                 id="demo-helper-text-aligned"
+                                error={SLHientai ? true : false}
+                                helperText={SLHientai ? "Vui lòng điền nhân sự hiện có" : ""}
                                 label="Nhân sự hiện có"
                                 type="number"
                                 fullWidth
@@ -138,6 +146,8 @@ const ModalCreateItem = ({ setIsFetching }) => {
                         <Grid item xs={12} md={3}>
                             <TextField
                                 id="demo-helper-text-aligned"
+                                error={SLCantuyen ? true : false}
+                                helperText={SLCantuyen ? "Vui lòng điền nhân sự cần tuyển" : ""}
                                 label="Nhân sự cần tuyển"
                                 type="number"
                                 fullWidth
@@ -151,7 +161,10 @@ const ModalCreateItem = ({ setIsFetching }) => {
                                 variant="standard"
                                 thousandSeparator={true}
                                 value={values}
+                                error={isValueEmpty}
+                                helperText={isValueEmpty ? "Vui lòng nhập mức lương" : ""}
                                 onChange={handleCurrencyChange}
+                                onBlur={(e) => { setIsValueEmpty(e.target.defaultValue == "") }}
                                 autoComplete="off"
                                 suffix="đ"
                                 fullWidth
@@ -170,9 +183,6 @@ const ModalCreateItem = ({ setIsFetching }) => {
                                     MenuProps={{ disablePortal: true }}
                                     style={{ lineHeight: "28px", fontSize: "19px" }}
                                 >
-                                    <MenuItem value="">
-                                        <em>None</em>
-                                    </MenuItem>
                                     <MenuItem value={"Tuyển mới"}>Tuyển mới</MenuItem>
                                     <MenuItem value={"Thay thế"}>Thay thế</MenuItem>
                                     <MenuItem value={"Dự phòng nhân lực"}>Dự phòng nhân lực</MenuItem>
@@ -221,6 +231,8 @@ const ModalCreateItem = ({ setIsFetching }) => {
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
+                                error={MotaTD ? true : false}
+                                helperText={MotaTD ? "Vui lòng nhập mô tả" : ""}
                                 id="demo-helper-text-aligned"
                                 label="Mô tả tuyển dụng"
                                 type="text"
@@ -257,7 +269,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button color="primary" autoFocus type="submit">
+                    <Button color="primary" autoFocus type="submit" disabled={disabledButton} variant="contained">
                         Đăng tin tuyển dụng
                     </Button>
                 </DialogActions>

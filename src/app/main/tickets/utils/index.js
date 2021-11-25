@@ -4,7 +4,8 @@ import PendingActionsIcon from '@mui/icons-material/PendingActions';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 export function getStatusRendering(rowData) {
-    if (rowData.Tinhtrang === "0") {
+    if (rowData.Tinhtrang === "") return <></>
+    if (rowData.Tinhtrang === 0) {
         return (<Tooltip title="Chưa thanh toán">
             <div style={{ display: "flex", justifyContent: "center" }}>
                 <CancelIcon style={{ fill: "red" }} />

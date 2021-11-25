@@ -1,6 +1,7 @@
 import React, { useState, Fragment } from 'react'
 import { useDispatch } from 'react-redux';
 import { openDialog } from 'app/store/fuse/dialogSlice';
+import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { NestedMenuItem } from 'mui-nested-menu'
@@ -18,6 +19,16 @@ const CustomStep = ({ item, data, setIsFetching }) => {
     const idTicket = data.key
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const [anchorEl2, setAnchorEl2] = useState(null);
+    const open2 = Boolean(anchorEl2);
+    const [reason, setReason] = useState('')
+    const handleSubClick = (event) => {
+        setAnchorEl2(event.currentTarget);
+    };
+    const handleSubClose = () => {
+        setAnchorEl2(null);
+    };
+
     const handleOpen = (e) => {
         const currentPos = item.id + 1
         /*
@@ -37,22 +48,24 @@ const CustomStep = ({ item, data, setIsFetching }) => {
         handleClose()
         const value = e.target.innerText
         //Change status of step
-        const newValue = { ...item, status: 1 }
+        const newValue = { ...item, status: 1, Lydo: "", ngayUpdate: new Date().toISOString() }
         steps[`${newValue.id}`] = { ...newValue }
         const nextStep = steps[`${newValue.id + 1}`]
         if (nextStep) {
-            steps[`${newValue.id + 1}`] = { ...nextStep, status: 0 }
+            steps[`${newValue.id + 1}`] = { ...nextStep, status: 0, Lydo: "", ngayUpdate: new Date().toISOString() }
         }
         else {
             if (item.id === 1 || item.id === 3) {
                 //Choose a censor
                 const newStep = { id: item.id + 1, status: 0, nguoiDuyet: value, ngayTao: new Date().toISOString() }
                 steps.push(newStep)
-                dispatch(openDialog({
-                    children: <ModalUpdateItem
-                        data={data} censor={value}
-                        setIsFetching={setIsFetching} />
-                }))
+                if (item.id === 1) {
+                    dispatch(openDialog({
+                        children: <ModalUpdateItem
+                            data={data} censor={value}
+                            setIsFetching={setIsFetching} />
+                    }))
+                }
             }
             //Add new steps ( - step 6th )
             else if (item.id !== 6) {
@@ -62,13 +75,14 @@ const CustomStep = ({ item, data, setIsFetching }) => {
             }
         }
         await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
-            Pheduyet: steps
+            Pheduyet: steps,
+            Tinhtrang: item.id === 5 ? 1 : item.Tinhtrang
         })
         setIsFetching(state => !state)
     }
     const handleRefuse = async (e) => {
         handleClose()
-        const newValue = { ...item, status: 2 }
+        const newValue = { ...item, status: 2, Lydo: reason, ngayUpdate: new Date().toISOString() }
         steps[`${newValue.id}`] = { ...newValue }
         await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
             Pheduyet: steps
@@ -77,11 +91,12 @@ const CustomStep = ({ item, data, setIsFetching }) => {
     }
     const handleEdit = async (e) => {
         handleClose()
-        const newValue = { ...item, status: 3 }
+        const newValue = { ...item, status: 3, ngayTao: new Date().toISOString() }
         //Change previous step's status
         const previousStep = steps[`${newValue.id - 1}`]
-        steps[`${newValue.id - 1}`] = { ...previousStep, status: 0 }
-        steps[`${newValue.id}`] = { ...newValue }
+        steps[`${newValue.id - 1}`] = { ...previousStep, status: 0, ngayUpdate: new Date().toISOString() }
+        // steps[`${newValue.id}`] = { ...newValue }
+        steps.splice(newValue.id, 1)
         await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
             Pheduyet: steps
         })
@@ -99,6 +114,7 @@ const CustomStep = ({ item, data, setIsFetching }) => {
             </Fragment>
         )
     }
+    const stepSuccessName = item.id !== 6 ? (item.id === 5 ? "Đã thanh toán" : "Phê duyệt") : "Triển khai tuyển dụng"
     return (
         <div style={{ alignItems: "center", marginLeft: "12px" }}>
             Bước {item.id + 1}-{checkStatus(item.status)}
@@ -116,10 +132,34 @@ const CustomStep = ({ item, data, setIsFetching }) => {
                     <MenuItem onClick={handleApprove}>Phạm Chí Kiệt</MenuItem>
                     <MenuItem >Phạm Chí Kiệt</MenuItem>
                     <MenuItem >Phạm Chí Kiệt</MenuItem>
-                </NestedMenuItem> : <MenuItem onClick={handleApprove}>Phê duyệt</MenuItem>
+                </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
                 }
-                {item.status !== 2 && <MenuItem onClick={handleRefuse}>Từ chối</MenuItem>}
-                {(item.status !== 3 && item.status !== "0") && <MenuItem onClick={handleEdit}>Xử lí</MenuItem>}
+                {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
+                <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl2}
+                    open={open2}
+                    onClose={handleSubClose}
+                    MenuListProps={{
+                        'aria-labelledby': 'basic-button',
+                    }}
+                >
+                    <MenuItem >
+                        <TextareaAutosize
+                            aria-label="empty textarea"
+                            placeholder="Lí do từ chối"
+                            style={{ width: "97px" }}
+                            onChange={(e) => setReason(e.target.value)}
+                            onKeyPress={(e) => {
+                                if (e.key === "Enter") {
+                                    handleRefuse()
+                                }
+                            }
+                            }
+                        />
+                    </MenuItem>
+                </Menu>
+                {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Xử lí</MenuItem>}
             </Menu>
         </div >
     )

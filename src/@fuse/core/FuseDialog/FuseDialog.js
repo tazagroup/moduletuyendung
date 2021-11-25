@@ -10,7 +10,6 @@ function FuseDialog(props) {
   return (
     <Dialog
       open={state}
-      onClose={(ev) => dispatch(closeDialog())}
       aria-labelledby="fuse-dialog-title"
       maxWidth='lg'
       fullWidth={true}

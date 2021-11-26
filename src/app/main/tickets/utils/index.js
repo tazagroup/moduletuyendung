@@ -21,5 +21,15 @@ export function getStatusRendering(rowData) {
             </Tooltip>
         );
     }
+}
 
+export function getTypeRendering(id) {
+    const typeArray = [
+        { id: 0, title: "Thanh toán tiền mặt" },
+        { id: 1, title: "Chuyển khoản" },
+    ]
+    const result = typeArray.find(item => item.id === id)
+    return (
+        <div>{result.title}</div>
+    )
 }

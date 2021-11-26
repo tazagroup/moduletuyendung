@@ -13,14 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import axios from 'axios';
-//FORM
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup"
 
-import * as yup from "yup"
-const schema = yup.object().shape({
-    Nguon: yup.string().required(),
-});
 const useStyles = makeStyles({
     title: {
         width: "100%",
@@ -64,10 +57,6 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
     const [currency, setCurrency] = useState('')
     const [isValueEmpty, setIsValueEmpty] = useState(false)
     const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
-    const { register, handleSubmit, formState: { errors } } = useForm({
-        mode: 'onBlur',
-        resolver: yupResolver(schema),
-    });
     const disabledButton = (source == "" || type == "" || currency == "" ? true : false)
     //UPDATE TICKETS
     const handleUpdateTickets = async (e) => {

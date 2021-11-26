@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react'
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import Timeline from '@material-ui/lab/Timeline'
 import TimelineItem from '@material-ui/lab/TimelineItem';
@@ -32,7 +33,7 @@ const CustomTitle = ({ item }) => {
         <React.Fragment>
             <p>Trạng thái : {status}</p>
             {item.status === 2 && <p>Lý do : {item.Lydo}</p>}
-            <p>Người duyệt : {item.nguoiDuyet}</p>
+            {item.status !== 0 && <p>Người duyệt : {item.nguoiDuyet}</p>}
             <p>Ngày tạo : {createdAt}</p>
             {item.status !== 0 && <p>Ngày cập nhật : {updatedAt}</p>}
         </React.Fragment>
@@ -46,7 +47,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
         backgroundColor: '#f5f5f9',
         color: 'rgba(0, 0, 0, 0.87)',
         maxWidth: 220,
-        fontSize: theme.typography.pxToRem(12),
+        fontSize: 12,
         border: '1px solid #dadde9',
     },
 }));
@@ -64,13 +65,12 @@ const TicketStatus = ({ item }) => {
         return (
             <TimelineItem>
                 <TimelineSeparator>
-                    <TimelineDot className={`timeline ${classStatus}`} />
+                    <CustomTooltip title={item ? <CustomTitle item={item} /> : "Chờ xử lí"}>
+                        <TimelineDot className={`timeline ${classStatus}`} />
+                    </CustomTooltip>
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
                     <p style={{ marginTop: "3px" }}>{title}</p>
-                    <CustomTooltip title={item ? <CustomTitle item={item} /> : "Chờ xử lí"}>
-                        <InfoIcon />
-                    </CustomTooltip>
                 </TimelineContent>
             </TimelineItem>
         )
@@ -86,14 +86,13 @@ const TicketStatus = ({ item }) => {
         return (
             <TimelineItem>
                 <TimelineSeparator>
-                    <TimelineDot className={`timeline ${classStatus}`} />
+                    <CustomTooltip title={item ? <CustomTitle item={item} /> : "Chờ xử lí"}>
+                        <TimelineDot className={`timeline ${classStatus}`} />
+                    </CustomTooltip>
                     <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
                     <p style={{ marginTop: "3px" }}>{title}</p>
-                    <CustomTooltip title={item ? <CustomTitle item={item} /> : "Chờ xử lí"}>
-                        <InfoIcon />
-                    </CustomTooltip>
                 </TimelineContent>
             </TimelineItem>
         )
@@ -102,29 +101,29 @@ const TicketStatus = ({ item }) => {
         <Fragment>
             <Box sx={{ flexGrow: 1, textAlign: "center" }}>
                 <Grid container spacing={2}>
-                    <Grid item xs={3}>
-                        <h1>Ban quản lí</h1>
+                    <Grid item xs={6} md={3}>
+                        <h3>Ban quản lí</h3>
                         <Timeline>
                             <CustomTimeline item={steps[0]} title="B1:Duyệt phiếu tuyển dụng" />
                         </Timeline>
                     </Grid>
-                    <Grid item xs={3}>
-                        <h1>Ban tuyển dụng</h1>
+                    <Grid item xs={6} md={3}>
+                        <h3>Ban tuyển dụng</h3>
                         <Timeline>
                             <CustomTimelineConnector item={steps[1]} title="B2:Tiếp nhận tuyển dụng" />
                             <CustomTimelineConnector item={steps[3]} title="B4:Triển khai tuyển dụng" />
                             <CustomTimeline item={steps[6]} title="B7:Thực hiện tuyển dụng" />
                         </Timeline>
                     </Grid>
-                    <Grid item xs={3}>
-                        <h1>Ban giám đốc</h1>
+                    <Grid item xs={6} md={3}>
+                        <h3>Ban giám đốc</h3>
                         <Timeline>
                             <CustomTimelineConnector item={steps[2]} title="B3:Phê duyệt phiếu" />
                             <CustomTimeline item={steps[4]} title="B5:Phê duyệt tuyển dụng" />
                         </Timeline>
                     </Grid>
-                    <Grid item xs={3}>
-                        <h1>Ban kế toán</h1>
+                    <Grid item xs={6} md={3}>
+                        <h3>Ban kế toán</h3>
                         <Timeline>
                             <CustomTimeline item={steps[5]} title="B6:Xác nhận thanh toán" />
                         </Timeline>

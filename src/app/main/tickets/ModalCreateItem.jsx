@@ -19,7 +19,7 @@ import axios from 'axios';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 //COMPONENTS
-import CreateCandidate from './../candidate/CreateCandidate'
+
 import * as yup from "yup"
 const schema = yup.object().shape({
     Vitri: yup.string().required(),

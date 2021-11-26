@@ -8,6 +8,7 @@ import './react-chartjs-2-defaults';
 import './styles/app-base.css';
 import './styles/app-components.css';
 import './styles/app-utilities.css';
+import "react-datepicker/dist/react-datepicker.css";
 import App from 'app/App';
 import * as serviceWorker from './serviceWorker';
 import reportWebVitals from './reportWebVitals';

@@ -16,7 +16,12 @@ textarea::placeholder {
 thead tr th {
     flex-direction: column !important;
 }
-
+/* tbody tr td div {
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+} */
 /* Edit input  */
 .MuiInputBase-root-409 {
     margin-top: 1px;
@@ -49,9 +54,22 @@ thead tr th {
     fill: orangered;
 }
 /* Calendar edit  */
+.sc-bbmXgH.kDFSwf {
+    width: 100%;
+}
 .sc-fYiAbW.sc-dTdPqK.hPPIzc.sc-eMigcr.dxkQqS.sc-eMigcr.dxkQqS {
-    width: 150px;
+    width: 100%;
     padding: 15px;
+}
+.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.clear__button {
+    position: absolute;
+    right: 35px;
+    top: 5.5px;
+    cursor: pointer;
+    transition: all 0.5s;
+}
+.MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.clear__button:hover {
+    transform: scale(1.1);
 }
 /* Timeline  */
 .timeline.success {
@@ -65,4 +83,8 @@ thead tr th {
 }
 .timeline.disabled {
     background-color: gray;
+}
+/* Edit date range picker  */
+.e-input-group.e-control-wrapper.e-date-range-wrapper.e-valid-input {
+    width: 225px;
 }

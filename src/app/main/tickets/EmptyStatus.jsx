@@ -54,13 +54,13 @@ const EmptyStatus = () => {
             <Box sx={{ flexGrow: 1, textAlign: "center" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={3}>
-                        <h1>Ban quản lí</h1>
+                        <h3>Ban quản lí</h3>
                         <Timeline>
                             <CustomTimeline title="B1:Duyệt phiếu tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
-                        <h1>Ban tuyển dụng</h1>
+                        <h3>Ban tuyển dụng</h3>
                         <Timeline>
                             <CustomTimelineConnector title="B2:Tiếp nhận tuyển dụng" />
                             <CustomTimelineConnector title="B4:Triển khai tuyển dụng" />
@@ -68,14 +68,14 @@ const EmptyStatus = () => {
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
-                        <h1>Ban giám đốc</h1>
+                        <h3>Ban giám đốc</h3>
                         <Timeline>
                             <CustomTimelineConnector title="B3:Phê duyệt phiếu" />
                             <CustomTimeline title="B5:Phê duyệt tuyển dụng" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={3}>
-                        <h1>Ban kế toán</h1>
+                        <h3>Ban kế toán</h3>
                         <Timeline>
                             <CustomTimeline title="B6:Xác nhận thanh toán" />
                         </Timeline>

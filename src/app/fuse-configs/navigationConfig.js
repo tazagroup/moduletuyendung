@@ -25,6 +25,14 @@ const navigationConfig = [
     exact: true,
   },
   {
+    id: 'candidates',
+    title: 'Ứng viên',
+    type: 'item',
+    icon: 'face',
+    url: '/candidates',
+    exact: true,
+  },
+  {
     id: 'calendars',
     title: 'Lịch phỏng vấn',
     type: 'item',

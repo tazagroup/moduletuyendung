@@ -28,6 +28,11 @@ const routes = [
     component: () => <Tickets />,
   },
   {
+    path: '/tickets',
+    exact: true,
+    component: () => <Tickets />,
+  },
+  {
     path: '/calendars',
     exact: true,
     component: () => <Calendar />,

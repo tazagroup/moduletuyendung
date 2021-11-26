@@ -1,8 +1,8 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
+import FuseLoading from '@fuse/core/FuseLoading';
 import { useDispatch } from 'react-redux';
 import { openDialog } from 'app/store/fuse/dialogSlice';
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
-import TextField from '@mui/material/TextField';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
@@ -11,37 +11,26 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import axios from 'axios'
 import { DatePicker } from "react-rainbow-components";
-import CustomEdit from './CustomEdit';
+import ModalEditItem from './ModalEditItem'
 import ModalCreateItem from "./ModalCreateItem"
 import TicketStatus from './TicketStatus'
 import EmptyStatus from './EmptyStatus'
 import CreateCandidate from './../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
-import { getStatusRendering } from './utils';
+import { CustomDateEdit, CustomSelectEdit, CustomSliderEdit, CustomSelectPriceEdit } from './CustomEdit';
+import axios from 'axios'
+import { getStatusRendering, getTypeRendering } from './utils';
+
 const convertProperty = (array) => {
-    const arrayResult = {
-        BQL: [],
-        BTD: [],
-        BGD: [],
-        BKT: []
-    }
+    const arrayResult = { BQL: [], BTD: [], BGD: [], BKT: [] }
     const stepBTD = [1, 3, 6]
     const stepBGD = [2, 4]
     array.reduce(function (result, item, index) {
-        if (item.id === 0) {
-            result['BQL'].push(item);
-        }
-        else if (stepBTD.includes(index)) {
-            result['BTD'].push(item);
-        }
-        else if (stepBGD.includes(index)) {
-            result['BGD'].push(item);
-        }
-        else {
-            result['BKT'].push(item);
-        }
+        if (item.id === 0) { result['BQL'].push(item); }
+        else if (stepBTD.includes(index)) { result['BTD'].push(item); }
+        else if (stepBGD.includes(index)) { result['BGD'].push(item); }
+        else { result['BKT'].push(item); }
         return result;
     }, arrayResult);
     return arrayResult
@@ -49,17 +38,23 @@ const convertProperty = (array) => {
 
 export default function Table() {
     const dispatch = useDispatch()
+    const [rowData, setRowData] = useState({})
     const [data, setData] = useState([])
-    const [rowData, setRowData] = useState({});
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [isCC, setIsCC] = useState(false)
-    const [anchorEl, setAnchorEl] = useState(null);
-    const tableRef = useRef();
-    //TEST FETCHING
     const [isFetching, setIsFetching] = useState(false)
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [isCC, setIsCC] = useState(false)
+    const [isEditTicket, setIsEditTicket] = useState(false)
+    const tableRef = useRef();
+    //FILTER RANGE NUMBER
+    const salary = [
+        { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
+        { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
+        { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
+    ]
     useEffect(async () => {
         const response = await axios.get('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets')
         if (response) {
@@ -74,16 +69,9 @@ export default function Table() {
     }, [isFetching])
     const headers = [
         {
-            title: "#",
-            field: "key",
-            // editable: 'never',
-            align: "center",
-            editComponent: props => {
-                return (
-                    <div>
-                    </div>
-                )
-            },
+            title: "#", field: "key", align: "center",
+            editComponent: props => { return (<></>) },
+            filterComponent: props => { return <></> },
             render: rowData => (
                 <div style={{ display: "flex", alignItems: "center" }}>
                     <IconButton
@@ -96,14 +84,37 @@ export default function Table() {
                 </div>
             )
         },
-        { title: "Vị trí tuyển dụng", field: "Vitri" },
+        {
+            title: "Vị trí tuyển dụng", field: "Vitri",
+            filterComponent: props => {
+                const data = ["IT", "Marketing", "Telesale"]
+                return <CustomSelectEdit {...props} data={data} width={120} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const { Vitri } = rowData;
+                return term.includes(Vitri);
+            }
+        },
         { title: "Nhân sự hiện có", field: "SLHientai", type: 'numeric' },
         { title: "Nhân sự cần tuyển", field: "SLCantuyen", type: "numeric" },
         {
             title: "Mức lương dự kiến",
             field: "LuongDK",
             type: "currency",
-            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 }
+            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
+            filterComponent: props => {
+                return <CustomSelectPriceEdit {...props} data={salary} width={150} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const minPrice = Math.min(...term.map(item => item.minPrice))
+                const maxPrice = Math.max(...term.map(item => item.maxPrice))
+                if (!maxPrice) {
+                    return rowData.LuongDK >= minPrice
+                }
+                return rowData.LuongDK >= minPrice && rowData.LuongDK <= maxPrice
+            }
         },
         {
             title: "Thời gian thử việc",
@@ -111,13 +122,23 @@ export default function Table() {
             type: "date",
             dateSetting: { locale: "en-GB" },
             editComponent: (props) => (
-                <DatePicker
-                    locale="en-GB"
-                    value={props.value}
-                    onChange={(date) => props.onChange(date)}
-                    style={{ marginTop: "9px" }}
-                />
-            )
+                <div style={{ width: "150px" }}>
+                    <DatePicker
+                        locale="en-GB"
+                        value={props.value}
+                        onChange={(date) => props.onChange(date)}
+                        style={{ marginTop: "9px" }}
+                    />
+                </div>
+            ),
+            filterComponent: (props) => <CustomDateEdit {...props} />,
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true
+                const time = Date.parse(rowData.TGThuviec)
+                const beforeDate = Date.parse(term[0])
+                const afterDate = Date.parse(term[1])
+                return time >= beforeDate && time <= afterDate
+            }
         },
         {
             title: "Thời gian tiếp nhận",
@@ -125,13 +146,23 @@ export default function Table() {
             type: "date",
             dateSetting: { locale: "en-GB" },
             editComponent: (props) => (
-                <DatePicker
-                    locale="en-GB"
-                    value={props.value}
-                    onChange={(date) => props.onChange(date)}
-                    style={{ marginTop: "9px" }}
-                />
-            )
+                <div style={{ width: "150px" }}>
+                    <DatePicker
+                        locale="en-GB"
+                        value={props.value}
+                        onChange={(date) => props.onChange(date)}
+                        style={{ marginTop: "9px" }}
+                    />
+                </div>
+            ),
+            filterComponent: (props) => <CustomDateEdit {...props} />,
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true
+                const time = Date.parse(rowData.TGThuviec)
+                const beforeDate = Date.parse(term[0])
+                const afterDate = Date.parse(term[1])
+                return time >= beforeDate && time <= afterDate
+            }
         },
         { title: "Lí do tuyển dụng", field: "Lydo" },
         { title: "Mô tả tuyển dụng", field: "MotaTD", },
@@ -152,12 +183,22 @@ export default function Table() {
             editComponent: (item) => {
                 const steps = item.rowData['Pheduyet'].length
                 return steps >= 3 ?
-                    <DatePicker
-                        locale="en-GB"
-                        value={item.value}
-                        onChange={(date) => props.onChange(date)}
-                        style={{ marginTop: "9px" }}
-                    /> : <></>
+                    <div style={{ width: "150px" }}>
+                        <DatePicker
+                            locale="en-GB"
+                            value={item.value}
+                            onChange={(date) => props.onChange(date)}
+                            style={{ marginTop: "9px" }}
+                        />
+                    </div> : <></>
+            },
+            filterComponent: (props) => <CustomDateEdit {...props} />,
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true
+                const time = Date.parse(rowData.TGThuviec)
+                const beforeDate = Date.parse(term[0])
+                const afterDate = Date.parse(term[1])
+                return time >= beforeDate && time <= afterDate
             }
         },
         {
@@ -169,12 +210,24 @@ export default function Table() {
             editComponent: (item) => {
                 const steps = item.rowData['Pheduyet'].length
                 return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            },
+            filterComponent: props => {
+                return <CustomSelectPriceEdit {...props} data={salary} width={150} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const minPrice = Math.min(...term.map(item => item.minPrice))
+                const maxPrice = Math.max(...term.map(item => item.maxPrice))
+                if (!maxPrice) {
+                    return rowData.LuongDK >= minPrice
+                }
+                return rowData.LuongDK >= minPrice && rowData.LuongDK <= maxPrice
             }
         },
         {
             title: "Hình thức", field: "Hinhthuc", lookup: { 0: "Thanh toán tiền mặt", 1: "Chuyển khoản" },
             render: (rowData) => {
-                return rowData.Hinhthuc === "" ? <ClearIcon /> : rowData.Hinhthuc
+                return rowData.Hinhthuc === "" ? <ClearIcon /> : getTypeRendering(rowData.Hinhthuc)
             },
             editComponent: (item) => {
                 const steps = item.rowData['Pheduyet'].length
@@ -197,7 +250,8 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>
+            editComponent: (rowData) => <></>,
+            filterComponent: (rowData) => <></>
         },
         {
             title: "Ban tuyển dụng",
@@ -210,7 +264,8 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>
+            editComponent: (rowData) => <></>,
+            filterComponent: (rowData) => <></>
         },
         {
             title: "Ban giám đốc ",
@@ -223,7 +278,8 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>
+            editComponent: (rowData) => <></>,
+            filterComponent: (rowData) => <></>
         },
         {
             title: "Ban kế toán ",
@@ -236,7 +292,8 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>
+            editComponent: (rowData) => <></>,
+            filterComponent: (rowData) => <></>
         }
     ];
 
@@ -251,13 +308,15 @@ export default function Table() {
         setAnchorEl(null);
     };
     const handleEdit = () => {
-        setAnchorEl(null);
-        setInitialData({ ...rowData, name: null })
-        tableRef.current.dataManager.changeRowEditing(rowData, 'update');
-        tableRef.current.setState({
-            ...tableRef.current.dataManager.getRenderState(),
-            showAddRow: false
-        });
+        // setAnchorEl(null);
+        // setInitialData({ ...rowData, name: null })
+        // tableRef.current.dataManager.changeRowEditing(rowData, 'update');
+        // tableRef.current.setState({
+        //     ...tableRef.current.dataManager.getRenderState(),
+        //     showAddRow: false
+        // });
+        handleClose()
+        setIsEditTicket(true)
     }
     const handleCopy = () => {
         setAnchorEl(null);
@@ -270,9 +329,10 @@ export default function Table() {
         });
     }
     const handleCreate = () => {
+        handleClose()
         setIsCC(true)
     }
-    return isLoading ? <div>Loading...</div> : <Fragment>
+    return isLoading ? <FuseLoading /> : <Fragment>
         {dataStatus ? <TicketStatus item={dataStatus} /> : <EmptyStatus />}
         <MaterialTable
             tableRef={tableRef}
@@ -369,5 +429,13 @@ export default function Table() {
             <MenuItem onClick={handleCreate}>Tạo hồ sơ</MenuItem>
         </Menu>
         {isCC && <CreateCandidate open={isCC} item={rowData} />}
+        {isEditTicket &&
+            <ModalEditItem
+                open={isEditTicket}
+                item={rowData}
+                setIsFetching={setIsFetching}
+                handleClose={() => { setIsEditTicket(false) }}
+            />
+        }
     </Fragment>
 }

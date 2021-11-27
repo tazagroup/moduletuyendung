@@ -1,3 +1,3 @@
-import FirebaseService from './firebaseService';
+import { instance as FirebaseService } from './firebaseService';
 
 export default FirebaseService;

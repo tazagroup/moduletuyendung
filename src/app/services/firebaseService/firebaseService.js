@@ -15,13 +15,13 @@ class FirebaseService {
       success(false);
       return;
     }
-
     if (firebase.apps.length) {
       return;
     }
     firebase.initializeApp(config);
     this.db = firebase.database();
     this.auth = firebase.auth();
+    this.storage = firebase.storage();
     success(true);
   }
 
@@ -61,7 +61,5 @@ class FirebaseService {
     this.auth.signOut();
   };
 }
-
 const instance = new FirebaseService();
-
-export default instance;
+export { instance };

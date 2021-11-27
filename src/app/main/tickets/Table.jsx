@@ -428,7 +428,12 @@ export default function Table() {
             <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
             <MenuItem onClick={handleCreate}>Tạo hồ sơ</MenuItem>
         </Menu>
-        {isCC && <CreateCandidate open={isCC} item={rowData} />}
+        {isCC &&
+            <CreateCandidate
+                open={isCC}
+                item={rowData}
+                handleClose={() => { setIsCC(false) }}
+            />}
         {isEditTicket &&
             <ModalEditItem
                 open={isEditTicket}

@@ -30,7 +30,7 @@ const useStyles = makeStyles({
         padding: "10px",
         paddingLeft: "0px",
         borderBottom: "1px solid #bbbec4",
-        fontSize: "19px"
+        fontSize: "15px"
     },
     icon: {
         position: "absolute",
@@ -209,7 +209,7 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={12} className={classes.gridLeft}>
                         {/* Nguồn mua  */}
-                        <FormControl variant="standard" fullWidth className={classes.field}>
+                        <FormControl variant="standard" fullWidth>
                             <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Nguồn</InputLabel>
                             <Select
                                 labelId="demo-simple-select-standard-label"
@@ -219,7 +219,7 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                                 label="Nguồn"
                                 placeholder="Nguồn"
                                 MenuProps={{ disablePortal: true }}
-                                style={{ fontSize: "19px" }}
+                                style={{ fontSize: "15px" }}
                             >
                                 <MenuItem value={"Facebook"}>Facebook</MenuItem>
                                 <MenuItem value={"TopCV"}>TopCV</MenuItem>
@@ -256,9 +256,9 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                             autoComplete="off"
                             suffix="đ"
                             fullWidth
-                            style={{ marginTop: "15px" }}
+
                         />
-                        <FormControl variant="standard" fullWidth className={classes.field}>
+                        <FormControl variant="standard" fullWidth>
                             <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Hình thức thanh toán</InputLabel>
                             <Select
                                 labelId="demo-simple-select-standard-label"
@@ -268,7 +268,7 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                                 label="Hình thức thanh toán"
                                 placeholder="Hình thức thanh toán"
                                 MenuProps={{ disablePortal: true }}
-                                style={{ fontSize: "19px" }}
+                                style={{ fontSize: "15px" }}
                             >
                                 <MenuItem value={0}>Chuyển khoản</MenuItem>
                                 <MenuItem value={1}>Thanh toán tiền mặt</MenuItem>

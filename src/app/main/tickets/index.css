@@ -4,13 +4,13 @@ svg {
 }
 input {
     text-align: left;
-    font-size: 20px !important;
+    font-size: 15px !important;
 }
 textarea:disabled {
     color: rgb(149, 156, 169) !important;
 }
 textarea::placeholder {
-    font-size: 13px !important;
+    font-size: 15px !important;
 }
 /* Headers table  */
 thead tr th {
@@ -87,4 +87,9 @@ thead tr th {
 /* Edit date range picker  */
 .e-input-group.e-control-wrapper.e-date-range-wrapper.e-valid-input {
     width: 225px;
+}
+
+/* Form */
+label{
+    font-size: 14px !important;
 }

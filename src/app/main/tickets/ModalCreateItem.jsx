@@ -11,15 +11,12 @@ import NumberFormat from 'react-number-format';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 //FORM
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
-//COMPONENTS
-
 import * as yup from "yup"
 const schema = yup.object().shape({
     Vitri: yup.string().required(),
@@ -37,10 +34,10 @@ const useStyles = makeStyles({
     },
     textarea: {
         width: "100%",
-        margin: "10px 0",
-        padding: "10px 10px 0 0",
+        marginTop: "10px",
+        padding: "10px 0",
         borderBottom: "1px solid #bbbec4",
-        fontSize: "19px"
+        fontSize: "15px"
     },
     icon: {
         position: "absolute",
@@ -172,7 +169,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <FormControl variant="standard" fullWidth>
-                                <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500", paddingBottom: "4px" }}>Lí do tuyển dụng</InputLabel>
+                                <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "15px", fontWeight: "500", paddingBottom: "4px" }}>Lí do tuyển dụng</InputLabel>
                                 <Select
                                     labelId="demo-simple-select-standard-label"
                                     id="demo-simple-select-standard"
@@ -181,7 +178,7 @@ const ModalCreateItem = ({ setIsFetching }) => {
                                     label="Lí do tuyển dụng"
                                     placeholder="Lí do tuyển dụng"
                                     MenuProps={{ disablePortal: true }}
-                                    style={{ lineHeight: "28px", fontSize: "19px" }}
+                                    style={{ lineHeight: "20px", fontSize: "15px" }}
                                 >
                                     <MenuItem value={"Tuyển mới"}>Tuyển mới</MenuItem>
                                     <MenuItem value={"Thay thế"}>Thay thế</MenuItem>

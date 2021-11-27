@@ -1,13 +1,8 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { closeDialog } from 'app/store/fuse/dialogSlice';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid, InputLabel } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
-import DatePicker from '@mui/lab/DatePicker';
 import NumberFormat from 'react-number-format';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -18,6 +13,8 @@ import axios from 'axios';
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
+//TEST
+import DateField from '../CustomField/DateField';
 const schema = yup.object().shape({
     Vitri: yup.string().required(),
     SLHientai: yup.number().required(),
@@ -38,10 +35,10 @@ const useStyles = makeStyles({
     textarea: {
         width: "100%",
         margin: "10px 0",
-        padding: "10px",
+        padding: "5px",
         paddingLeft: "0px",
         borderBottom: "1px solid #bbbec4",
-        fontSize: "19px"
+        fontSize: "15px"
     },
     icon: {
         position: "absolute",
@@ -172,7 +169,7 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <FormControl variant="standard" fullWidth>
-                                    <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500", paddingBottom: "4px" }}>Lí do tuyển dụng</InputLabel>
+                                    <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "15px", fontWeight: "500", paddingBottom: "4px" }}>Lí do tuyển dụng</InputLabel>
                                     <Select
                                         labelId="demo-simple-select-standard-label"
                                         id="demo-simple-select-standard"
@@ -186,7 +183,7 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                                         label="Lí do tuyển dụng"
                                         placeholder="Lí do tuyển dụng"
                                         MenuProps={{ disablePortal: true }}
-                                        style={{ lineHeight: "28px", fontSize: "19px" }}
+                                        style={{ lineHeight: "20px", fontSize: "15px" }}
                                     >
                                         <MenuItem value={"Tuyển mới"}>Tuyển mới</MenuItem>
                                         <MenuItem value={"Thay thế"}>Thay thế</MenuItem>
@@ -208,32 +205,10 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                                 </Grid>
                             }
                             <Grid item xs={12} md={6}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        views={['year', 'month', 'day']}
-                                        label="Thời gian thử việc"
-                                        value={selectedDate}
-                                        onChange={(newValue) => {
-                                            setSelectedDate(newValue.toISOString());
-                                        }}
-                                        inputFormat="dd/MM/yyyy"
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                    />
-                                </LocalizationProvider>
+                                <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
                             </Grid>
                             <Grid item xs={12} md={6}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        views={['year', 'month', 'day']}
-                                        label="Thời gian tiếp nhận"
-                                        inputFormat="dd/MM/yyyy"
-                                        value={selectedDate2}
-                                        onChange={(newValue) => {
-                                            setSelectedDate2(newValue.toISOString());
-                                        }}
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                    />
-                                </LocalizationProvider>
+                                <DateField label="Thời gian tiếp nhận" value={selectedDate2} handleChange={setSelectedDate2} />
                             </Grid>
                             <Grid item xs={12}>
                                 <TextField
@@ -280,21 +255,7 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                             </FormControl>
                             {/* Thời gian mua */}
                             <FormControl variant="standard" fullWidth className={classes.field}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        views={['year', 'month', 'day']}
-                                        label="Thời gian mua"
-                                        value={selectedDate3}
-                                        disabled={selectedDate3 == "" ? true : false}
-                                        onChange={(newValue) => {
-                                            setSelectedDate3(newValue.toISOString());
-                                        }}
-                                        inputFormat="dd/MM/yyyy"
-                                        renderInput={(params) => <TextField {...params} fullWidth
-                                        />}
-
-                                    />
-                                </LocalizationProvider>
+                                <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} />
                             </FormControl>
                             {/* Chi phí mua  */}
                             <NumberFormat customInput={TextField}
@@ -329,18 +290,7 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                                 </Select>
                             </FormControl>
                             <FormControl variant="standard" fullWidth className={classes.field}>
-                                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        views={['year', 'month', 'day']}
-                                        label="Ngày cần thanh toán"
-                                        value={selectedDate4}
-                                        onChange={(newValue) => {
-                                            setSelectedDate4(newValue.toISOString());
-                                        }}
-                                        inputFormat="dd/MM/yyyy"
-                                        renderInput={(params) => <TextField {...params} fullWidth />}
-                                    />
-                                </LocalizationProvider>
+                                <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} />
                             </FormControl>
                         </Grid>
                     </DialogContent>

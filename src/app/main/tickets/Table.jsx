@@ -35,7 +35,12 @@ const convertProperty = (array) => {
     }, arrayResult);
     return arrayResult
 }
-
+const style = {
+    maxWidth: "150px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis"
+}
 export default function Table() {
     const dispatch = useDispatch()
     const [rowData, setRowData] = useState({})
@@ -70,7 +75,6 @@ export default function Table() {
     const headers = [
         {
             title: "#", field: "key", align: "center",
-            editComponent: props => { return (<></>) },
             filterComponent: props => { return <></> },
             render: rowData => (
                 <div style={{ display: "flex", alignItems: "center" }}>
@@ -121,16 +125,6 @@ export default function Table() {
             field: "TGThuviec",
             type: "date",
             dateSetting: { locale: "en-GB" },
-            editComponent: (props) => (
-                <div style={{ width: "150px" }}>
-                    <DatePicker
-                        locale="en-GB"
-                        value={props.value}
-                        onChange={(date) => props.onChange(date)}
-                        style={{ marginTop: "9px" }}
-                    />
-                </div>
-            ),
             filterComponent: (props) => <CustomDateEdit {...props} />,
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true
@@ -145,16 +139,6 @@ export default function Table() {
             field: "TiepnhanNS",
             type: "date",
             dateSetting: { locale: "en-GB" },
-            editComponent: (props) => (
-                <div style={{ width: "150px" }}>
-                    <DatePicker
-                        locale="en-GB"
-                        value={props.value}
-                        onChange={(date) => props.onChange(date)}
-                        style={{ marginTop: "9px" }}
-                    />
-                </div>
-            ),
             filterComponent: (props) => <CustomDateEdit {...props} />,
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true
@@ -164,14 +148,44 @@ export default function Table() {
                 return time >= beforeDate && time <= afterDate
             }
         },
-        { title: "Lí do tuyển dụng", field: "Lydo" },
-        { title: "Mô tả tuyển dụng", field: "MotaTD", },
+        {
+            title: "Lí do tuyển dụng",
+            field: "Lydo",
+            render: (rowData) => (
+                <div style={style}>
+                    {rowData.Lydo}
+                </div>
+            ),
+            filterComponent: props => {
+                const data = ["Thay thế", "Tuyển mới", "Dự phòng nhân lực", "Khác"]
+                return <CustomSelectEdit {...props} data={data} width={150} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const { Nguon } = rowData;
+                return term.includes(Nguon);
+            }
+        },
+        {
+            title: "Mô tả tuyển dụng",
+            field: "MotaTD",
+            render: (rowData) => (
+                // render as HTML 
+                <div style={style} dangerouslySetInnerHTML={{ __html: rowData.MotaTD }}>
+                </div>
+            )
+        },
         {
             title: "Nguồn", field: "Nguon",
             emptyValue: () => <ClearIcon />,
-            editComponent: (item) => {
-                const steps = item.rowData['Pheduyet'].length
-                return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            filterComponent: props => {
+                const data = ["Facebook", "TopCV", "ITViec"]
+                return <CustomSelectEdit {...props} data={data} width={120} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const { Nguon } = rowData;
+                return term.includes(Nguon);
             }
         },
         {
@@ -225,19 +239,33 @@ export default function Table() {
             }
         },
         {
-            title: "Hình thức", field: "Hinhthuc", lookup: { 0: "Thanh toán tiền mặt", 1: "Chuyển khoản" },
+            title: "Hình thức", field: "Hinhthuc",
             render: (rowData) => {
-                return rowData.Hinhthuc === "" ? <ClearIcon /> : getTypeRendering(rowData.Hinhthuc)
+                return rowData.Hinhthuc === "" ? <ClearIcon /> : rowData.Hinhthuc
             },
-            editComponent: (item) => {
-                const steps = item.rowData['Pheduyet'].length
-                return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            filterComponent: props => {
+                const data = ["Chuyển khoản", "Thanh toán tiền mặt"]
+                return <CustomSelectEdit {...props} data={data} width={120} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const { Hinhthuc } = rowData;
+                return term.includes(Hinhthuc);
             }
         },
         {
-            title: "Tình trạng", field: "Tinhtrang", lookup: { 0: "Chưa thanh toán", 1: "Đã thanh toán" },
+            title: "Tình trạng", field: "Tinhtrang",
             render: (rowData) => getStatusRendering(rowData),
-            editComponent: (rowData) => <></>
+            editComponent: (rowData) => <></>,
+            filterComponent: props => {
+                const data = ["Chưa thanh toán", "Đã thanh toán"]
+                return <CustomSelectEdit {...props} data={data} width={150} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0 || term.length === 2) return true;
+                const { Tinhtrang } = rowData;
+                return term.includes(Tinhtrang);
+            }
         },
         {
             title: "Ban quản lí",
@@ -250,7 +278,6 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>,
             filterComponent: (rowData) => <></>
         },
         {
@@ -264,7 +291,6 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>,
             filterComponent: (rowData) => <></>
         },
         {
@@ -278,7 +304,6 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>,
             filterComponent: (rowData) => <></>
         },
         {
@@ -292,7 +317,6 @@ export default function Table() {
                     )
                 })
             },
-            editComponent: (rowData) => <></>,
             filterComponent: (rowData) => <></>
         }
     ];

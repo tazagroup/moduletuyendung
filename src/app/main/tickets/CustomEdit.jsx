@@ -34,6 +34,7 @@ const CustomSelectEdit = (props) => {
                     value={value}
                     onChange={(event) => {
                         const { target: { value } } = event;
+                        console.log(value)
                         props.onFilterChanged(props.columnDef.tableData.id, value);
                     }}
                     renderValue={(selected) => selected.join(", ")}

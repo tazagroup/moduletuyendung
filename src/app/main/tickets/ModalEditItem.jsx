@@ -13,14 +13,21 @@ import axios from 'axios';
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
-//TEST
+
+import InputField from "../CustomField/InputField"
 import DateField from '../CustomField/DateField';
+import SelectField from "../CustomField/SelectField"
+import NumberField from '../CustomField/NumberField';
+import Tinymce from '../CustomField/Tinymce';
 const schema = yup.object().shape({
-    Vitri: yup.string().required(),
-    SLHientai: yup.number().required(),
-    SLCantuyen: yup.number().required(),
-    MotaTD: yup.string().required(),
-    YeucauTD: yup.string().required(),
+    Vitri: yup.string().required("Vui lòng nhập vị trí"),
+    LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
+    SLHientai: yup.number().min(0, "Dữ liệu không đúng"),
+    SLCantuyen: yup.number().min(1, "Dữ liệu không đúng"),
+    MotaTD: yup.string().required("Vui lòng nhập mô tả tuyển dụng"),
+    YeucauTD: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng"),
+    Chiphi: yup.string().required("Vui lòng nhập chi phí"),
+    Tinhtrang: yup.string().default("Chưa thanh toán"),
 });
 const useStyles = makeStyles({
     title: {
@@ -53,48 +60,47 @@ const useStyles = makeStyles({
         paddingLeft: "8px"
     }
 })
-const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực"]
+const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực"]
+const arraySource = ["Facebook", "ITViec", "TopCV"]
+const arrayType = ["Thanh toán tiền mặt", "Chuyển khoản"]
 const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate2, setSelectedDate2] = useState(item.TiepnhanNS)
     const [selectedDate3, setSelectedDate3] = useState(item.TGMua ? item.TGMua : "")
     const [selectedDate4, setSelectedDate4] = useState(item.NTC ? item.NTC : "")
-    const [currency, setCurrency] = useState(item.LuongDK)
-    const [currency2, setCurrency2] = useState(item.Chiphi ? item.Chiphi : "")
-    const [isValueEmpty, setIsValueEmpty] = useState(false)
-    const [isOther, setIsOther] = useState(false)
-    const [reason, setReason] = useState(reasons.includes(item.Lydo) ? item.Lydo : "Khác")
-    const [otherReason, setOtherReason] = useState(!reasons.includes(item.Lydo) ? item.Lydo : "")
+    const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
+    const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
     const [source, setSource] = useState(item.Nguon ? item.Nguon : "")
     const [type, setType] = useState(item.Hinhthuc !== "" ? item.Hinhthuc : "")
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const form = useForm({
+        defaultValues: {
+            Vitri: item.Vitri,
+            SLCantuyen: item.SLCantuyen,
+            SLHientai: item.SLHientai,
+            MotaTD: item.MotaTD,
+            YeucauTD: item.YeucauTD,
+            Chiphi: item.Chiphi,
+            LuongDK: item.LuongDK,
+            Tinhtrang: item.Tinhtrang
+        },
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
-    const { Vitri, SLHientai, SLCantuyen, MotaTD, YeucauTD } = errors
-    const reasonCondition = isOther ? otherReason == "" : reason == ""
-    const disabledButton = (Vitri || SLHientai || SLCantuyen || MotaTD || YeucauTD || currency == "" || reasonCondition || type === "" || currency2 == "" || source == "") ? true : false
+    const isValid = form.formState.isValid
+    const reasonCondition = reason === "Khác" ? otherReason !== "" : reason !== ""
+    const disabledButton = isValid && reasonCondition && source !== "" && type !== ""
     const handleEditTicket = async (e) => {
-        const LuongDK = currency.split(',').join('').split('đ')[0]
-        const Chiphi = currency2.split(',').join('').split('đ')[0]
         const bodyData = {
-            Vitri: e.Vitri,
-            SLHientai: e.SLHientai,
-            SLCantuyen: e.SLCantuyen,
+            ...e,
             TGThuviec: selectedDate,
             TiepnhanNS: selectedDate2,
             Lydo: otherReason ? otherReason : reason,
-            MotaTD: e.MotaTD,
-            YeucauTD: e.YeucauTD,
             Pheduyet: item.Pheduyet,
             idTao: item.idTao,
-            LuongDK: LuongDK,
             Nguon: source,
             TGMua: selectedDate3,
-            Chiphi: Chiphi,
             Hinhthuc: type,
-            Tinhtrang: item.Tinhtrang,
             NTC: selectedDate4
         }
         await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${item.key}`, bodyData)
@@ -108,91 +114,30 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                 fullWidth={true}
                 maxWidth={'xl'}
             >
-                <form onSubmit={handleSubmit(handleEditTicket)}>
+                <form onSubmit={form.handleSubmit(handleEditTicket)}>
                     <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
                     </DialogTitle>
                     <CloseIcon className={classes.icon} onClick={handleClose} />
                     <DialogContent>
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={6}>
-                                <TextField
-                                    error={Vitri ? true : false}
-                                    helperText={Vitri ? "Vui lòng điền vị trí tuyển dụng" : ""}
-                                    id="demo-helper-text-aligned"
-                                    label="Vị trí tuyển dụng"
-                                    fullWidth
-                                    variant="standard"
-                                    defaultValue={item.Vitri}
-                                    {...register("Vitri")}
-                                />
+                                <InputField form={form} name="Vitri" label="Vị trí tuyển dụng" type="text" />
                             </Grid>
                             <Grid item xs={12} md={3}>
-                                <TextField
-                                    id="demo-helper-text-aligned"
-                                    error={SLHientai ? true : false}
-                                    helperText={SLHientai ? "Vui lòng điền nhân sự hiện có" : ""}
-                                    label="Nhân sự hiện có"
-                                    defaultValue={item.SLHientai}
-                                    type="number"
-                                    fullWidth
-                                    variant="standard"
-                                    {...register("SLHientai")}
-                                />
+                                <InputField form={form} name="SLHientai" label="Nhân sự hiện có" type="number" />
                             </Grid>
                             <Grid item xs={12} md={3}>
-                                <TextField
-                                    id="demo-helper-text-aligned"
-                                    error={SLCantuyen ? true : false}
-                                    helperText={SLCantuyen ? "Vui lòng điền nhân sự cần tuyển" : ""}
-                                    label="Nhân sự cần tuyển"
-                                    defaultValue={item.SLCantuyen}
-                                    type="number"
-                                    fullWidth
-                                    variant="standard"
-                                    {...register("SLCantuyen")}
-                                />
+                                <InputField form={form} name="SLCantuyen" label="Nhân sự cần tuyển" type="number" />
                             </Grid>
+                            {/* Mức lương dự kiến  */}
                             <Grid item xs={12} md={6}>
-                                <NumberFormat customInput={TextField}
-                                    label="Mức lương dự kiến"
-                                    variant="standard"
-                                    thousandSeparator={true}
-                                    value={currency}
-                                    error={isValueEmpty}
-                                    helperText={isValueEmpty ? "Vui lòng nhập mức lương" : ""}
-                                    onChange={e => setCurrency(e.target.value)}
-                                    onBlur={(e) => { setIsValueEmpty(e.target.defaultValue == "") }}
-                                    autoComplete="off"
-                                    suffix="đ"
-                                    fullWidth
-                                />
+                                <NumberField form={form} name="LuongDK" label="Mức lương dự kiến" error="Vui lòng nhập mức lương" />
                             </Grid>
+                            {/* Lí do tuyển dụng  */}
                             <Grid item xs={12} md={6}>
-                                <FormControl variant="standard" fullWidth>
-                                    <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "15px", fontWeight: "500", paddingBottom: "4px" }}>Lí do tuyển dụng</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-standard-label"
-                                        id="demo-simple-select-standard"
-                                        value={reason}
-                                        onChange={e => {
-                                            setReason(e.target.value)
-                                            if (e.target.value === "Khác") {
-                                                setIsOther(true)
-                                            }
-                                        }}
-                                        label="Lí do tuyển dụng"
-                                        placeholder="Lí do tuyển dụng"
-                                        MenuProps={{ disablePortal: true }}
-                                        style={{ lineHeight: "20px", fontSize: "15px" }}
-                                    >
-                                        <MenuItem value={"Tuyển mới"}>Tuyển mới</MenuItem>
-                                        <MenuItem value={"Thay thế"}>Thay thế</MenuItem>
-                                        <MenuItem value={"Dự phòng nhân lực"}>Dự phòng nhân lực</MenuItem>
-                                        <MenuItem value={"Khác"}>Khác</MenuItem>
-                                    </Select>
-                                </FormControl>
+                                <SelectField label="Lí do tuyển dụng" value={reason} arrayItem={arrayReason} handleChange={setReason} />
                             </Grid>
-                            {!reasons.includes(item.Lydo) &&
+                            {!arrayReason.includes(item.Lydo) &&
                                 <Grid item xs={12}>
                                     <TextField
                                         id="demo-helper-text-aligned"
@@ -204,98 +149,49 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                                         variant="standard" />
                                 </Grid>
                             }
+                            {/* Thời gian thử việc  */}
                             <Grid item xs={12} md={6}>
                                 <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
                             </Grid>
+                            {/* Thời gian tiếp nhận  */}
                             <Grid item xs={12} md={6}>
                                 <DateField label="Thời gian tiếp nhận" value={selectedDate2} handleChange={setSelectedDate2} />
                             </Grid>
+                            {/* Mô tả tuyển dụng  */}
                             <Grid item xs={12}>
-                                <TextField
-                                    error={MotaTD ? true : false}
-                                    helperText={MotaTD ? "Vui lòng nhập mô tả" : ""}
-                                    id="demo-helper-text-aligned"
-                                    label="Mô tả tuyển dụng"
-                                    defaultValue={item.MotaTD}
-                                    fullWidth
-                                    type="text"
-                                    variant="standard"
-                                    {...register("MotaTD")}
-                                />
+                                <Tinymce form={form} name="MotaTD" label={"Mô tả tuyển dụng"} />
                             </Grid>
-                        </Grid>
-                        <Grid item xs={12}>
-                            <TextareaAutosize
-                                aria-label="empty textarea"
-                                placeholder="Yêu cầu tuyển dụng"
-                                defaultValue={item.YeucauTD}
-                                className={classes.textarea}
-                                {...register("YeucauTD")}
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={12} className={classes.gridLeft}>
-                            {/* Nguồn mua  */}
-                            <FormControl variant="standard" fullWidth className={classes.field}>
-                                <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Nguồn</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-standard-label"
-                                    id="demo-simple-select-standard"
-                                    value={source}
-                                    onChange={(e) => { setSource(e.target.value) }}
-                                    label="Nguồn"
-                                    disabled={source == "" ? true : false}
-                                    placeholder="Nguồn"
-                                    MenuProps={{ disablePortal: true }}
-                                    style={{ fontSize: "19px" }}
-                                >
-                                    <MenuItem value={"Facebook"}>Facebook</MenuItem>
-                                    <MenuItem value={"TopCV"}>TopCV</MenuItem>
-                                    <MenuItem value={"ITViec"}>ITViec</MenuItem>
-                                </Select>
-                            </FormControl>
-                            {/* Thời gian mua */}
-                            <FormControl variant="standard" fullWidth className={classes.field}>
-                                <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} />
-                            </FormControl>
+                            <Grid item xs={12}>
+                                <Tinymce form={form} name="YeucauTD" label={"Yêu cầu tuyển dụng"} />
+                            </Grid>
+                            {/* Nguồn  */}
+                            <Grid item xs={12}>
+                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={setSource} />
+                            </Grid>
+                            {/* Thời gian mua  */}
+                            <Grid item xs={12}>
+                                <FormControl variant="standard" fullWidth className={classes.field}>
+                                    <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} />
+                                </FormControl>
+                            </Grid>
                             {/* Chi phí mua  */}
-                            <NumberFormat customInput={TextField}
-                                label="Chi phí"
-                                variant="standard"
-                                thousandSeparator={true}
-                                value={currency2}
-                                error={isValueEmpty}
-                                disabled={currency2 == "" ? true : false}
-                                helperText={isValueEmpty ? "Vui lòng nhập chi phí" : ""}
-                                onBlur={(e) => { setIsValueEmpty(e.target.defaultValue == "") }}
-                                onChange={(e) => { setCurrency2(e.target.value) }}
-                                autoComplete="off"
-                                suffix="đ"
-                                fullWidth
-                                style={{ marginTop: "15px" }}
-                            />
-                            <FormControl variant="standard" fullWidth className={classes.field}>
-                                <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Hình thức thanh toán</InputLabel>
-                                <Select
-                                    labelId="demo-simple-select-standard-label"
-                                    id="demo-simple-select-standard"
-                                    defaultValue={type}
-                                    onChange={(e) => { setType(e.target.value) }}
-                                    label="Hình thức thanh toán"
-                                    placeholder="Hình thức thanh toán"
-                                    MenuProps={{ disablePortal: true }}
-                                    style={{ fontSize: "19px" }}
-                                >
-                                    <MenuItem value={0}>Chuyển khoản</MenuItem>
-                                    <MenuItem value={1}>Thanh toán tiền mặt</MenuItem>
-                                </Select>
-                            </FormControl>
-                            <FormControl variant="standard" fullWidth className={classes.field}>
-                                <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} />
-                            </FormControl>
+                            <Grid item xs={12}>
+                                <NumberField form={form} name="Chiphi" label="Chi phí mua" error="Vui lòng nhập chi phí" />
+                            </Grid>
+                            {/* Hình thức thanh toán  */}
+                            <Grid item xs={12}>
+                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={setType} />
+                            </Grid>
+                            {/* Ngày cần thanh toán  */}
+                            <Grid item xs={12}>
+                                <FormControl variant="standard" fullWidth className={classes.field}>
+                                    <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} />
+                                </FormControl>
+                            </Grid>
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button color="primary" autoFocus type="submit" variant="contained" disabled={disabledButton}>
+                        <Button color="primary" autoFocus type="submit" disabled={!disabledButton} variant="contained">
                             Cập nhật tuyển dụng
                         </Button>
                     </DialogActions>

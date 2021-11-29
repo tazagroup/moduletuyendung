@@ -76,7 +76,7 @@ const CustomStep = ({ item, data, setIsFetching }) => {
         }
         await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
             Pheduyet: steps,
-            Tinhtrang: item.id === 5 ? 1 : item.Tinhtrang
+            Tinhtrang: item.id === 5 ? "Đã thanh toán" : item.Tinhtrang
         })
         setIsFetching(state => !state)
     }

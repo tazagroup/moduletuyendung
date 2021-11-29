@@ -12,6 +12,14 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import TextareaAutosize from '@mui/material/TextareaAutosize';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup"
+import * as yup from "yup"
+import InputField from '../CustomField/InputField';
+import NumberField from '../CustomField/NumberField'
+import SelectField from "../CustomField/SelectField"
+import DateField from "../CustomField/DateField"
+import Tinymce from "../CustomField/Tinymce"
 import axios from 'axios';
 
 const useStyles = makeStyles({
@@ -39,35 +47,58 @@ const useStyles = makeStyles({
         cursor: "pointer"
     },
     gridLeft: {
-        paddingRight: "8px"
+        paddingRight: "8px",
+        marginTop: "15px !important"
     },
-    gridRight: {
-        paddingLeft: "8px"
-    }
+})
+const schema = yup.object().shape({
+    Chiphi: yup.string().required("Vui lòng nhập chi phí"),
+    Tinhtrang: yup.string().default("Chưa thanh toán"),
 })
 
+const TextInputCustom = (props) => {
+    const { value, label, type } = props
+    return (
+        <TextField
+            defaultValue={value}
+            disabled={true}
+            id="demo-helper-text-aligned"
+            label={label}
+            fullWidth
+            variant="standard"
+            type={type}
+        />
+    )
+}
 const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
     const dispatch = useDispatch();
     const classes = useStyles()
+    const form = useForm({
+        defaultValues: {
+            Chiphi: "",
+            Tinhtrang: "Chưa thanh toán"
+        },
+        mode: 'onBlur',
+        resolver: yupResolver(schema),
+    });
     const [value, setValue] = useState('')
     const [source, setSource] = useState('')
+    const sourceArray = ["Facebook", "TopCV", "ITViec"]
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [selectedDate2, setSelectedDate2] = useState(new Date())
     const [type, setType] = useState('')
-    const [currency, setCurrency] = useState('')
-    const [isValueEmpty, setIsValueEmpty] = useState(false)
+    const typeArray = ["Chuyển khoản", "Thanh toán tiền mặt"]
     const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
-    const disabledButton = (source == "" || type == "" || currency == "" ? true : false)
+    const isValid = form.formState.isValid
     //UPDATE TICKETS
     const handleUpdateTickets = async (e) => {
-        const CPMua = currency.split(',').join('').split('đ')[0]
         const bodyData = {
             ...data,
             Nguon: source,
             TGMua: selectedDate.toISOString(),
-            Chiphi: CPMua,
+            Chiphi: e.Chiphi.split(',').join(''),
             Hinhthuc: type,
-            Tinhtrang: 0,
+            Tinhtrang: e.Tinhtrang,
             NTC: selectedDate2.toISOString()
         }
         const response = await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.key}`, bodyData)
@@ -76,228 +107,112 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
     }
     return (
         <React.Fragment >
-            <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
-            </DialogTitle>
-            <DialogContent>
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            defaultValue={data.Vitri}
-                            disabled={true}
-                            id="demo-helper-text-aligned"
-                            label="Vị trí tuyển dụng"
-                            fullWidth
-                            variant="standard"
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <TextField
-                            id="demo-helper-text-aligned"
-                            label="Nhân sự hiện có"
-                            defaultValue={data.SLHientai}
-                            disabled={true}
-                            type="number"
-                            fullWidth
-                            variant="standard"
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={3}>
-                        <TextField
-                            id="demo-helper-text-aligned"
-                            label="Nhân sự cần tuyển"
-                            defaultValue={data.SLCantuyen}
-                            disabled={true}
-                            type="number"
-                            fullWidth
-                            variant="standard"
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <NumberFormat customInput={TextField}
-                            label="Mức lương dự kiến"
-                            variant="standard"
-                            thousandSeparator={true}
-                            value={data.LuongDK}
-                            disabled={true}
-                            autoComplete="off"
-                            suffix="đ"
-                            fullWidth
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            defaultValue={reasons.includes(data.Lydo) ? data.Lydo : "Khác"}
-                            disabled={true}
-                            id="demo-helper-text-aligned"
-                            label="Lí do tuyển dụng"
-                            fullWidth
-                            variant="standard"
-                        />
-                    </Grid>
-                    {!reasons.includes(data.Lydo) &&
-                        <Grid item xs={12}>
-                            <TextField
-                                id="demo-helper-text-aligned"
-                                label="Lý do khác"
-                                defaultValue={data.Lydo}
-                                disabled={true}
-                                type="text"
-                                fullWidth
-                                variant="standard" />
+            <form onSubmit={form.handleSubmit(handleUpdateTickets)}>
+                <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
+                </DialogTitle>
+                <DialogContent>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                            <TextInputCustom value={data.Vitri} label="Vị trí tuyển dụng" type="text" />
                         </Grid>
-                    }
-                    <Grid item xs={12} md={6}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                views={['year', 'month', 'day']}
-                                label="Thời gian thử việc"
-                                value={data.TGThuviec}
+                        <Grid item xs={12} md={3}>
+                            <TextInputCustom value={data.SLHientai} label="Nhân sự hiện có" type="number" />
+                        </Grid>
+                        <Grid item xs={12} md={3}>
+                            <TextInputCustom value={data.SLCantuyen} label="Nhân sự cần tuyển" type="number" />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <NumberFormat customInput={TextField}
+                                label="Mức lương dự kiến"
+                                variant="standard"
+                                thousandSeparator={true}
+                                value={data.LuongDK}
                                 disabled={true}
-                                onChange={(newValue) => {
-                                    setValue(newValue);
-                                }}
-                                inputFormat="dd/MM/yyyy"
-                                renderInput={(params) => <TextField {...params} fullWidth />}
+                                autoComplete="off"
+                                suffix="đ"
+                                fullWidth
                             />
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                views={['year', 'month', 'day']}
-                                label="Thời gian tiếp nhận"
-                                inputFormat="dd/MM/yyyy"
-                                value={data.TiepnhanNS}
-                                disabled={true}
-                                onChange={(newValue) => {
-                                    setValue(newValue);
-                                }}
-                                renderInput={(params) => <TextField {...params} fullWidth />}
-                            />
-                        </LocalizationProvider>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            id="demo-helper-text-aligned"
-                            label="Mô tả tuyển dụng"
-                            type="text"
-                            defaultValue={data.MotaTD}
-                            disabled={true}
-                            fullWidth
-                            variant="standard"
-                        />
-                    </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                    <TextareaAutosize
-                        aria-label="empty textarea"
-                        placeholder="Yêu cầu tuyển dụng"
-                        defaultValue={data.YeucauTD}
-                        disabled={true}
-                        className={classes.textarea}
-                    />
-                </Grid>
-                <TextField
-                    id="demo-helper-text-aligned"
-                    label="Người kiểm duyệt"
-                    type="text"
-                    defaultValue={censor}
-                    disabled={true}
-                    fullWidth
-                    variant="standard"
-                />
-                <Grid container spacing={2}>
-                    <Grid item xs={12} md={12} className={classes.gridLeft}>
+                        </Grid>
+                        <Grid item xs={12} md={6}>
+                            <TextInputCustom value={reasons.includes(data.Lydo) ? data.Lydo : "Khác"} label="Lí do tuyển dụng" type="text" />
+                        </Grid>
+                        {!reasons.includes(data.Lydo) &&
+                            <Grid item xs={12}>
+                                <TextInputCustom value={data.Lydo} label="Lí do khác" type="text" />
+                            </Grid>
+                        }
+                        {/* Thời gian thử việc  */}
+                        <Grid item xs={12} md={6}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    views={['year', 'month', 'day']}
+                                    label="Thời gian thử việc"
+                                    value={data.TGThuviec}
+                                    disabled={true}
+                                    onChange={(newValue) => {
+                                        setValue(newValue);
+                                    }}
+                                    inputFormat="dd/MM/yyyy"
+                                    renderInput={(params) => <TextField {...params} fullWidth />}
+                                />
+                            </LocalizationProvider>
+                        </Grid>
+                        {/* Thời gian tiếp nhận */}
+                        <Grid item xs={12} md={6}>
+                            <LocalizationProvider dateAdapter={AdapterDateFns}>
+                                <DatePicker
+                                    views={['year', 'month', 'day']}
+                                    label="Thời gian tiếp nhận"
+                                    inputFormat="dd/MM/yyyy"
+                                    value={data.TiepnhanNS}
+                                    disabled={true}
+                                    onChange={(newValue) => {
+                                        setValue(newValue);
+                                    }}
+                                    renderInput={(params) => <TextField {...params} fullWidth />}
+                                />
+                            </LocalizationProvider>
+                        </Grid>
+                        {/* Mô tả tuyển dụng  */}
+                        <Grid item xs={12}>
+                            <TextInputCustom value={data.MotaTD} label="Mô tả tuyển dụng" type="text" />
+                        </Grid>
+                        {/* Yêu cầu tuyển dụng  */}
+                        <Grid item xs={12}>
+                            <TextInputCustom value={data.YeucauTD} label="Yêu cầu tuyển dụng" type="text" />
+                        </Grid>
+                        {/* Người kiểm duyệt  */}
+                        <Grid item xs={12}>
+                            <TextInputCustom value={censor} label="Người kiểm duyệt" type="text" />
+                        </Grid>
                         {/* Nguồn mua  */}
-                        <FormControl variant="standard" fullWidth>
-                            <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Nguồn</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={source}
-                                onChange={(e) => { setSource(e.target.value) }}
-                                label="Nguồn"
-                                placeholder="Nguồn"
-                                MenuProps={{ disablePortal: true }}
-                                style={{ fontSize: "15px" }}
-                            >
-                                <MenuItem value={"Facebook"}>Facebook</MenuItem>
-                                <MenuItem value={"TopCV"}>TopCV</MenuItem>
-                                <MenuItem value={"ITViec"}>ITViec</MenuItem>
-                            </Select>
-                        </FormControl>
-                        {/* Thời gian mua */}
-                        <FormControl variant="standard" fullWidth className={classes.field}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    views={['year', 'month', 'day']}
-                                    label="Thời gian mua"
-                                    value={selectedDate}
-                                    onChange={(newValue) => {
-                                        setSelectedDate(newValue);
-                                    }}
-                                    inputFormat="dd/MM/yyyy"
-                                    renderInput={(params) => <TextField {...params} fullWidth
-                                    />}
-
-                                />
-                            </LocalizationProvider>
-                        </FormControl>
+                        <Grid item xs={12}>
+                            <SelectField label="Nguồn mua" value={source} arrayItem={sourceArray} handleChange={(e) => { setSource(e.target.value) }} />
+                        </Grid>
+                        {/* Thời gian mua  */}
+                        <Grid item xs={12}>
+                            <DateField label="Thời gian mua" value={selectedDate} handleChange={setSelectedDate} />
+                        </Grid>
                         {/* Chi phí mua  */}
-                        <NumberFormat customInput={TextField}
-                            label="Chi phí"
-                            variant="standard"
-                            thousandSeparator={true}
-                            value={currency}
-                            error={isValueEmpty}
-                            helperText={isValueEmpty ? "Vui lòng nhập chi phí" : ""}
-                            onBlur={(e) => { setIsValueEmpty(e.target.defaultValue == "") }}
-                            onChange={(e) => { setCurrency(e.target.value) }}
-                            autoComplete="off"
-                            suffix="đ"
-                            fullWidth
-
-                        />
-                        <FormControl variant="standard" fullWidth>
-                            <InputLabel htmlFor="demo-customized-textbox" style={{ fontSize: "1em", fontWeight: "500" }}>Hình thức thanh toán</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-standard-label"
-                                id="demo-simple-select-standard"
-                                value={type}
-                                onChange={(e) => { setType(e.target.value) }}
-                                label="Hình thức thanh toán"
-                                placeholder="Hình thức thanh toán"
-                                MenuProps={{ disablePortal: true }}
-                                style={{ fontSize: "15px" }}
-                            >
-                                <MenuItem value={0}>Chuyển khoản</MenuItem>
-                                <MenuItem value={1}>Thanh toán tiền mặt</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl variant="standard" fullWidth className={classes.field}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    views={['year', 'month', 'day']}
-                                    label="Ngày cần thanh toán"
-                                    value={selectedDate2}
-                                    onChange={(newValue) => {
-                                        setSelectedDate2(newValue);
-                                    }}
-                                    inputFormat="dd/MM/yyyy"
-                                    renderInput={(params) => <TextField {...params} fullWidth
-                                    />}
-
-                                />
-                            </LocalizationProvider>
-                        </FormControl>
+                        <Grid item xs={12}>
+                            <NumberField form={form} name="Chiphi" label="Chi phí" error="Vui lòng nhập chi phí" />
+                        </Grid>
+                        {/* Hình thức thanh toán  */}
+                        <Grid item xs={12}>
+                            <SelectField label="Hình thức thanh toán" value={type} arrayItem={typeArray} handleChange={(e) => { setType(e.target.value) }} />
+                        </Grid>
+                        {/* Ngày cần thanh toán  */}
+                        <Grid item xs={12}>
+                            <DateField label="Ngày cần thanh toán" value={selectedDate2} handleChange={setSelectedDate2} />
+                        </Grid>
                     </Grid>
-                </Grid>
-            </DialogContent>
-            <DialogActions>
-                <Button color="primary" autoFocus type="submit" variant="contained" disabled={disabledButton} onClick={handleUpdateTickets}>
-                    Cập nhật tuyển dụng
-                </Button>
-            </DialogActions>
+                </DialogContent>
+                <DialogActions>
+                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid}>
+                        Cập nhật tuyển dụng
+                    </Button>
+                </DialogActions>
+            </form>
         </React.Fragment >
     );
 }

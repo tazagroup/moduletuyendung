@@ -16,6 +16,7 @@
         "@reduxjs/toolkit": "1.6.1",
         "@syncfusion/ej2-react-calendars": "^19.3.53",
         "@syncfusion/ej2-react-schedule": "^19.3.53",
+        "@tinymce/tinymce-react": "^3.13.0",
         "@wojtekmaj/react-daterange-picker": "^3.3.2",
         "auth0-lock": "11.30.4",
         "autosuggest-highlight": "3.1.1",

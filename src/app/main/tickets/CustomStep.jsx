@@ -16,7 +16,6 @@ import ModalUpdateItem from './ModalUpdateItem'
 const CustomStep = ({ item, data, setIsFetching }) => {
     const dispatch = useDispatch()
     const steps = data['Pheduyet']
-    const idTicket = data.key
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const [anchorEl2, setAnchorEl2] = useState(null);
@@ -28,7 +27,6 @@ const CustomStep = ({ item, data, setIsFetching }) => {
     const handleSubClose = () => {
         setAnchorEl2(null);
     };
-
     const handleOpen = (e) => {
         const currentPos = item.id + 1
         /*
@@ -47,18 +45,19 @@ const CustomStep = ({ item, data, setIsFetching }) => {
     const handleApprove = async (e) => {
         handleClose()
         const value = e.target.innerText
+        const flagArray = [...steps]
         //Change status of step
         const newValue = { ...item, status: 1, Lydo: "", ngayUpdate: new Date().toISOString() }
-        steps[`${newValue.id}`] = { ...newValue }
-        const nextStep = steps[`${newValue.id + 1}`]
+        flagArray[`${newValue.id}`] = { ...newValue }
+        const nextStep = flagArray[`${newValue.id + 1}`]
         if (nextStep) {
-            steps[`${newValue.id + 1}`] = { ...nextStep, status: 0, Lydo: "", ngayUpdate: new Date().toISOString() }
+            flagArray[`${newValue.id + 1}`] = { ...nextStep, status: 0, Lydo: "", ngayUpdate: new Date().toISOString() }
         }
         else {
             if (item.id === 1 || item.id === 3) {
                 //Choose a censor
                 const newStep = { id: item.id + 1, status: 0, nguoiDuyet: value, ngayTao: new Date().toISOString() }
-                steps.push(newStep)
+                flagArray.push(newStep)
                 if (item.id === 1) {
                     dispatch(openDialog({
                         children: <ModalUpdateItem
@@ -71,34 +70,36 @@ const CustomStep = ({ item, data, setIsFetching }) => {
             else if (item.id !== 6) {
                 //Current user check
                 const newStep = { id: item.id + 1, status: 0, nguoiDuyet: "User", ngayTao: new Date().toISOString() }
-                steps.push(newStep)
+                flagArray.push(newStep)
             }
         }
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
-            Pheduyet: steps,
+        const response = await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.id + 1}`, {
+            Pheduyet: [...flagArray],
             Tinhtrang: item.id === 5 ? "Đã thanh toán" : item.Tinhtrang
         })
         setIsFetching(state => !state)
     }
     const handleRefuse = async (e) => {
         handleClose()
+        const flagArray = [...steps]
         const newValue = { ...item, status: 2, Lydo: reason, ngayUpdate: new Date().toISOString() }
-        steps[`${newValue.id}`] = { ...newValue }
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
-            Pheduyet: steps
+        flagArray[`${newValue.id}`] = { ...newValue }
+        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.id + 1}`, {
+            Pheduyet: [...flagArray]
         })
         setIsFetching(state => !state)
     }
     const handleEdit = async (e) => {
         handleClose()
+        const flagArray = [...steps]
         const newValue = { ...item, status: 3, ngayTao: new Date().toISOString() }
         //Change previous step's status
-        const previousStep = steps[`${newValue.id - 1}`]
-        steps[`${newValue.id - 1}`] = { ...previousStep, status: 0, ngayUpdate: new Date().toISOString() }
+        const previousStep = flagArray[`${newValue.id - 1}`]
+        flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, ngayUpdate: new Date().toISOString() }
         // steps[`${newValue.id}`] = { ...newValue }
-        steps.splice(newValue.id, 1)
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${idTicket}`, {
-            Pheduyet: steps
+        flagArray.splice(newValue.id, 1)
+        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.id + 1}`, {
+            Pheduyet: [...flagArray]
         })
         setIsFetching(state => !state)
     }

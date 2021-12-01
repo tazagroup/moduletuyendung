@@ -32,7 +32,7 @@ function Logo() {
       <Typography className="text-16 leading-none mx-12 font-medium logo-text" color="inherit">
         TAZA
       </Typography>
-      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Version : 1.2</Typography>
+      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Version : 1.3</Typography>
     </div>
   );
 }

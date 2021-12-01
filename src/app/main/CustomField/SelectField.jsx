@@ -1,9 +1,9 @@
 import React from 'react'
 import { FormControl, MenuItem, Select, InputLabel } from '@mui/material';
-const styleLabel = { fontSize: "15px", fontWeight: "500", paddingBottom: "4px" }
+const styleLabel = { fontSize: "15px", paddingBottom: "4px" }
 const styleSelect = { lineHeight: "20px", fontSize: "15px" }
 const SelectField = (props) => {
-    const { label, value, handleChange, arrayItem } = props
+    const { label, value, handleChange, arrayItem, disabled = false } = props
     return (
         <FormControl variant="standard" fullWidth>
             <InputLabel htmlFor="demo-customized-textbox" style={styleLabel}>{label}</InputLabel>
@@ -16,6 +16,7 @@ const SelectField = (props) => {
                 placeholder={label}
                 MenuProps={{ disablePortal: true }}
                 style={styleSelect}
+                disabled={disabled}
             >
                 {arrayItem.map((item, index) => {
                     return (

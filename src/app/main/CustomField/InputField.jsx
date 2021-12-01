@@ -2,12 +2,12 @@ import React from 'react'
 import { Controller } from "react-hook-form";
 import { TextField } from '@material-ui/core';
 const InputField = (props) => {
-    const { form, name, label,type } = props;
-    return (
-       <Controller
-       name={name}
-       control={form.control}
-       render={(props) => {
+  const { form, name, label, type, disabled = false } = props;
+  return (
+    <Controller
+      name={name}
+      control={form.control}
+      render={(props) => {
         const { invalid, error } = props.fieldState;
         return (
           <TextField
@@ -17,13 +17,16 @@ const InputField = (props) => {
             type={type}
             label={label}
             fullWidth
+            InputLabelProps={{
+              shrink: true
+            }}
             variant="standard"
-            fullWidth
+            disabled={disabled}
           />
         );
       }}
-       />
-    )
+    />
+  )
 }
 
 export default InputField

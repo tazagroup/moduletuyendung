@@ -26,7 +26,7 @@ const useStyles = makeStyles({
     title: {
         width: "100%",
         textAlign: "center",
-        fontSize: "20px !important",
+        fontSize: "25px !important",
         fontWeight: "bold !important"
     },
     textarea: {
@@ -67,7 +67,8 @@ const ModalCreateItem = ({ setIsFetching }) => {
     const [isOther, setIsOther] = useState(false)
     const [censor, setCensor] = useState('')
     const arrayCensor = ["Phạm Chí Kiệt", "Phạm Chí Kiệt 2", "Phạm Chí Kiệt 3"]
-    const isValid = form.formState.isValid
+    const reasonValid = isOther ? otherReason !== "" : reasons !== ""
+    const isValid = form.formState.isValid && reasonValid
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }

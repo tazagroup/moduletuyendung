@@ -4,7 +4,7 @@ import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 const DateField = (props) => {
-    const { label, value, handleChange } = props
+    const { label, value, handleChange, disabled = false } = props
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DatePicker
@@ -15,6 +15,7 @@ const DateField = (props) => {
                     handleChange(newValue.toISOString());
                 }}
                 inputFormat="dd/MM/yyyy"
+                disabled={disabled}
                 renderInput={(params) => <TextField {...params} fullWidth />}
             />
         </LocalizationProvider>

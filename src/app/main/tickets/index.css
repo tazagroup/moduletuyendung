@@ -93,3 +93,7 @@ thead tr th {
 label{
     font-size: 15px !important;
 }
+/* Menu Item  */
+li.menu__item{
+    font-size: 15px !important;
+}

@@ -1,0 +1,26 @@
+.icon__table__candidate.success {
+    width: 25px;
+    height: 25px;
+    fill: #2ccb2c;
+}
+.icon__table__candidate.warning {
+    width: 25px;
+    height: 25px;
+    fill: #ed042b;
+}
+.word__file {
+    fill: #0078d7;
+    display: unset;
+}
+.excel__file {
+    fill: #1d6f42;
+    display: unset;
+}
+.ppt__file {
+    fill: #d04423;
+    display: unset;
+}
+svg.calendar__icon {
+    width: 30px !important;
+    height: 30px !important;
+}

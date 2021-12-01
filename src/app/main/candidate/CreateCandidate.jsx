@@ -1,27 +1,35 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
-    Button, Grid, InputLabel, MenuItem, FormControl, Divider, Box,
+    Button, Grid, InputLabel, MenuItem, FormControl, Box,
     Typography, Select
 } from '@mui/material';
+import { useDispatch, useSelector } from "react-redux"
+import { showMessage } from "app/store/fuse/messageSlice"
 import { TextField, makeStyles } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { storage } from "./../../services/firebaseService/fireBase"
+import InputField from "../CustomField/InputField"
+import SelectField from "../CustomField/SelectField"
+import DateField from "../CustomField/DateField"
+import { storage } from "../../services/firebaseService/fireBase"
+import axios from "axios"
 const schema = yup.object().shape({
-    Hoten: yup.string().required(),
+    Hoten: yup.string().required("Vui lòng nhập tên ứng viên"),
+    Email: yup.string().email("Vui lòng nhập đúng định dạng email").required("Vui lòng nhập email"),
+    SDT: yup.string().required("Vui lòng nhập số điện thoại"),
 });
 const useStyles = makeStyles({
     field: {
         marginTop: "15px !important"
     },
     select: {
-        fontSize: "20px !important"
+        fontSize: "15px !important"
     },
     label: {
-        fontSize: "1.3rem !important"
+        fontSize: "15px !important"
     },
     icon: {
         position: "absolute",
@@ -30,13 +38,59 @@ const useStyles = makeStyles({
         cursor: "pointer"
     }
 })
-const CreateCandidate = ({ open, item, handleClose }) => {
+const CreateCandidate = ({ open, item = "", handleClose }) => {
+    const dispatch = useDispatch()
     const classes = useStyles()
-    const { register, handleSubmit, formState: { errors } } = useForm({
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const [ticket, setTicket] = useState(item)
+    const [tickets, setTickets] = useState([])
+    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [fileName, setFileName] = useState("")
+    const [isFileEmpty, setIsFileEmpty] = useState(false)
+    useEffect(async () => {
+        //GET THE CURRENT TICKETS
+        const tickets = dataTicket.filter(item => item.Tinhtrang === "Đã thanh toán")
+        setTickets(tickets)
+    }, [])
+    const form = useForm({
+        defaultValues: {
+            Vitri: ticket.Vitri || "",
+            Nguon: ticket.Nguon || "",
+            Hoten: "",
+            Email: "",
+            SDT: "",
+        },
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
-    const handleCreateCandidate = (e) => {
+    const isValid = form.formState.isValid && fileName !== ""
+    const handleCreateCandidate = async (e) => {
+        const bodyData = {
+            ...e,
+            idTicket: ticket.key,
+            CV: fileName,
+            DuyetCV: false,
+            MoiPV: false,
+            NgayUT: selectedDate.toISOString(),
+            NgayTao: new Date().toISOString()
+        }
+        if (fileName === "") { setIsFileEmpty(true) }
+        else {
+            const response = await axios.post(`https://6195d82474c1bd00176c6ede.mockapi.io/Candidate`, bodyData)
+            if (response.data) {
+                dispatch(showMessage({
+                    message: 'Tạo hồ sơ thành công',
+                    autoHideDuration: 2000,
+                    anchorOrigin: {
+                        vertical: 'top',
+                        horizontal: 'center'
+                    },
+                    variant: 'success'
+                }))
+                handleClose()
+            }
+        }
+
 
     }
     const handleUploadFile = (e) => {
@@ -46,13 +100,12 @@ const CreateCandidate = ({ open, item, handleClose }) => {
         },
             (error) => console.log(error),
             () => {
-                storage.ref("files").child(file.name).getDownloadURL().then((url) => console.log(url))
+                storage.ref("files").child(file.name).getDownloadURL().then((url) => {
+                    setFileName(url)
+                })
             })
     }
-    const handleFileChange = (e) => {
-        console.log(e)
-    }
-    const [ticket, setTicket] = useState(item)
+
     return (
         <Dialog
             open={open}
@@ -61,7 +114,7 @@ const CreateCandidate = ({ open, item, handleClose }) => {
         >
             <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Tạo hồ sơ ứng viên</DialogTitle>
             <CloseIcon className={classes.icon} onClick={handleClose} />
-            <form onSubmit={handleSubmit(handleCreateCandidate)}>
+            <form onSubmit={form.handleSubmit(handleCreateCandidate)}>
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
@@ -72,50 +125,84 @@ const CreateCandidate = ({ open, item, handleClose }) => {
                                     id="demo-simple-select-filled"
                                     className={classes.select}
                                     value={ticket}
+                                    renderValue={value => {
+                                        return (value && Object.keys(value).length !== 0) ? <div>Phiếu {value.key} - {value.Vitri}</div> : <div>OK</div>
+                                    }}
                                     onChange={(e) => setTicket(e.target.value)}
                                 >
-                                    <MenuItem value={ticket}>Phiếu 1</MenuItem>
+                                    {tickets.map(item => (
+                                        <MenuItem key={item.key} value={item} className="menu__item">Phiếu {item.key} - {item.Vitri}</MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
-                            <TextField
-                                id="outlined-read-only-input"
-                                className={classes.field}
-                                label="Vị trí tuyển dụng"
-                                defaultValue={ticket.Vitri}
-                                disabled={true}
-                                fullWidth
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Controller
+                                name="Vitri"
+                                control={form.control}
+                                render={(props) => {
+                                    const { invalid, error } = props.fieldState;
+                                    return (
+                                        <TextField
+                                            {...props.field}
+                                            error={invalid}
+                                            helperText={error?.message}
+                                            label={"Vị trí tuyển dụng"}
+                                            fullWidth
+                                            InputLabelProps={{
+                                                shrink: true
+                                            }}
+                                            value={ticket.Vitri}
+                                            variant="standard"
+                                            disabled={true}
+                                        />
+                                    );
+                                }}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Controller
+                                name="Nguon"
+                                control={form.control}
+                                render={(props) => {
+                                    const { invalid, error } = props.fieldState;
+                                    return (
+                                        <TextField
+                                            {...props.field}
+                                            error={invalid}
+                                            helperText={error?.message}
+                                            label={"Nguồn ứng tuyển"}
+                                            fullWidth
+                                            InputLabelProps={{
+                                                shrink: true
+                                            }}
+                                            value={ticket.Nguon}
+                                            variant="standard"
+                                            disabled={true}
+                                        />
+                                    );
+                                }}
                             />
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <TextField
-                                id="outlined-read-only-input"
-                                label="Họ tên ứng viên"
-                                fullWidth
-                                {...register("Hoten")}
-                            />
+                            <InputField form={form} name="Hoten" label={"Họ tên ứng viên"} type="text" />
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <TextField
-                                id="outlined-read-only-input"
-                                label="Email"
-                                fullWidth
-                                {...register("Email")}
-                            />
+                            <InputField form={form} name="Email" label={"Email"} type="text" />
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <TextField
-                                id="outlined-read-only-input"
-                                label="Phone"
-                                type="number"
-                                fullWidth
-                                {...register("sdt")}
-                            />
+                            <InputField form={form} name="SDT" label={"Phone"} type="number" />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
                                 id="outlined-read-only-input"
                                 label="CV"
                                 type="file"
+                                error={isFileEmpty}
+                                helperText={isFileEmpty ? "Vui lòng nhập CV ứng viên" : ""}
                                 InputLabelProps={{
                                     shrink: true
                                 }}
@@ -126,7 +213,9 @@ const CreateCandidate = ({ open, item, handleClose }) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <button>OK</button>
+                    <Button color="primary" autoFocus type="submit" disabled={!isValid} variant="contained">
+                        Tạo hồ sơ
+                    </Button>
                 </DialogActions>
             </form>
         </Dialog>

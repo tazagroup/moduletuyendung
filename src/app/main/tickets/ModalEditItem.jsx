@@ -1,13 +1,9 @@
 import React, { useState } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
-import { Grid, InputLabel } from '@mui/material';
+import { Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import NumberFormat from 'react-number-format';
-import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import TextareaAutosize from '@mui/material/TextareaAutosize';
 import axios from 'axios';
 //FORM
 import { useForm } from "react-hook-form";
@@ -33,7 +29,7 @@ const useStyles = makeStyles({
     title: {
         width: "100%",
         textAlign: "center",
-        fontSize: "20px !important",
+        fontSize: "25px !important",
         fontWeight: "bold !important"
     },
     field: {
@@ -67,8 +63,8 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate2, setSelectedDate2] = useState(item.TiepnhanNS)
-    const [selectedDate3, setSelectedDate3] = useState(item.TGMua ? item.TGMua : "")
-    const [selectedDate4, setSelectedDate4] = useState(item.NTC ? item.NTC : "")
+    const [selectedDate3, setSelectedDate3] = useState(item.TGMua ? item.TGMua : null)
+    const [selectedDate4, setSelectedDate4] = useState(item.NTC ? item.NTC : null)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
     const [source, setSource] = useState(item.Nguon ? item.Nguon : "")
@@ -80,16 +76,17 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
             SLHientai: item.SLHientai,
             MotaTD: item.MotaTD,
             YeucauTD: item.YeucauTD,
-            Chiphi: item.Chiphi,
+            Chiphi: item.Chiphi || " ",
             LuongDK: item.LuongDK,
             Tinhtrang: item.Tinhtrang
         },
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
+    const checkStep = item.Pheduyet.length <= 3
     const isValid = form.formState.isValid
     const reasonCondition = reason === "Khác" ? otherReason !== "" : reason !== ""
-    const disabledButton = isValid && reasonCondition && source !== "" && type !== ""
+    const disabledButton = isValid && reasonCondition && checkStep ? (source !== "" && type) !== "" : true
     const handleEditTicket = async (e) => {
         const bodyData = {
             ...e,
@@ -166,26 +163,26 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                             </Grid>
                             {/* Nguồn  */}
                             <Grid item xs={12}>
-                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={setSource} />
+                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={setSource} disabled={checkStep} />
                             </Grid>
                             {/* Thời gian mua  */}
                             <Grid item xs={12}>
                                 <FormControl variant="standard" fullWidth className={classes.field}>
-                                    <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} />
+                                    <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} disabled={checkStep} />
                                 </FormControl>
                             </Grid>
                             {/* Chi phí mua  */}
                             <Grid item xs={12}>
-                                <NumberField form={form} name="Chiphi" label="Chi phí mua" error="Vui lòng nhập chi phí" />
+                                <NumberField form={form} name="Chiphi" label="Chi phí mua" error="Vui lòng nhập chi phí" disabled={checkStep} />
                             </Grid>
                             {/* Hình thức thanh toán  */}
                             <Grid item xs={12}>
-                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={setType} />
+                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={setType} disabled={checkStep} />
                             </Grid>
                             {/* Ngày cần thanh toán  */}
                             <Grid item xs={12}>
                                 <FormControl variant="standard" fullWidth className={classes.field}>
-                                    <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} />
+                                    <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} disabled={checkStep} />
                                 </FormControl>
                             </Grid>
                         </Grid>

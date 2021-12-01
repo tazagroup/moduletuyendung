@@ -3,15 +3,12 @@ import { useDispatch } from 'react-redux';
 import { closeDialog } from 'app/store/fuse/dialogSlice';
 import { DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
-import { Grid, InputLabel } from '@mui/material';
+import { Grid } from '@mui/material';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import NumberFormat from 'react-number-format';
 import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
-import TextareaAutosize from '@mui/material/TextareaAutosize';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
@@ -26,7 +23,7 @@ const useStyles = makeStyles({
     title: {
         width: "100%",
         textAlign: "center",
-        fontSize: "20px !important",
+        fontSize: "25px !important",
         fontWeight: "bold !important"
     },
     field: {
@@ -93,7 +90,6 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
     //UPDATE TICKETS
     const handleUpdateTickets = async (e) => {
         const bodyData = {
-            ...data,
             Nguon: source,
             TGMua: selectedDate.toISOString(),
             Chiphi: e.Chiphi.split(',').join(''),

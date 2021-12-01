@@ -29,6 +29,8 @@
         "firebase": "^8.10.0",
         "formsy-react": "2.2.5",
         "framer-motion": "4.1.17",
+        "gapi-script": "^1.2.0",
+        "googleapis": "^91.0.0",
         "history": "4.10.1",
         "i18next": "20.4.0",
         "jss": "10.6.0",

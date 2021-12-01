@@ -1,7 +1,8 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
 import FuseLoading from '@fuse/core/FuseLoading';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { openDialog } from 'app/store/fuse/dialogSlice';
+import { fetchTickets } from 'app/store/fuse/ticketsSlice';
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
@@ -16,11 +17,11 @@ import ModalEditItem from './ModalEditItem'
 import ModalCreateItem from "./ModalCreateItem"
 import TicketStatus from './TicketStatus'
 import EmptyStatus from './EmptyStatus'
-import CreateCandidate from './../candidate/CreateCandidate'
+import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
-import { CustomDateEdit, CustomSelectEdit, CustomSliderEdit, CustomSelectPriceEdit } from './CustomEdit';
+import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit } from '../CustomField/CustomEdit';
 import axios from 'axios'
-import { getStatusRendering, getTypeRendering } from './utils';
+import { getStatusRendering } from '../utils';
 
 const convertProperty = (array) => {
     const arrayResult = { BQL: [], BTD: [], BGD: [], BKT: [] }
@@ -43,8 +44,8 @@ const style = {
 }
 export default function Table() {
     const dispatch = useDispatch()
-    const [rowData, setRowData] = useState({})
     const [data, setData] = useState([])
+    const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
@@ -53,6 +54,7 @@ export default function Table() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isCC, setIsCC] = useState(false)
     const [isEditTicket, setIsEditTicket] = useState(false)
+    const [isBlock, setIsBlock] = useState(false)
     const tableRef = useRef();
     //FILTER RANGE NUMBER
     const salary = [
@@ -61,19 +63,22 @@ export default function Table() {
         { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
     ]
     useEffect(async () => {
-        const response = await axios.get('https://6195d82474c1bd00176c6ede.mockapi.io/Tickets')
-        if (response) {
-            const responseData = response.data
-            const data = responseData.map(({ id: key, ...item }) => ({
-                key,
-                ...item,
-            }))
-            setData(data)
-            setIsLoading(false)
-        }
+        dispatch(fetchTickets()).then(res => {
+            const data = res.payload;
+            if (data) {
+                const result = data.map(({ id: key, ...item }, index) => ({
+                    id: index,
+                    key,
+                    ...item,
+                }))
+                setData(result)
+                setIsLoading(false)
+            }
+        })
     }, [isFetching])
     const headers = [
-        {
+        { title: "", field: "id", render: rowData => null, filterComponent: rowData => null }
+        , {
             title: "#", field: "key", align: "center",
             filterComponent: props => { return <></> },
             render: rowData => (
@@ -84,7 +89,7 @@ export default function Table() {
                         size="large">
                         <MoreVertIcon />
                     </IconButton >
-                    <p>{rowData.key}</p>
+                    <p>{rowData.id + 1}</p>
                 </div>
             )
         },
@@ -92,7 +97,7 @@ export default function Table() {
             title: "Vị trí tuyển dụng", field: "Vitri",
             filterComponent: props => {
                 const data = ["IT", "Marketing", "Telesale"]
-                return <CustomSelectEdit {...props} data={data} width={120} />
+                return <CustomSelectEdit {...props} data={data} width={125} field="Vitri" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
@@ -108,7 +113,7 @@ export default function Table() {
             type: "currency",
             currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
             filterComponent: props => {
-                return <CustomSelectPriceEdit {...props} data={salary} width={150} />
+                return <CustomSelectPriceEdit {...props} data={salary} width={150} field="LuongDK" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
@@ -158,12 +163,13 @@ export default function Table() {
             ),
             filterComponent: props => {
                 const data = ["Thay thế", "Tuyển mới", "Dự phòng nhân lực", "Khác"]
-                return <CustomSelectEdit {...props} data={data} width={150} />
+                return <CustomSelectEdit {...props} data={data} width={165} field="Lydo" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
-                const { Nguon } = rowData;
-                return term.includes(Nguon);
+                const { Lydo } = rowData;
+                const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực"]
+                return term.includes(Lydo) || !arrayReason.includes(Lydo);
             }
         },
         {
@@ -180,7 +186,7 @@ export default function Table() {
             emptyValue: () => <ClearIcon />,
             filterComponent: props => {
                 const data = ["Facebook", "TopCV", "ITViec"]
-                return <CustomSelectEdit {...props} data={data} width={120} />
+                return <CustomSelectEdit {...props} data={data} width={120} field="Nguon" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
@@ -245,7 +251,7 @@ export default function Table() {
             },
             filterComponent: props => {
                 const data = ["Chuyển khoản", "Thanh toán tiền mặt"]
-                return <CustomSelectEdit {...props} data={data} width={120} />
+                return <CustomSelectEdit {...props} data={data} width={165} field="Hinhthuc" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
@@ -259,7 +265,7 @@ export default function Table() {
             editComponent: (rowData) => <></>,
             filterComponent: props => {
                 const data = ["Chưa thanh toán", "Đã thanh toán"]
-                return <CustomSelectEdit {...props} data={data} width={150} />
+                return <CustomSelectEdit {...props} data={data} width={150} field="Tinhtrang" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0 || term.length === 2) return true;
@@ -327,6 +333,9 @@ export default function Table() {
     const handleClick = (event, row) => {
         setRowData(row);
         setAnchorEl(event.currentTarget);
+        if (row.Tinhtrang !== "Đã thanh toán") {
+            setIsBlock(true)
+        }
     };
     const handleClose = () => {
         setAnchorEl(null);
@@ -353,8 +362,8 @@ export default function Table() {
         });
     }
     const handleCreate = () => {
-        handleClose()
         setIsCC(true)
+        handleClose()
     }
     return isLoading ? <FuseLoading /> : <Fragment>
         {dataStatus ? <TicketStatus item={dataStatus} /> : <EmptyStatus />}
@@ -401,43 +410,14 @@ export default function Table() {
             ]}
             editable={{
                 isEditHidden: (rowData) => rowData,
-                onRowAdd: (newData) =>
-                    new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            newData.key = data.length + 1
-                            setData([...data, newData]);
-                            resolve();
-                        }, 1000);
-                    }),
-                onRowUpdate: (newData, oldData) =>
-                    new Promise((resolve, reject) => {
-                        setTimeout(() => {
-                            resolve();
-                            const dataUpdate = [...data];
-                            const index = oldData.tableData.id;
-                            dataUpdate[index] = newData;
-                            setData([...dataUpdate]);
-                            axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${index + 1}`, newData)
-                        }, 1000);
-                    }),
             }}
             localization={{
-                toolbar: {
-                    showColumnsTitle: "Hiển thị cột",
-                },
-                header: {
-                    actions: ""
-                },
-                body: {
-                    emptyDataSourceMessage: "Không có dữ liệu hiển thị..."
-                }
+                toolbar: { showColumnsTitle: "Hiển thị cột", },
+                header: { actions: "" },
+                body: { emptyDataSourceMessage: "Không có dữ liệu hiển thị..." }
             }}
-            icons={{
-                ViewColumn: ViewColumnIcon,
-            }}
-            onRowClick={(event, rowData) => {
-                setDataStatus(rowData)
-            }}
+            icons={{ ViewColumn: ViewColumnIcon, }}
+            onRowClick={(event, rowData) => { setDataStatus(rowData) }}
         />
         <Menu
             id="basic-menu"
@@ -450,7 +430,7 @@ export default function Table() {
         >
             <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
             <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
-            <MenuItem onClick={handleCreate}>Tạo hồ sơ</MenuItem>
+            <MenuItem onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
         </Menu>
         {isCC &&
             <CreateCandidate

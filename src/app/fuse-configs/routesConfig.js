@@ -3,7 +3,9 @@ import FuseUtils from '@fuse/utils';
 import ExampleConfig from 'app/main/example/ExampleConfig';
 import FuseLoading from '@fuse/core/FuseLoading';
 import Error404Page from 'app/main/404/Error404Page';
-import Tickets from 'app/main/tickets/Tickets'
+import Dashboard from 'app/main/dashboard/index'
+import Tickets from 'app/main/tickets'
+import Candidates from 'app/main/candidate'
 import Calendar from 'app/main/calendar/Calendar'
 const routeConfigs = [ExampleConfig];
 
@@ -15,7 +17,7 @@ const routes = [
   {
     exact: true,
     path: '/',
-    component: () => <FuseLoading />,
+    component: () => <Dashboard />,
   },
   {
     path: '/loading',
@@ -28,9 +30,9 @@ const routes = [
     component: () => <Tickets />,
   },
   {
-    path: '/tickets',
+    path: '/candidates',
     exact: true,
-    component: () => <Tickets />,
+    component: () => <Candidates />,
   },
   {
     path: '/calendars',

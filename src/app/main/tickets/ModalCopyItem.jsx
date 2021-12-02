@@ -3,7 +3,6 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import FormControl from '@mui/material/FormControl';
 import axios from 'axios';
 //FORM
 import { useForm } from "react-hook-form";
@@ -15,6 +14,7 @@ import DateField from '../CustomField/DateField';
 import SelectField from "../CustomField/SelectField"
 import NumberField from '../CustomField/NumberField';
 import Tinymce from '../CustomField/Tinymce';
+import AutocompleteField from '../CustomField/Autocomplete'
 const schema = yup.object().shape({
     Vitri: yup.string().required("Vui lòng nhập vị trí"),
     LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
@@ -22,8 +22,7 @@ const schema = yup.object().shape({
     SLCantuyen: yup.number().min(1, "Dữ liệu không đúng"),
     MotaTD: yup.string().required("Vui lòng nhập mô tả tuyển dụng"),
     YeucauTD: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng"),
-    Chiphi: yup.string().required("Vui lòng nhập chi phí"),
-    Tinhtrang: yup.string().default("Chưa thanh toán"),
+    Tinhtrang: yup.string().default(""),
 });
 const useStyles = makeStyles({
     title: {
@@ -43,12 +42,6 @@ const useStyles = makeStyles({
         borderBottom: "1px solid #bbbec4",
         fontSize: "15px"
     },
-    icon: {
-        position: "absolute",
-        right: "20px",
-        top: "20px",
-        cursor: "pointer"
-    },
     gridLeft: {
         paddingRight: "8px"
     },
@@ -56,53 +49,49 @@ const useStyles = makeStyles({
         paddingLeft: "8px"
     }
 })
-const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực"]
-const arraySource = ["Facebook", "ITViec", "TopCV"]
-const arrayType = ["Thanh toán tiền mặt", "Chuyển khoản"]
-const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
+const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
+const ModalCopyItem = ({ item, open, handleClose, setIsFetching }) => {
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate2, setSelectedDate2] = useState(item.TiepnhanNS)
-    const [selectedDate3, setSelectedDate3] = useState(item.TGMua ? item.TGMua : null)
-    const [selectedDate4, setSelectedDate4] = useState(item.NTC ? item.NTC : null)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
-    const [source, setSource] = useState(item.Nguon ? item.Nguon : "")
-    const [type, setType] = useState(item.Hinhthuc !== "" ? item.Hinhthuc : "")
+    const [censor, setCensor] = useState('')
+    const arrayCensor = ['Phạm Chí Kiệt', 'Phạm Chí Kiệt 2', 'Phạm Chí Kiệt 3']
     const form = useForm({
         defaultValues: {
-            Vitri: item.Vitri,
+            Vitri: item.Vitri + `(Copy)`,
             SLCantuyen: item.SLCantuyen,
             SLHientai: item.SLHientai,
             MotaTD: item.MotaTD,
             YeucauTD: item.YeucauTD,
-            Chiphi: item.Chiphi || " ",
             LuongDK: item.LuongDK,
-            Tinhtrang: item.Tinhtrang
         },
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
-    const checkStep = item.Pheduyet.length <= 3
+
     const isValid = form.formState.isValid
     const reasonCondition = reason === "Khác" ? otherReason !== "" : reason !== ""
-    const disabledButton = isValid && reasonCondition && checkStep ? (source !== "" && type) !== "" : true
+    const disabledButton = isValid && reasonCondition && censor !== ""
     const handleEditTicket = async (e) => {
         const bodyData = {
             ...e,
             TGThuviec: selectedDate,
             TiepnhanNS: selectedDate2,
             Lydo: otherReason ? otherReason : reason,
-            Pheduyet: item.Pheduyet,
             idTao: item.idTao,
-            Nguon: source,
-            TGMua: selectedDate3,
-            Hinhthuc: type,
-            NTC: selectedDate4
+            Pheduyet: [],
         }
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${item.key}`, bodyData)
-        setIsFetching(state => !state)
-        handleClose()
+        const step = { id: 0, nguoiDuyet: censor, status: 0, ngayTao: new Date().toISOString() }
+        bodyData.Pheduyet.push(step)
+        console.log(bodyData)
+        // await axios.post(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets`, bodyData)
+        // setIsFetching(state => !state)
+        // handleClose()
+    }
+    const handleCensorChange = (event, newValue) => {
+        setCensor(newValue)
     }
     return (
         <React.Fragment >
@@ -160,34 +149,13 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                             <Grid item xs={12}>
                                 <Tinymce form={form} name="YeucauTD" label={"Yêu cầu tuyển dụng"} />
                             </Grid>
-                            {/* Nguồn  */}
                             <Grid item xs={12}>
-                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={setSource} disabled={checkStep} />
-                            </Grid>
-                            {/* Thời gian mua  */}
-                            <Grid item xs={12}>
-                                <FormControl variant="standard" fullWidth className={classes.field}>
-                                    <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} disabled={checkStep} />
-                                </FormControl>
-                            </Grid>
-                            {/* Chi phí mua  */}
-                            <Grid item xs={12}>
-                                <NumberField form={form} name="Chiphi" label="Chi phí mua" error="Vui lòng nhập chi phí" disabled={checkStep} />
-                            </Grid>
-                            {/* Hình thức thanh toán  */}
-                            <Grid item xs={12}>
-                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={setType} disabled={checkStep} />
-                            </Grid>
-                            {/* Ngày cần thanh toán  */}
-                            <Grid item xs={12}>
-                                <FormControl variant="standard" fullWidth className={classes.field}>
-                                    <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} disabled={checkStep} />
-                                </FormControl>
+                                <AutocompleteField label="Quản lí xét duyệt" value={censor} arrayItem={arrayCensor} handleChange={handleCensorChange} />
                             </Grid>
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose}>
+                        <Button color="error" autoFocus type="submit" variant="contained"  onClick={handleClose}>
                             Đóng
                         </Button>
                         <Button color="primary" autoFocus type="submit" disabled={!disabledButton} variant="contained">
@@ -200,4 +168,4 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
     )
 }
 
-export default ModalEditItem
+export default ModalCopyItem

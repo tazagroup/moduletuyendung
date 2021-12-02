@@ -10,6 +10,7 @@ import InputField from '../CustomField/InputField';
 import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
 import DateField from "../CustomField/DateField"
+import AutocompleteField from '../CustomField/Autocomplete';
 import Tinymce from "../CustomField/Tinymce"
 //FORM
 import { useForm } from "react-hook-form";
@@ -66,16 +67,16 @@ const ModalCreateItem = ({ setIsFetching }) => {
     const [otherReason, setOtherReason] = useState('');
     const [isOther, setIsOther] = useState(false)
     const [censor, setCensor] = useState('')
-    const arrayCensor = ["Phạm Chí Kiệt", "Phạm Chí Kiệt 2", "Phạm Chí Kiệt 3"]
+    const arrayCensor = ['Phạm Chí Kiệt', 'Phạm Chí Kiệt 2', 'Phạm Chí Kiệt 3']
     const reasonValid = isOther ? otherReason !== "" : reasons !== ""
-    const isValid = form.formState.isValid && reasonValid
+    const isValid = form.formState.isValid && reasonValid && censor !== ""
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }
         else { setIsOther(false) }
     }
-    const handleCensorChange = (event) => {
-        setCensor(event.target.value)
+    const handleCensorChange = (event, newValue) => {
+        setCensor(newValue)
     }
     //CREATE TICKETS
     const handleCreateTickets = async (e) => {
@@ -108,7 +109,6 @@ const ModalCreateItem = ({ setIsFetching }) => {
             <form onSubmit={form.handleSubmit(handleCreateTickets)}>
                 <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
                 </DialogTitle>
-                <CloseIcon className={classes.icon} onClick={() => { dispatch(closeDialog()) }} />
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
@@ -149,12 +149,15 @@ const ModalCreateItem = ({ setIsFetching }) => {
                         <Grid item xs={12}>
                             <Tinymce form={form} name="MotaTD" label={"Mô tả tuyển dụng"} />
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <SelectField label="Quản lí xét duyệt" value={censor} arrayItem={arrayCensor} handleChange={handleCensorChange} />
+                        <Grid item xs={12}>
+                            <AutocompleteField label="Quản lí xét duyệt" value={censor} arrayItem={arrayCensor} handleChange={handleCensorChange} />
                         </Grid>
                     </Grid>
                 </DialogContent>
                 <DialogActions>
+                    <Button color="error" autoFocus type="submit" variant="contained" onClick={() => { dispatch(closeDialog()) }}>
+                        Đóng
+                    </Button>
                     <Button color="primary" autoFocus type="submit" disabled={!isValid} variant="contained">
                         Đăng tin tuyển dụng
                     </Button>

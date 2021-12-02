@@ -69,8 +69,8 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             ...e,
             idTicket: ticket.key,
             CV: fileName,
-            DuyetCV: false,
-            MoiPV: false,
+            DuyetCV: 0,
+            MoiPV: null,
             NgayUT: selectedDate.toISOString(),
             NgayTao: new Date().toISOString()
         }
@@ -126,7 +126,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                     className={classes.select}
                                     value={ticket}
                                     renderValue={value => {
-                                        return (value && Object.keys(value).length !== 0) ? <div>Phiếu {value.key} - {value.Vitri}</div> : <div>OK</div>
+                                        return (value && Object.keys(value).length !== 0) ? <div>Phiếu {value.key} - {value.Vitri}</div> : <div></div>
                                     }}
                                     onChange={(e) => setTicket(e.target.value)}
                                 >

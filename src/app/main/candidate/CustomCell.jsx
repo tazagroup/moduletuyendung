@@ -3,12 +3,13 @@ import { useSelector } from 'react-redux';
 import { Tooltip, MenuItem, FormControl } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import HelpIcon from '@mui/icons-material/Help';
 import { AiOutlineFileWord, AiOutlineFileExcel, AiOutlineFilePdf } from "react-icons/ai"
 export const CustomStatus = ({ item }) => {
     return (
         <Fragment>
-            <Tooltip title={item ? "Duyệt" : "Chưa duyệt"}>
-                {item ? <CheckCircleIcon className="icon__table__candidate success" /> : <CancelIcon className="icon__table__candidate warning" />}
+            <Tooltip title={item !== 0 ? (item === 1 ? "Đã duyệt" : "Từ chối") : "Chờ xử lí"}>
+                {item !== 0 ? (item === 1 ? <CheckCircleIcon className="icon__table__candidate success" /> : <CancelIcon className="icon__table__candidate warning"/>) : <HelpIcon />}
             </Tooltip>
         </Fragment>
     )

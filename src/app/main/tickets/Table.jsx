@@ -15,6 +15,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { DatePicker } from "react-rainbow-components";
 import ModalEditItem from './ModalEditItem'
 import ModalCreateItem from "./ModalCreateItem"
+import ModalCopyItem from './ModalCopyItem'
 import TicketStatus from './TicketStatus'
 import EmptyStatus from './EmptyStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
@@ -54,6 +55,7 @@ export default function Table() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isCC, setIsCC] = useState(false)
     const [isEditTicket, setIsEditTicket] = useState(false)
+    const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
     const tableRef = useRef();
     //FILTER RANGE NUMBER
@@ -232,16 +234,16 @@ export default function Table() {
                 return steps >= 3 ? <MTableEditField {...item} /> : <></>
             },
             filterComponent: props => {
-                return <CustomSelectPriceEdit {...props} data={salary} width={150} />
+                return <CustomSelectPriceEdit {...props} data={salary} width={150} field="Chiphi" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
                 const minPrice = Math.min(...term.map(item => item.minPrice))
                 const maxPrice = Math.max(...term.map(item => item.maxPrice))
                 if (!maxPrice) {
-                    return rowData.LuongDK >= minPrice
+                    return rowData.Chiphi >= minPrice
                 }
-                return rowData.LuongDK >= minPrice && rowData.LuongDK <= maxPrice
+                return rowData.Chiphi >= minPrice && rowData.Chiphi <= maxPrice
             }
         },
         {
@@ -354,12 +356,7 @@ export default function Table() {
     const handleCopy = () => {
         setAnchorEl(null);
         //SET MORE PROPERTIES WHICH WON'T BE COPIED
-        setInitialData({ ...rowData, name: null })
-        tableRef.current.dataManager.changeRowEditing();
-        tableRef.current.setState({
-            ...tableRef.current.dataManager.getRenderState(),
-            showAddRow: !tableRef.current.state.showAddRow
-        });
+        setIsCopyTicket(true)
     }
     const handleCreate = () => {
         setIsCC(true)
@@ -444,6 +441,14 @@ export default function Table() {
                 item={rowData}
                 setIsFetching={setIsFetching}
                 handleClose={() => { setIsEditTicket(false) }}
+            />
+        }
+        {isCopyTicket &&
+            <ModalCopyItem
+                open={isCopyTicket}
+                item={rowData}
+                setIsFetching={setIsFetching}
+                handleClose={() => { setIsCopyTicket(false) }}
             />
         }
     </Fragment>

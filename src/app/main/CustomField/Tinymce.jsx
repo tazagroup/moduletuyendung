@@ -17,6 +17,7 @@ const Tinymce = (props) => {
             init={{
                 height: 200,
                 menubar: false,
+                branding: false,
                 plugins: [
                     'advlist autolink lists link image',
                     'charmap print preview anchor help',
@@ -24,7 +25,7 @@ const Tinymce = (props) => {
                     'insertdatetime media table paste wordcount'
                 ],
                 toolbar:
-                    'undo redo | formatselect | bold italic | \
+                    'undo redo | image | bold italic | \
             alignleft aligncenter alignright | \
             bullist numlist outdent indent | help'
             }}

@@ -21,10 +21,11 @@ const countProperty = (array, field, value) => {
     }
     return array.filter(item => item[`${field}`] === value).length
 }
-const countBoolean = (array, field, value) => {
-    const trueVariable = array.filter(item => item[`${field}`] === true).length
-    const falseVariable = array.filter(item => item[`${field}`] === false).length
-    return value === "Đã duyệt" ? trueVariable : falseVariable
+const countNumber = (array, field, value) => {
+    const fulfiledVariable = array.filter(item => item[`${field}`] === 1).length
+    const rejectedVariable = array.filter(item => item[`${field}`] === -1).length
+    const pendingVariable = array.filter(item => item[`${field}`] === 0).length
+    return value !== "Chưa duyệt" ? (value === "Đã duyệt" ? fulfiledVariable : rejectedVariable) : pendingVariable
 }
 const countFile = (array, field, value) => {
     const fileArray = array.map(item => item[`${field}`].split('%2F')[1].split('?alt')[0].split('.')[1])
@@ -137,7 +138,7 @@ const CustomDateEdit = (props) => {
         </div>
     )
 }
-const CustomSelectBoolean = (props) => {
+const CustomSelectNumber = (props) => {
     const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
@@ -170,7 +171,7 @@ const CustomSelectBoolean = (props) => {
                             <Checkbox
                                 checked={value.indexOf(item) > -1}
                             />
-                            <ListItemText primary={`${item} (${countBoolean(arrayCandidate, props.field, item)})`} />
+                            <ListItemText primary={`${item} (${countNumber(arrayCandidate, props.field, item)})`} />
                         </MenuItem>
                     ))}
                 </Select>
@@ -228,4 +229,4 @@ const CustomFileEdit = (props) => {
         </>
     )
 }
-export { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomSelectBoolean, CustomFileEdit }
+export { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomSelectNumber, CustomFileEdit }

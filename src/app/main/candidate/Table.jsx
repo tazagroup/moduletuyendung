@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidates } from 'app/store/fuse/candidateSlice';
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
+import ClearIcon from '@mui/icons-material/Clear';
 import IconButton from '@mui/material/IconButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -11,7 +12,7 @@ import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
 import { CustomStatus, CustomCV } from './CustomCell'
-import { CustomDateEdit, CustomSelectEdit, CustomFileEdit, CustomSelectBoolean } from '../CustomField/CustomEdit';
+import { CustomDateEdit, CustomSelectEdit, CustomFileEdit, CustomSelectNumber } from '../CustomField/CustomEdit';
 import axios from 'axios'
 const Table = () => {
     const dispatch = useDispatch();
@@ -107,23 +108,22 @@ const Table = () => {
             title: "Duyệt CV", field: "DuyetCV",
             render: rowData => (<CustomStatus item={rowData.DuyetCV} />),
             filterComponent: props => {
-                const data = ["Đã duyệt", "Chưa duyệt"]
-                return <CustomSelectBoolean {...props} data={data} width={130} field="DuyetCV" collection="candidates" />
+                const data = ["Đã duyệt", "Chưa duyệt", "Từ chối"]
+                return <CustomSelectNumber {...props} data={data} width={130} field="DuyetCV" collection="candidates" />
             },
             customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0 || term.length === 2) return true;
+                if (term.length === 0 || term.length === 3) return true;
                 const { DuyetCV } = rowData;
-                if (term.length === 1) {
-                    return term.includes("Đã duyệt") ? DuyetCV === true : DuyetCV === false
-                }
+                return term.includes("Đã duyệt")
             }
         },
         {
             title: "Xác nhận phỏng vấn", field: "MoiPV",
-            render: rowData => (<CustomStatus item={rowData.DuyetCV} />),
+            render: rowData => (<CustomStatus item={rowData.MoiPV} />),
+            emptyValue: rowData => (<ClearIcon />),
             filterComponent: props => {
-                const data = ["Đã duyệt", "Chưa duyệt"]
-                return <CustomSelectBoolean {...props} data={data} width={130} field="MoiPV" collection="candidates" />
+                const data = ["Đã duyệt", "Chưa duyệt", "Từ chối"]
+                return <CustomSelectNumber {...props} data={data} width={130} field="MoiPV" collection="candidates" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0 || term.length === 2) return true;

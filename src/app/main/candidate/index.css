@@ -1,3 +1,11 @@
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: bold !important;
+}
 .icon__table__candidate.success {
     width: 25px;
     height: 25px;

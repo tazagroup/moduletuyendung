@@ -1,6 +1,5 @@
 import React from 'react'
-import { FormControl, TextField, Autocomplete, InputLabel } from '@mui/material';
-const styleLabel = { fontSize: "15px", paddingBottom: "4px" }
+import { FormControl, TextField, Autocomplete } from '@mui/material';
 const styleSelect = { lineHeight: "20px", fontSize: "15px" }
 const AutocompleteField = (props) => {
     const { label, value, handleChange, arrayItem, disabled = false } = props

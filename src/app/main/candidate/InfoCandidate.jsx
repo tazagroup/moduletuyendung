@@ -1,13 +1,17 @@
-import React, { useState, Fragment } from 'react'
-import { TextField, makeStyles } from '@material-ui/core';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import React, { useState, useEffect, Fragment } from 'react'
+import { useSelector } from "react-redux"
+import { makeStyles, TextField } from '@material-ui/core';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl } from '@mui/material';
 import { Grid, Typography } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
 import InputField from "app/main/CustomField/InputField"
+import DateField from '../CustomField/DateField';
+import NumberFormat from "react-number-format"
+import AutocompleteObjField from "../CustomField/AutocompleteObj"
 import CardCalendar from "./CardCalendar"
 import CreateCalendar from "./CreateCalendar"
+import { CustomCV } from './CustomCell'
 import axios from 'axios';
 //FORM
 import { useForm } from "react-hook-form";
@@ -38,7 +42,7 @@ const useStyles = makeStyles({
         fontWeight: "bold !important"
     }
 })
-const InfoCandidate = ({ item, open, handleClose, setIsFetching }) => {
+const InfoCandidate = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const form = useForm({
         defaultValues: {
@@ -49,9 +53,26 @@ const InfoCandidate = ({ item, open, handleClose, setIsFetching }) => {
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
+    //STATE
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const [tickets, setTickets] = useState([])
+    const [ticket, setTicket] = useState({})
+    const [selectedDate, setSelectedDate] = useState(new Date())
     const [isCreating, setIsCreating] = useState(false)
+    useEffect(async () => {
+        //GET THE CURRENT TICKETS
+        const tickets = dataTicket.filter(item => item.Tinhtrang === "Đã thanh toán")
+        const flag = tickets.find(option => option.key === item.idTicket)
+        //set selected ticket
+        setTicket(flag)
+        setTickets(tickets)
+    }, [])
+    const handleTicketChange = (e, newValue) => {
+        setTicket(newValue)
+    }
     const handleEditCandidate = (e) => {
-        // Upload Candidate 
+        // Upload Candidate
+        console.log(e)
     }
     return (
         <Fragment>
@@ -62,7 +83,6 @@ const InfoCandidate = ({ item, open, handleClose, setIsFetching }) => {
             >
                 <form onSubmit={form.handleSubmit(handleEditCandidate)}>
                     <DialogTitle id="alert-dialog-title" className={classes.title}>Hồ sơ ứng viên </DialogTitle>
-                    <CloseIcon className={classes.icon} onClick={handleClose} />
                     <DialogContent>
                         {/* Info  */}
                         <Grid container spacing={2}>
@@ -78,36 +98,59 @@ const InfoCandidate = ({ item, open, handleClose, setIsFetching }) => {
                             <Grid item xs={12} md={4}>
                                 <InputField form={form} name="SDT" label="Số điện thoại" type="number" />
                             </Grid>
+                            <Grid item xs={12} md={4}>
+                                <AutocompleteObjField label="Vị trí tuyển dụng" value={ticket} arrayItem={tickets} field="Vitri" handleChange={handleTicketChange} />
+                            </Grid>
+                            <Grid item xs={12} md={4}>
+                                <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} />
+                            </Grid>
+                            <Grid item xs={12} md={3}>
+                                <NumberFormat
+                                    label={"Mức lương dự kiến"}
+                                    customInput={TextField}
+                                    thousandSeparator
+                                    value={ticket?.LuongDK || ''}
+                                    allowLeadingZeros={false}
+                                    fullWidth
+                                    disabled={true}
+                                />
+                            </Grid>
+                            <Grid item xs={12} md>
+                                <FormControl fullWidth style={{ marginTop: "20px" }}>
+                                    <Tooltip title="CV">
+                                        <Button variant="contained">Tải CV</Button>
+                                    </Tooltip>
+                                </FormControl>
+                            </Grid>
                         </Grid>
                         {/* Calendar */}
                         <Grid container spacing={2} className={classes.field}>
                             <Grid item xs={12}>
                                 <Typography variant="h4" className={classes.sub__title}>
                                     Lịch phỏng vấn
-                                    <IconButton size="large">
-                                        <InsertInvitationIcon onClick={() => { setIsCreating(true) }} />
+                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} >
+                                        <InsertInvitationIcon />
                                     </IconButton>
                                 </Typography>
                             </Grid>
-                            <Grid item xs={12} md={3}>
-                                <CardCalendar />
-                            </Grid>
-                            <Grid item xs={12} md={3}>
-                                <CardCalendar />
-                            </Grid>
+                            {item.LichPV.map((option,index) => (
+                                <Grid  key={index} item xs={12} md={3}>
+                                    <CardCalendar key={index} item={option} />
+                                </Grid>
+                            ))}
                         </Grid >
-                        {/* Interview  */}
-                        <Grid container spacing={2} className={classes.field}>
-                            <Grid item xs={12}>
-                                <Typography variant="h4" className={classes.sub__title}>Vòng phỏng vấn</Typography>
-                            </Grid>
-                        </Grid>
                     </DialogContent>
                     <DialogActions>
+                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose}>
+                            Đóng
+                        </Button>
+                        <Button color="primary" autoFocus type="submit" variant="contained">
+                            Cập nhật hồ sơ
+                        </Button>
                     </DialogActions>
                 </form>
             </Dialog>
-            {isCreating && <CreateCalendar open={isCreating} handleClose={() => { setIsCreating(false) }} />}
+            {isCreating && <CreateCalendar open={isCreating} candidate={item} handleClose={() => { setIsCreating(false) }} />}
         </Fragment>
     )
 }

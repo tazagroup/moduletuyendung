@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
-import { useDispatch } from 'react-redux';
+// REDUX 
+import { useDispatch, useSelector } from 'react-redux';
+import { updateTicket } from "app/store/fuse/ticketsSlice"
 import { closeDialog } from 'app/store/fuse/dialogSlice';
+//MUI
 import { DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
@@ -9,16 +12,19 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import NumberFormat from 'react-number-format';
 import MenuItem from '@mui/material/MenuItem';
+// REACT-HOOK-FORM
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
+//COMPONENT
 import InputField from '../CustomField/InputField';
 import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
 import DateField from "../CustomField/DateField"
 import Tinymce from "../CustomField/Tinymce"
+// API
 import axios from 'axios';
-
+import ticketsAPI from "api/ticketsAPI"
 const useStyles = makeStyles({
     title: {
         width: "100%",
@@ -67,8 +73,10 @@ const TextInputCustom = (props) => {
         />
     )
 }
-const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
+const ModalUpdateItem = ({ data, censor }) => {
     const dispatch = useDispatch();
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const position = useSelector(state => state.fuse.tickets.position)
     const classes = useStyles()
     const form = useForm({
         defaultValues: {
@@ -89,16 +97,23 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
     const isValid = form.formState.isValid
     //UPDATE TICKETS
     const handleUpdateTickets = async (e) => {
-        const bodyData = {
+        
+        const item = dataTicket.find(item => item.key === data.key)
+        const step = JSON.parse(item['Pheduyet'])
+        step[1] = {
+            ...step[1],
             Nguon: source,
             TGMua: selectedDate.toISOString(),
             Chiphi: e.Chiphi.split(',').join(''),
             Hinhthuc: type,
-            Tinhtrang: e.Tinhtrang,
             NTC: selectedDate2.toISOString()
         }
-        const response = await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.key}`, bodyData)
-        setIsFetching(state => !state)
+        const bodyData = {
+            TNNS: JSON.stringify({ nguoiDuyet: "User", ngayDuyet: new Date().toISOString() }),
+            Pheduyet: JSON.stringify([...step])
+        }
+        const response = await ticketsAPI.updateTicket(bodyData, item.key)
+        dispatch(updateTicket(response.data))
         dispatch(closeDialog())
     }
     return (
@@ -109,13 +124,13 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
-                            <TextInputCustom value={data.Vitri} label="Vị trí tuyển dụng" type="text" />
+                            <TextInputCustom value={position.find(item => item.id === data.Vitri)[`Thuoctinh`]} label="Vị trí tuyển dụng" type="text" />
                         </Grid>
                         <Grid item xs={12} md={3}>
-                            <TextInputCustom value={data.SLHientai} label="Nhân sự hiện có" type="number" />
+                            <TextInputCustom value={data.SLHT} label="Nhân sự hiện có" type="number" />
                         </Grid>
                         <Grid item xs={12} md={3}>
-                            <TextInputCustom value={data.SLCantuyen} label="Nhân sự cần tuyển" type="number" />
+                            <TextInputCustom value={data.SLCT} label="Nhân sự cần tuyển" type="number" />
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <NumberFormat customInput={TextField}
@@ -138,7 +153,7 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                             </Grid>
                         }
                         {/* Thời gian thử việc  */}
-                        <Grid item xs={12} md={6}>
+                        <Grid item xs={12} md={12}>
                             <LocalizationProvider dateAdapter={AdapterDateFns}>
                                 <DatePicker
                                     views={['year', 'month', 'day']}
@@ -152,30 +167,6 @@ const ModalUpdateItem = ({ data, censor, setIsFetching }) => {
                                     renderInput={(params) => <TextField {...params} fullWidth />}
                                 />
                             </LocalizationProvider>
-                        </Grid>
-                        {/* Thời gian tiếp nhận */}
-                        <Grid item xs={12} md={6}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    views={['year', 'month', 'day']}
-                                    label="Thời gian tiếp nhận"
-                                    inputFormat="dd/MM/yyyy"
-                                    value={data.TiepnhanNS}
-                                    disabled={true}
-                                    onChange={(newValue) => {
-                                        setValue(newValue);
-                                    }}
-                                    renderInput={(params) => <TextField {...params} fullWidth />}
-                                />
-                            </LocalizationProvider>
-                        </Grid>
-                        {/* Mô tả tuyển dụng  */}
-                        <Grid item xs={12}>
-                            <TextInputCustom value={data.MotaTD} label="Mô tả tuyển dụng" type="text" />
-                        </Grid>
-                        {/* Yêu cầu tuyển dụng  */}
-                        <Grid item xs={12}>
-                            <TextInputCustom value={data.YeucauTD} label="Yêu cầu tuyển dụng" type="text" />
                         </Grid>
                         {/* Người kiểm duyệt  */}
                         <Grid item xs={12}>

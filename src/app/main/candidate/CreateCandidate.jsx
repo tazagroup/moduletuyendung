@@ -12,8 +12,10 @@ import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 import InputField from "../CustomField/InputField"
-import SelectField from "../CustomField/SelectField"
+import AutocompleteObjField from "../CustomField/Autocomplete"
 import DateField from "../CustomField/DateField"
+import NumberFormat from 'react-number-format';
+import Tooltip from '@mui/material/Tooltip';
 import { storage } from "../../services/firebaseService/fireBase"
 import axios from "axios"
 const schema = yup.object().shape({
@@ -126,7 +128,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                     className={classes.select}
                                     value={ticket}
                                     renderValue={value => {
-                                        return (value && Object.keys(value).length !== 0) ? <div>Phiếu {value.key} - {value.Vitri}</div> : <div></div>
+                                        return (value && Object.keys(value).length !== 0) ? <div>Phiếu {value.key} - {value.Vitri}</div> : <></>
                                     }}
                                     onChange={(e) => setTicket(e.target.value)}
                                 >
@@ -136,7 +138,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                 </Select>
                             </FormControl>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={4}>
                             <Controller
                                 name="Vitri"
                                 control={form.control}
@@ -152,7 +154,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                             InputLabelProps={{
                                                 shrink: true
                                             }}
-                                            value={ticket.Vitri}
+                                            value={ticket.Vitri || ''}
                                             variant="standard"
                                             disabled={true}
                                         />
@@ -160,7 +162,18 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={12} md={4}>
+                            <NumberFormat
+                                label={"Mức lương dự kiến"}
+                                customInput={TextField}
+                                thousandSeparator
+                                value={ticket.LuongDK || ''}
+                                allowLeadingZeros={false}
+                                fullWidth
+                                disabled={true}
+                            />
+                        </Grid>
+                        <Grid item xs={12} md={4}>
                             <Controller
                                 name="Nguon"
                                 control={form.control}
@@ -176,7 +189,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                             InputLabelProps={{
                                                 shrink: true
                                             }}
-                                            value={ticket.Nguon}
+                                            value={ticket.Nguon || ''}
                                             variant="standard"
                                             disabled={true}
                                         />

@@ -1,13 +1,8 @@
 import React from 'react'
 import Table from './Table'
 import FusePageSimple from '@fuse/core/FusePageSimple';
-import { TabContext, TabList, TabPanel } from '@material-ui/lab';
-import { Tabs, Tab, Box } from '@material-ui/core';
 import './index.css'
 const Tickets = () => {
-    const handleChange = (event, newValue) => {
-        setValue(newValue)
-    }
     return (
         <FusePageSimple
             header={

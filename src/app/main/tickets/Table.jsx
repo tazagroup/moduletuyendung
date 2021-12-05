@@ -1,18 +1,22 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
-import FuseLoading from '@fuse/core/FuseLoading';
+import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
+//REDUX
 import { useDispatch, useSelector } from 'react-redux';
 import { openDialog } from 'app/store/fuse/dialogSlice';
-import { fetchTickets } from 'app/store/fuse/ticketsSlice';
-import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
+import { setDataTicket } from 'app/store/fuse/ticketsSlice';
+//ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+//MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { DatePicker } from "react-rainbow-components";
+//COMPONENTS
+import FuseLoading from '@fuse/core/FuseLoading';
 import ModalEditItem from './ModalEditItem'
 import ModalCreateItem from "./ModalCreateItem"
 import ModalCopyItem from './ModalCopyItem'
@@ -20,11 +24,13 @@ import TicketStatus from './TicketStatus'
 import EmptyStatus from './EmptyStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
+import CustomPosition from './CustomPosition'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit } from '../CustomField/CustomEdit';
-import axios from 'axios'
 import { getStatusRendering } from '../utils';
-
-const convertProperty = (array) => {
+//API
+import ticketsAPI from "api/ticketsAPI"
+const convertProperty = (item = []) => {
+    const array = JSON.parse(item)
     const arrayResult = { BQL: [], BTD: [], BGD: [], BKT: [] }
     const stepBTD = [1, 3, 6]
     const stepBGD = [2, 4]
@@ -45,13 +51,13 @@ const style = {
 }
 export default function Table() {
     const dispatch = useDispatch()
-    const [data, setData] = useState([])
+    const data = useSelector(state => state.fuse.tickets.dataTicket)
+    const position = useSelector(state => state.fuse.tickets.position)
     const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [isFetching, setIsFetching] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null);
     const [isCC, setIsCC] = useState(false)
     const [isEditTicket, setIsEditTicket] = useState(false)
@@ -65,50 +71,48 @@ export default function Table() {
         { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
     ]
     useEffect(async () => {
-        dispatch(fetchTickets()).then(res => {
-            const data = res.payload;
-            if (data) {
-                const result = data.map(({ id: key, ...item }, index) => ({
-                    id: index,
-                    key,
-                    ...item,
-                }))
-                setData(result)
-                setIsLoading(false)
-            }
-        })
-    }, [isFetching])
+        const responseData = await ticketsAPI.getTicket();
+        const responsePosition = await ticketsAPI.getPosition();
+        const { data: { attributes: { Dulieu } } } = responsePosition
+        dispatch(setDataTicket({ data: responseData.data, position: JSON.parse(Dulieu) }))
+        setIsLoading(false)
+    }, [])
     const headers = [
-        { title: "", field: "id", render: rowData => null, filterComponent: rowData => null }
+        {
+            title: "", field: "id",
+            render: rowData => (
+                <IconButton
+                    aria-label="Example"
+                    onClick={(event) => { handleClick(event, rowData) }}
+                    size="large">
+                    <MoreVertIcon />
+                </IconButton >
+            ),
+            filterComponent: rowData => null
+        }
         , {
             title: "#", field: "key", align: "center",
             filterComponent: props => { return <></> },
             render: rowData => (
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <IconButton
-                        aria-label="Example"
-                        onClick={(event) => { handleClick(event, rowData) }}
-                        size="large">
-                        <MoreVertIcon />
-                    </IconButton >
+                <div>
                     <p>{rowData.id + 1}</p>
                 </div>
             )
         },
         {
             title: "Vị trí tuyển dụng", field: "Vitri",
+            render: rowData => (<CustomPosition data={rowData} />),
             filterComponent: props => {
-                const data = ["IT", "Marketing", "Telesale"]
-                return <CustomSelectEdit {...props} data={data} width={125} field="Vitri" />
+                return <CustomSelectEdit {...props} width={175} field="Thuoctinh" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
                 const { Vitri } = rowData;
-                return term.includes(Vitri);
+                return term.map(item => item.id).includes(Vitri);
             }
         },
-        { title: "Nhân sự hiện có", field: "SLHientai", type: 'numeric' },
-        { title: "Nhân sự cần tuyển", field: "SLCantuyen", type: "numeric" },
+        { title: "Nhân sự hiện có", field: "SLHT", type: 'numeric' },
+        { title: "Nhân sự cần tuyển", field: "SLCT", type: "numeric" },
         {
             title: "Mức lương dự kiến",
             field: "LuongDK",
@@ -143,9 +147,18 @@ export default function Table() {
         },
         {
             title: "Thời gian tiếp nhận",
-            field: "TiepnhanNS",
+            field: "TGTN",
             type: "date",
             dateSetting: { locale: "en-GB" },
+            render: (rowData) => {
+                let flag = true;
+                let value = 0
+                if (JSON.parse(rowData['Pheduyet'])[1]) {
+                    value = JSON.parse(rowData['Pheduyet'])[1].ngayUpdate
+                    flag = false;
+                }
+                return flag ? <ClearIcon /> : new Date(value).toLocaleDateString("en-GB")
+            },
             filterComponent: (props) => <CustomDateEdit {...props} />,
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true
@@ -176,59 +189,76 @@ export default function Table() {
         },
         {
             title: "Mô tả tuyển dụng",
-            field: "MotaTD",
+            field: "Mota",
             render: (rowData) => (
                 // render as HTML 
-                <div style={style} dangerouslySetInnerHTML={{ __html: rowData.MotaTD }}>
+                <div style={style} dangerouslySetInnerHTML={{ __html: rowData.Mota }}>
                 </div>
             )
         },
         {
-            title: "Nguồn", field: "Nguon",
-            emptyValue: () => <ClearIcon />,
-            filterComponent: props => {
-                const data = ["Facebook", "TopCV", "ITViec"]
-                return <CustomSelectEdit {...props} data={data} width={120} field="Nguon" />
-            },
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
-                const { Nguon } = rowData;
-                return term.includes(Nguon);
-            }
+            title: "Yêu cầu tuyển dụng",
+            field: "Yeucau",
+            render: (rowData) => (
+                // render as HTML 
+                <div style={style} dangerouslySetInnerHTML={{ __html: rowData.Yeucau }}>
+                </div>
+            )
         },
-        {
-            title: "Thời gian mua",
-            field: "TGMua",
-            type: "date",
-            dateSetting: { locale: "en-GB" },
-            emptyValue: () => <ClearIcon />,
-            editComponent: (item) => {
-                const steps = item.rowData['Pheduyet'].length
-                return steps >= 3 ?
-                    <div style={{ width: "150px" }}>
-                        <DatePicker
-                            locale="en-GB"
-                            value={item.value}
-                            onChange={(date) => props.onChange(date)}
-                            style={{ marginTop: "9px" }}
-                        />
-                    </div> : <></>
-            },
-            filterComponent: (props) => <CustomDateEdit {...props} />,
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true
-                const time = Date.parse(rowData.TGThuviec)
-                const beforeDate = Date.parse(term[0])
-                const afterDate = Date.parse(term[1])
-                return time >= beforeDate && time <= afterDate
-            }
-        },
+        // {
+        //     title: "Nguồn", field: "Nguon",
+        //     emptyValue: () => <ClearIcon />,
+        //     filterComponent: props => {
+        //         const data = ["Facebook", "TopCV", "ITViec"]
+        //         return <CustomSelectEdit {...props} data={data} width={120} field="Nguon" />
+        //     },
+        //     customFilterAndSearch: (term, rowData) => {
+        //         if (term.length === 0) return true;
+        //         const { Nguon } = rowData;
+        //         return term.includes(Nguon);
+        //     }
+        // },
+        // {
+        //     title: "Thời gian mua",
+        //     field: "TGMua",
+        //     type: "date",
+        //     dateSetting: { locale: "en-GB" },
+        //     emptyValue: () => <ClearIcon />,
+        //     editComponent: (item) => {
+        //         const steps = item.rowData['Pheduyet'].length
+        //         return steps >= 3 ?
+        //             <div style={{ width: "150px" }}>
+        //                 <DatePicker
+        //                     locale="en-GB"
+        //                     value={item.value}
+        //                     onChange={(date) => props.onChange(date)}
+        //                     style={{ marginTop: "9px" }}
+        //                 />
+        //             </div> : <></>
+        //     },
+        //     filterComponent: (props) => <CustomDateEdit {...props} />,
+        //     customFilterAndSearch: (term, rowData) => {
+        //         if (term.length === 0) return true
+        //         const time = Date.parse(rowData.TGThuviec)
+        //         const beforeDate = Date.parse(term[0])
+        //         const afterDate = Date.parse(term[1])
+        //         return time >= beforeDate && time <= afterDate
+        //     }
+        // },
         {
             title: "Chi phí",
             field: "Chiphi",
             type: "currency",
             currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
-            render: (rowData) => { return rowData.Chiphi == "" ? <ClearIcon /> : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(rowData.Chiphi) },
+            // emptyValue:(rowData) => <div>NO</div>,
+            render: (rowData) => {
+                let flag = true; let value = 0
+                if (JSON.parse(rowData['Pheduyet'])[2]) {
+                    value = JSON.parse(rowData['Pheduyet'])[1].Chiphi;
+                    flag = false;
+                }
+                return flag ? <ClearIcon /> : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
+            },
             editComponent: (item) => {
                 const steps = item.rowData['Pheduyet'].length
                 return steps >= 3 ? <MTableEditField {...item} /> : <></>
@@ -249,7 +279,12 @@ export default function Table() {
         {
             title: "Hình thức", field: "Hinhthuc",
             render: (rowData) => {
-                return rowData.Hinhthuc === "" ? <ClearIcon /> : rowData.Hinhthuc
+                let flag = true; let value = 0
+                if (JSON.parse(rowData['Pheduyet'])[1]) {
+                    value = JSON.parse(rowData['Pheduyet'])[1].Hinhthuc;
+                    flag = false;
+                }
+                return flag ? <ClearIcon /> : value
             },
             filterComponent: props => {
                 const data = ["Chuyển khoản", "Thanh toán tiền mặt"]
@@ -261,20 +296,20 @@ export default function Table() {
                 return term.includes(Hinhthuc);
             }
         },
-        {
-            title: "Tình trạng", field: "Tinhtrang",
-            render: (rowData) => getStatusRendering(rowData),
-            editComponent: (rowData) => <></>,
-            filterComponent: props => {
-                const data = ["Chưa thanh toán", "Đã thanh toán"]
-                return <CustomSelectEdit {...props} data={data} width={150} field="Tinhtrang" />
-            },
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0 || term.length === 2) return true;
-                const { Tinhtrang } = rowData;
-                return term.includes(Tinhtrang);
-            }
-        },
+        // {
+        //     title: "Trạng thái", field: "Trang thai",
+        //     render: (rowData) => getStatusRendering(rowData),
+        //     editComponent: (rowData) => <></>,
+        //     filterComponent: props => {
+        //         const data = ["Chưa thanh toán", "Đã thanh toán"]
+        //         return <CustomSelectEdit {...props} data={data} width={150} field="Tinhtrang" />
+        //     },
+        //     customFilterAndSearch: (term, rowData) => {
+        //         if (term.length === 0 || term.length === 2) return true;
+        //         const { Tinhtrang } = rowData;
+        //         return term.includes(Tinhtrang);
+        //     }
+        // },
         {
             title: "Ban quản lí",
             field: "BQL",
@@ -282,7 +317,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BQL']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
+                        <CustomStep key={item.id} item={item} data={rowData} />
                     )
                 })
             },
@@ -295,7 +330,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BTD']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
+                        <CustomStep key={item.id} item={item} data={rowData} />
                     )
                 })
             },
@@ -308,7 +343,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BGD']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
+                        <CustomStep key={item.id} item={item} data={rowData} />
                     )
                 })
             },
@@ -321,14 +356,13 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BKT']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} setIsFetching={setIsFetching} />
+                        <CustomStep key={item.id} item={item} data={rowData} />
                     )
                 })
             },
             filterComponent: (rowData) => <></>
         }
     ];
-
     const flagColumns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
     const [columns, setColumns] = useState(flagColumns)
     const open = Boolean(anchorEl);
@@ -343,13 +377,6 @@ export default function Table() {
         setAnchorEl(null);
     };
     const handleEdit = () => {
-        // setAnchorEl(null);
-        // setInitialData({ ...rowData, name: null })
-        // tableRef.current.dataManager.changeRowEditing(rowData, 'update');
-        // tableRef.current.setState({
-        //     ...tableRef.current.dataManager.getRenderState(),
-        //     showAddRow: false
-        // });
         handleClose()
         setIsEditTicket(true)
     }
@@ -365,12 +392,13 @@ export default function Table() {
     return isLoading ? <FuseLoading /> : <Fragment>
         {dataStatus ? <TicketStatus item={dataStatus} /> : <EmptyStatus />}
         <MaterialTable
+            data={data}
             tableRef={tableRef}
             title={<>
                 <Tooltip title="Tạo hồ sơ tuyển dụng">
                     <IconButton
                         onClick={() => dispatch(openDialog({
-                            children: <ModalCreateItem setIsFetching={setIsFetching} />,
+                            children: <ModalCreateItem data={position} />,
                         }))}
                         variant="contained"
                         color="secondary"
@@ -396,7 +424,6 @@ export default function Table() {
                 },
             }}
             columns={columns}
-            data={data}
             actions={[
                 {
                     icon: 'search',
@@ -439,7 +466,6 @@ export default function Table() {
             <ModalEditItem
                 open={isEditTicket}
                 item={rowData}
-                setIsFetching={setIsFetching}
                 handleClose={() => { setIsEditTicket(false) }}
             />
         }
@@ -447,9 +473,10 @@ export default function Table() {
             <ModalCopyItem
                 open={isCopyTicket}
                 item={rowData}
-                setIsFetching={setIsFetching}
                 handleClose={() => { setIsCopyTicket(false) }}
             />
         }
     </Fragment>
 }
+
+

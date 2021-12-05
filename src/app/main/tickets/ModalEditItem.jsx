@@ -1,29 +1,32 @@
 import React, { useState } from 'react'
+//REDUX
+import { useDispatch, useSelector } from 'react-redux';
+import { updateTicket } from 'app/store/fuse/ticketsSlice';
+//MUI
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
 import FormControl from '@mui/material/FormControl';
-import axios from 'axios';
+import NumberFormat from 'react-number-format';
 //FORM
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
-
+// COMPONENT 
 import InputField from "../CustomField/InputField"
 import DateField from '../CustomField/DateField';
 import SelectField from "../CustomField/SelectField"
 import NumberField from '../CustomField/NumberField';
 import Tinymce from '../CustomField/Tinymce';
+import AutocompleteObjField from '../CustomField/AutocompleteObj';
+// API 
+import ticketsAPI from "api/ticketsAPI"
 const schema = yup.object().shape({
-    Vitri: yup.string().required("Vui lòng nhập vị trí"),
     LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
-    SLHientai: yup.number().min(0, "Dữ liệu không đúng"),
-    SLCantuyen: yup.number().min(1, "Dữ liệu không đúng"),
-    MotaTD: yup.string().required("Vui lòng nhập mô tả tuyển dụng"),
-    YeucauTD: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng"),
-    Chiphi: yup.string().required("Vui lòng nhập chi phí"),
-    Tinhtrang: yup.string().default("Chưa thanh toán"),
+    SLHT: yup.number().min(0, "Dữ liệu không đúng"),
+    SLCT: yup.number().min(1, "Dữ liệu không đúng"),
+    Mota: yup.string().required("Vui lòng nhập mô tả tuyển dụng"),
+    Yeucau: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng"),
 });
 const useStyles = makeStyles({
     title: {
@@ -59,50 +62,53 @@ const useStyles = makeStyles({
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực"]
 const arraySource = ["Facebook", "ITViec", "TopCV"]
 const arrayType = ["Thanh toán tiền mặt", "Chuyển khoản"]
-const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
+const ModalEditItem = ({ item, open, handleClose }) => {
+    const dispatch = useDispatch()
     const classes = useStyles()
+    const position = useSelector(state => state.fuse.tickets.position)
+    const steps = JSON.parse(item['Pheduyet'])
+    const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id === item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
-    const [selectedDate2, setSelectedDate2] = useState(item.TiepnhanNS)
-    const [selectedDate3, setSelectedDate3] = useState(item.TGMua ? item.TGMua : null)
-    const [selectedDate4, setSelectedDate4] = useState(item.NTC ? item.NTC : null)
+    const [selectedDate3, setSelectedDate3] = useState(steps[1].TGMua ? steps[1].TGMua : null)
+    const [selectedDate4, setSelectedDate4] = useState(steps[1].NTC ? steps[1].NTC : null)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
-    const [source, setSource] = useState(item.Nguon ? item.Nguon : "")
-    const [type, setType] = useState(item.Hinhthuc !== "" ? item.Hinhthuc : "")
+    const [source, setSource] = useState(steps[1].Nguon ? steps[1].Nguon : "")
+    const [currency, setCurrency] = useState(steps[1].Chiphi ? steps[1].Chiphi : "")
+    const [type, setType] = useState(steps[1].Hinhthuc !== "" ? steps[1].Hinhthuc : "")
     const form = useForm({
         defaultValues: {
-            Vitri: item.Vitri,
-            SLCantuyen: item.SLCantuyen,
-            SLHientai: item.SLHientai,
-            MotaTD: item.MotaTD,
-            YeucauTD: item.YeucauTD,
-            Chiphi: item.Chiphi || " ",
+            SLCT: item.SLCT,
+            SLHT: item.SLHT,
+            Mota: item.Mota,
+            Yeucau: item.Yeucau,
             LuongDK: item.LuongDK,
-            Tinhtrang: item.Tinhtrang
         },
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
-    const checkStep = item.Pheduyet.length <= 3
-    const isValid = form.formState.isValid
-    const reasonCondition = reason === "Khác" ? otherReason !== "" : reason !== ""
-    const disabledButton = isValid && reasonCondition && checkStep ? (source !== "" && type) !== "" : true
+    const checkStep = steps.length <= 3
+
     const handleEditTicket = async (e) => {
-        const bodyData = {
-            ...e,
-            TGThuviec: selectedDate,
-            TiepnhanNS: selectedDate2,
-            Lydo: otherReason ? otherReason : reason,
-            Pheduyet: item.Pheduyet,
-            idTao: item.idTao,
+        const flagPheduyet = [...JSON.parse(item['Pheduyet'])]
+        flagPheduyet[1] = {
+            ...flagPheduyet[1],
             Nguon: source,
-            TGMua: selectedDate3,
+            TGMua: new Date(selectedDate3).toISOString(),
+            Chiphi: currency,
             Hinhthuc: type,
-            NTC: selectedDate4
+            NTC: new Date(selectedDate4).toISOString()
         }
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${item.key}`, bodyData)
-        setIsFetching(state => !state)
-        handleClose()
+        const bodyData = {
+            ...item,
+            Vitri: position.id,
+            TGThuviec: selectedDate,
+            Lydo: otherReason ? otherReason : reason,
+            Pheduyet: JSON.stringify(flagPheduyet)
+        }
+        const response = await ticketsAPI.updateTicket(bodyData, item.key)
+        dispatch(updateTicket(response.data))
+        // handleClose()
     }
     return (
         <React.Fragment >
@@ -117,13 +123,19 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                     <DialogContent>
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={6}>
-                                <InputField form={form} name="Vitri" label="Vị trí tuyển dụng" type="text" />
+                                <AutocompleteObjField
+                                    value={valuePosition}
+                                    options={position}
+                                    onChange={(e, newValue) => { setValuePosition(newValue) }}
+                                    field="Thuoctinh"
+                                    label="Vị trí tuyển dụng"
+                                />
                             </Grid>
                             <Grid item xs={12} md={3}>
-                                <InputField form={form} name="SLHientai" label="Nhân sự hiện có" type="number" />
+                                <InputField form={form} name="SLHT" label="Nhân sự hiện có" type="number" />
                             </Grid>
                             <Grid item xs={12} md={3}>
-                                <InputField form={form} name="SLCantuyen" label="Nhân sự cần tuyển" type="number" />
+                                <InputField form={form} name="SLCT" label="Nhân sự cần tuyển" type="number" />
                             </Grid>
                             {/* Mức lương dự kiến  */}
                             <Grid item xs={12} md={6}>
@@ -146,19 +158,15 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                                 </Grid>
                             }
                             {/* Thời gian thử việc  */}
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12}>
                                 <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
-                            </Grid>
-                            {/* Thời gian tiếp nhận  */}
-                            <Grid item xs={12} md={6}>
-                                <DateField label="Thời gian tiếp nhận" value={selectedDate2} handleChange={setSelectedDate2} />
                             </Grid>
                             {/* Mô tả tuyển dụng  */}
                             <Grid item xs={12}>
-                                <Tinymce form={form} name="MotaTD" label={"Mô tả tuyển dụng"} />
+                                <Tinymce form={form} name="Mota" label={"Mô tả tuyển dụng"} />
                             </Grid>
                             <Grid item xs={12}>
-                                <Tinymce form={form} name="YeucauTD" label={"Yêu cầu tuyển dụng"} />
+                                <Tinymce form={form} name="Yeucau" label={"Yêu cầu tuyển dụng"} />
                             </Grid>
                             {/* Nguồn  */}
                             <Grid item xs={12}>
@@ -172,7 +180,18 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                             </Grid>
                             {/* Chi phí mua  */}
                             <Grid item xs={12}>
-                                <NumberField form={form} name="Chiphi" label="Chi phí mua" error="Vui lòng nhập chi phí" disabled={checkStep} />
+                                <NumberFormat
+                                    label={"Chi phí mua"}
+                                    customInput={TextField}
+                                    thousandSeparator
+                                    error={currency == ""}
+                                    helperText={currency == "" ? "Vui lòng nhập chi phí" : null}
+                                    onChange={(e, newValue) => { setCurrency(newValue) }}
+                                    defaultValue={currency}
+                                    allowLeadingZeros={false}
+                                    fullWidth
+                                    disabled={checkStep}
+                                />
                             </Grid>
                             {/* Hình thức thanh toán  */}
                             <Grid item xs={12}>
@@ -190,7 +209,7 @@ const ModalEditItem = ({ item, open, handleClose, setIsFetching }) => {
                         <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose}>
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" disabled={!disabledButton} variant="contained">
+                        <Button color="primary" autoFocus type="submit" variant="contained">
                             Cập nhật tuyển dụng
                         </Button>
                     </DialogActions>

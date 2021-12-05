@@ -1,6 +1,7 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCandidates } from 'app/store/fuse/candidateSlice';
+
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -16,11 +17,12 @@ import { CustomDateEdit, CustomSelectEdit, CustomFileEdit, CustomSelectNumber } 
 import axios from 'axios'
 const Table = () => {
     const dispatch = useDispatch();
-    const isLoading = useSelector(state => state.fuse.candidates.loading)
-    const [data, setData] = useState([])
+    const data = useSelector(state => state.fuse.candidates.dataCandidate)
+    const loading = useSelector(state => state.fuse.candidates.isLoading)
     const [rowData, setRowData] = useState({})
     const [isFiltering, setIsFiltering] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
+    const [isLoading,setIsLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -37,19 +39,10 @@ const Table = () => {
         setIsEditing(true)
     }
     useEffect(() => {
-        dispatch(fetchCandidates()).then(res => {
-            const data = res.payload;
-            if (data) {
-                const result = data.map(({ id: key, ...item }, index) => ({
-                    id: index,
-                    key,
-                    ...item,
-                }))
-                setData(result)
-            }
-        })
-    }, [])
+        dispatch(fetchCandidates())
+    }, [])  
     const headers = [
+        { title: "", field: "id", render: rowData => null, filterComponent: rowData => null },
         {
             title: "#", field: "key", align: "center",
             filterComponent: props => { return <></> },
@@ -106,7 +99,7 @@ const Table = () => {
         { title: "Email", field: "Email" },
         {
             title: "Duyệt CV", field: "DuyetCV",
-            render: rowData => (<CustomStatus item={rowData.DuyetCV} />),
+            render: rowData => (<CustomStatus item={rowData} field="DuyetCV" />),
             filterComponent: props => {
                 const data = ["Đã duyệt", "Chưa duyệt", "Từ chối"]
                 return <CustomSelectNumber {...props} data={data} width={130} field="DuyetCV" collection="candidates" />
@@ -119,7 +112,7 @@ const Table = () => {
         },
         {
             title: "Xác nhận phỏng vấn", field: "MoiPV",
-            render: rowData => (<CustomStatus item={rowData.MoiPV} />),
+            render: rowData => (<CustomStatus item={rowData} field="MoiPV" />),
             emptyValue: rowData => (<ClearIcon />),
             filterComponent: props => {
                 const data = ["Đã duyệt", "Chưa duyệt", "Từ chối"]
@@ -149,9 +142,10 @@ const Table = () => {
         }
     ]
     const columns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
-    return isLoading ? <FuseLoading /> :
+    return loading ? <FuseLoading /> :
         <Fragment>
             <MaterialTable
+                tableRef={tableRef}
                 title={<>
                     <Tooltip title="Tạo hồ sơ ứng viên">
                         <IconButton

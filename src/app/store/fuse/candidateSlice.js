@@ -17,6 +17,11 @@ const candidatesSlice = createSlice({
     reducers: {
         setDataCandidate: (state, action) => {
             state.dataCandidate = action.payload
+        },
+        updateCandidate: (state, action) => {
+            const { key: id } = action.payload
+            const index = state.dataCandidate.findIndex(item => item.key === id)
+            state.dataCandidate[index] = action.payload
         }
     },
     extraReducers: {
@@ -34,6 +39,6 @@ const candidatesSlice = createSlice({
     }
 });
 
-export const { setDataCandidate } = candidatesSlice.actions;
+export const { setDataCandidate, updateCandidate } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

@@ -1,6 +1,9 @@
 import React, { useState, Fragment } from 'react'
+//REDUX
 import { useDispatch } from 'react-redux';
+import { updateTicket } from 'app/store/fuse/ticketsSlice';
 import { openDialog } from 'app/store/fuse/dialogSlice';
+//MUI
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -9,13 +12,14 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import ErrorIcon from '@mui/icons-material/Error';
-import axios from 'axios'
+//COMPONENT
 import ModalUpdateItem from './ModalUpdateItem'
-
-
-const CustomStep = ({ item, data, setIsFetching }) => {
+//API
+import axios from 'axios'
+import ticketsAPI from "api/ticketsAPI"
+const CustomStep = ({ item, data }) => {
     const dispatch = useDispatch()
-    const steps = data['Pheduyet']
+    const steps = JSON.parse(data['Pheduyet'])
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const [anchorEl2, setAnchorEl2] = useState(null);
@@ -61,8 +65,7 @@ const CustomStep = ({ item, data, setIsFetching }) => {
                 if (item.id === 1) {
                     dispatch(openDialog({
                         children: <ModalUpdateItem
-                            data={data} censor={value}
-                            setIsFetching={setIsFetching} />
+                            data={data} censor={value} />
                     }))
                 }
             }
@@ -73,21 +76,22 @@ const CustomStep = ({ item, data, setIsFetching }) => {
                 flagArray.push(newStep)
             }
         }
-        const response = await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.id + 1}`, {
-            Pheduyet: [...flagArray],
-            Tinhtrang: item.id === 5 ? "Đã thanh toán" : item.Tinhtrang
-        })
-        setIsFetching(state => !state)
+        const bodyData = {
+            Pheduyet: JSON.stringify([...flagArray]),
+        }
+        const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        dispatch(updateTicket(response.data))
     }
     const handleRefuse = async (e) => {
         handleClose()
         const flagArray = [...steps]
         const newValue = { ...item, status: 2, Lydo: reason, ngayUpdate: new Date().toISOString() }
         flagArray[`${newValue.id}`] = { ...newValue }
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.id + 1}`, {
-            Pheduyet: [...flagArray]
-        })
-        setIsFetching(state => !state)
+        const bodyData = {
+            Pheduyet: JSON.stringify([...flagArray])
+        }
+        const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        dispatch(updateTicket(response.data))
     }
     const handleEdit = async (e) => {
         handleClose()
@@ -98,11 +102,13 @@ const CustomStep = ({ item, data, setIsFetching }) => {
         flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, ngayUpdate: new Date().toISOString() }
         // steps[`${newValue.id}`] = { ...newValue }
         flagArray.splice(newValue.id, 1)
-        await axios.put(`https://6195d82474c1bd00176c6ede.mockapi.io/Tickets/${data.id + 1}`, {
-            Pheduyet: [...flagArray]
-        })
-        setIsFetching(state => !state)
+        const bodyData = {
+            Pheduyet: JSON.stringify([...flagArray])
+        }
+        const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        dispatch(updateTicket(response.data))
     }
+    //RENDER STATUS
     const checkStatus = (status) => {
         let variable;
         if (status === 0) variable = <HourglassFullIcon className="icon__table wait" onClick={handleOpen} />
@@ -126,14 +132,16 @@ const CustomStep = ({ item, data, setIsFetching }) => {
                 onClose={handleClose}
             >
                 {item.status !== 1 &&
-                    (item.id === 1 || item.id === 3) ? <NestedMenuItem
+                    (item.id === 1 || item.id === 3) ?
+                    <NestedMenuItem
                         label={"Phê duyệt"}
                         parentMenuOpen={open}
                     >
-                    <MenuItem onClick={handleApprove}>Phạm Chí Kiệt</MenuItem>
-                    <MenuItem >Phạm Chí Kiệt</MenuItem>
-                    <MenuItem >Phạm Chí Kiệt</MenuItem>
-                </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
+                        {/* Người duyệt  */}
+                        <MenuItem onClick={handleApprove}>Phạm Chí Kiệt</MenuItem>
+                        <MenuItem >Phạm Chí Kiệt</MenuItem>
+                        <MenuItem >Phạm Chí Kiệt</MenuItem>
+                    </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
                 }
                 {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
                 <Menu

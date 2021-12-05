@@ -1,13 +1,16 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector } from "react-redux"
 import { DatePicker } from "react-rainbow-components";
+import { TextField, MenuItem, FormControl, ListItemText } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import ListItemText from "@mui/material/ListItemText";
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 import Select from "@mui/material/Select";
+import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from "@mui/material/Checkbox";
-import Slider from '@mui/material/Slider';
+import ticketsAPI from "api/ticketsAPI"
 const containerStyles = {
     width: 300,
     position: "relative"
@@ -39,45 +42,52 @@ const countObjectProperty = (array, field, value) => {
     return array.filter(item => item[`${field}`] >= minPrice && (maxPrice ? item[`${field}`] <= maxPrice : true)).length
 }
 const CustomSelectEdit = (props) => {
-    const { collection = "" } = props
+    const [arrayData, setArrayData] = useState(props.data ? props.data : [])
+    useEffect(async () => {
+        const { columnDef: { field } } = props
+        if (field === "Vitri") {
+            const response = await ticketsAPI.getPosition();
+            const { data: { attributes: { Dulieu } } } = response
+            setArrayData(JSON.parse(Dulieu))
+        }
+    }, [])
+    const { collection = "", field } = props
     const arrayTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
     const compareArray = collection ? arrayCandidate : arrayTicket
-
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-        PaperProps: {
-            style: {
-                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-                width: props.width
-            }
-        }
-    };
     const value = props.columnDef.tableData.filterValue || []
     return (
         <>
-            <FormControl sx={{ m: 1, width: props.width, marginTop: "20.5px" }} variant="standard">
-                <Select
-                    labelId="demo-multiple-checkbox-label"
-                    id="demo-multiple-checkbox"
-                    multiple
-                    value={value}
-                    onChange={(event) => {
-                        const { target: { value } } = event;
-                        props.onFilterChanged(props.columnDef.tableData.id, value);
-                    }}
-                    renderValue={(selected) => selected.join(", ")}
-                    MenuProps={MenuProps}
-                >
-                    {props.data.map((name) => (
-                        <MenuItem key={name} value={name}>
-                            <Checkbox checked={value.indexOf(name) > -1} />
-                            <ListItemText primary={`${name} (${countProperty(compareArray, props.field, name)})`} />
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
+            <Autocomplete
+                multiple
+                id="checkboxes-tags-demo"
+                options={arrayData}
+                value={value}
+                onChange={(event, newValue) => {
+                    props.onFilterChanged(props.columnDef.tableData.id, newValue);
+                }}
+                style={{ width: props.width }}
+                getOptionLabel={(option) => option[`${field}`]}
+                renderOption={(props, option, { selected }) => {
+                    return (
+                        <li {...props}>
+                            <Checkbox
+                                icon={icon}
+                                checkedIcon={checkedIcon}
+                                style={{ marginRight: 8 }}
+                                checked={selected}
+                            />
+                            {option[`${field}`]}
+                        </li>
+                    )
+                }}
+                renderTags={(selected) => {
+                    return selected.map(item => item[`${field}`]).join(',')
+                }}
+                renderInput={(params) => (
+                    <TextField {...params} variant="standard" />    
+                )}
+            />
         </>
     )
 }

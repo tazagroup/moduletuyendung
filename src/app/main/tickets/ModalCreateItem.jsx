@@ -61,23 +61,23 @@ const ModalCreateItem = ({ data }) => {
     const dispatch = useDispatch();
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(new Date())
-    const [position, setPosition] = useState([...data])
+    const [position, setPosition] = useState([...data.position])
     const [valuePosition, setValuePosition] = useState(null)
     const [reasons, setReasons] = useState('');
     const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const [otherReason, setOtherReason] = useState('');
     const [isOther, setIsOther] = useState(false)
-    const [censor, setCensor] = useState(null)
-    const arrayCensor = ['Phạm Chí Kiệt', 'Phạm Chí Kiệt 2', 'Phạm Chí Kiệt 3']
+    const [valueCensor, setValueCensor] = useState(null)
+    const [censor, setCensor] = useState([...data.users])
     const reasonValid = isOther ? otherReason !== "" : reasons !== ""
-    const isValid = form.formState.isValid && reasonValid && censor !== ""
+    const isValid = form.formState.isValid && reasonValid && valueCensor !== null && valuePosition !== null
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }
         else { setIsOther(false) }
     }
     const handleCensorChange = (event, newValue) => {
-        setCensor(newValue)
+        setValueCensor(newValue)
     }
     const handlePositionChange = (event, newValue) => {
         setValuePosition(newValue)
@@ -100,11 +100,10 @@ const ModalCreateItem = ({ data }) => {
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,
-            TNNS:JSON.stringify(flag.TNNS),
+            TNNS: JSON.stringify(flag.TNNS),
             Pheduyet: JSON.stringify(flag.Pheduyet)
         }
         const response = await ticketsAPI.postTicket(bodyData)
-        console.log(response)
         dispatch(closeDialog())
     }
     return (
@@ -156,7 +155,13 @@ const ModalCreateItem = ({ data }) => {
                             <Tinymce form={form} name="Mota" label={"Mô tả tuyển dụng"} />
                         </Grid>
                         <Grid item xs={12}>
-                            <AutocompleteField label="Quản lí xét duyệt" value={censor} arrayItem={arrayCensor} handleChange={handleCensorChange} />
+                            <AutocompleteObjField
+                                value={valueCensor}
+                                options={censor}
+                                onChange={handleCensorChange}
+                                field="name"
+                                label="Quản lí phê duyệt"
+                            />
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -164,9 +169,8 @@ const ModalCreateItem = ({ data }) => {
                     <Button color="error" autoFocus type="submit" variant="contained" onClick={() => { dispatch(closeDialog()) }}>
                         Đóng
                     </Button>
-                    <Button color="primary" autoFocus type="submit" variant="contained">
+                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid}>
                         Đăng tin tuyển dụng
-                        {/* disabled={!isValid} */}
                     </Button>
                 </DialogActions>
             </form>

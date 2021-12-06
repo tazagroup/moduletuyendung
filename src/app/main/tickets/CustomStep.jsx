@@ -6,12 +6,15 @@ import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
 import TextareaAutosize from '@mui/material/TextareaAutosize';
 import Menu from '@mui/material/Menu';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import ErrorIcon from '@mui/icons-material/Error';
+import NumberFormat from "react-number-format"
+import { TextField } from '@material-ui/core';
 //COMPONENT
 import ModalUpdateItem from './ModalUpdateItem'
 //API
@@ -22,14 +25,15 @@ const CustomStep = ({ item, data }) => {
     const steps = JSON.parse(data['Pheduyet'])
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
-    const [anchorEl2, setAnchorEl2] = useState(null);
-    const open2 = Boolean(anchorEl2);
+    const [openRefuseDialog, setOpenRefuseDialog] = useState(false);
     const [reason, setReason] = useState('')
+    const [currency, setCurrency] = useState('')
     const handleSubClick = (event) => {
-        setAnchorEl2(event.currentTarget);
+        setAnchorEl(null)
+        setOpenRefuseDialog(true)
     };
     const handleSubClose = () => {
-        setAnchorEl2(null);
+        setOpenRefuseDialog(false)
     };
     const handleOpen = (e) => {
         const currentPos = item.id + 1
@@ -83,9 +87,12 @@ const CustomStep = ({ item, data }) => {
         dispatch(updateTicket(response.data))
     }
     const handleRefuse = async (e) => {
-        handleClose()
+        handleSubClose()
         const flagArray = [...steps]
         const newValue = { ...item, status: 2, Lydo: reason, ngayUpdate: new Date().toISOString() }
+        if (item.id === 5) {
+            newValue['CPTT'] = currency.split(',').join('')
+        }
         flagArray[`${newValue.id}`] = { ...newValue }
         const bodyData = {
             Pheduyet: JSON.stringify([...flagArray])
@@ -144,32 +151,48 @@ const CustomStep = ({ item, data }) => {
                     </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
                 }
                 {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
-                <Menu
-                    id="basic-menu"
-                    anchorEl={anchorEl2}
-                    open={open2}
-                    onClose={handleSubClose}
-                    MenuListProps={{
-                        'aria-labelledby': 'basic-button',
-                    }}
-                >
-                    <MenuItem >
-                        <TextareaAutosize
-                            aria-label="empty textarea"
-                            placeholder="Lí do từ chối"
-                            style={{ width: "97px" }}
-                            onChange={(e) => setReason(e.target.value)}
-                            onKeyPress={(e) => {
-                                if (e.key === "Enter") {
-                                    handleRefuse()
-                                }
-                            }
-                            }
-                        />
-                    </MenuItem>
-                </Menu>
                 {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Xử lí</MenuItem>}
             </Menu>
+            <Dialog
+                open={openRefuseDialog}
+                fullWidth={true}
+                maxWidth={"sm"}
+            >
+                <DialogTitle id="alert-dialog-title" style={{ fontSize: "20px", textAlign: "center" }}>Từ chối phiếu tuyển dụng</DialogTitle>
+                <DialogContent>
+                    <TextField
+                        id="outlined-helperText"
+                        onChange={(e) => { setReason(e.target.value) }}
+                        label="Lí do"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        style={{ fontSize: "15px" }}
+                        fullWidth
+                        variant="standard"
+                    />
+                    {item.id === 5 && <NumberFormat
+                        label={"Chi phí thực tế"}
+                        onChange={(e) => { setCurrency(e.target.value) }}
+                        customInput={TextField}
+                        thousandSeparator
+                        allowLeadingZeros={false}
+                        fullWidth
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                        style={{ marginTop: "15px" }}
+                    />}
+                </DialogContent>
+                <DialogActions>
+                    <Button color="error" autoFocus type="submit" variant="contained" onClick={handleSubClose}>
+                        Đóng
+                    </Button>
+                    <Button color="primary" autoFocus type="submit" variant="contained" onClick={handleRefuse}>
+                        Cập nhật
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div >
     )
 }

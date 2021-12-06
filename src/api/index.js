@@ -1,7 +1,7 @@
 import axios from 'axios';
 import queryString from 'query-string';
 
-const baseURL = "https://tazagroup.vn/api/index.php/v1/hrms"
+const baseURL = "https://tazagroup.vn/api/index.php/v1"
 const token = "c2hhMjU2OjcyOmUzNGExYmY5YTViZGRhMzE4OWFkYTgzZDIyMDM3ZWY3MWQ5NjRkNzM1NWU0MjE5NGE3NmE1NmYwYjIwMWNkZTM="
 const axiosClient = axios.create({
     baseURL: baseURL,

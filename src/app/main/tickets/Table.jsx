@@ -53,6 +53,7 @@ export default function Table() {
     const dispatch = useDispatch()
     const data = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
+    const users = useSelector(state => state.fuse.tickets.users)
     const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
@@ -73,8 +74,11 @@ export default function Table() {
     useEffect(async () => {
         const responseData = await ticketsAPI.getTicket();
         const responsePosition = await ticketsAPI.getPosition();
+        const responseUser = await ticketsAPI.getUser();
         const { data: { attributes: { Dulieu } } } = responsePosition
-        dispatch(setDataTicket({ data: responseData.data, position: JSON.parse(Dulieu) }))
+        const { data } = responseUser
+        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name }))
+        dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
         setIsLoading(false)
     }, [])
     const headers = [
@@ -153,7 +157,7 @@ export default function Table() {
             render: (rowData) => {
                 let flag = true;
                 let value = 0
-                if (JSON.parse(rowData['Pheduyet'])[1]) {
+                if (JSON.parse(rowData['Pheduyet'])[2]) {
                     value = JSON.parse(rowData['Pheduyet'])[1].ngayUpdate
                     flag = false;
                 }
@@ -252,12 +256,23 @@ export default function Table() {
             currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
             // emptyValue:(rowData) => <div>NO</div>,
             render: (rowData) => {
-                let flag = true; let value = 0
+                console.log(rowData)
+                let flag = true; let value = 0; let flag2 = true; let value2 = 0
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
                     value = JSON.parse(rowData['Pheduyet'])[1].Chiphi;
                     flag = false;
                 }
-                return flag ? <ClearIcon /> : new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)
+                const realCurrency = JSON.parse(rowData['Pheduyet'])[5]
+                if (realCurrency.hasOwnProperty('CPTT')) {
+                    value2 = realCurrency.CPTT
+                    flag2 = false
+                }
+                const render =
+                    <div>
+                        Dự kiến : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)}
+                        {!flag2 && <div>Thực tế : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value2)}</div>}
+                    </div>
+                return flag ? <ClearIcon /> : render
             },
             editComponent: (item) => {
                 const steps = item.rowData['Pheduyet'].length
@@ -280,7 +295,7 @@ export default function Table() {
             title: "Hình thức", field: "Hinhthuc",
             render: (rowData) => {
                 let flag = true; let value = 0
-                if (JSON.parse(rowData['Pheduyet'])[1]) {
+                if (JSON.parse(rowData['Pheduyet'])[2]) {
                     value = JSON.parse(rowData['Pheduyet'])[1].Hinhthuc;
                     flag = false;
                 }
@@ -398,7 +413,7 @@ export default function Table() {
                 <Tooltip title="Tạo hồ sơ tuyển dụng">
                     <IconButton
                         onClick={() => dispatch(openDialog({
-                            children: <ModalCreateItem data={position} />,
+                            children: <ModalCreateItem data={{ position: position, users: users }} />,
                         }))}
                         variant="contained"
                         color="secondary"
@@ -406,7 +421,8 @@ export default function Table() {
                         <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                     </IconButton>
                 </Tooltip>
-            </>}
+            </>
+            }
             initialFormData={initialData}
             options={{
                 showDetailPanelIcon: false,
@@ -424,14 +440,15 @@ export default function Table() {
                 },
             }}
             columns={columns}
-            actions={[
-                {
-                    icon: 'search',
-                    tooltip: 'Lọc',
-                    isFreeAction: true,
-                    onClick: (event) => setIsFiltering(state => !state)
-                },
-            ]}
+            actions={
+                [
+                    {
+                        icon: 'search',
+                        tooltip: 'Lọc',
+                        isFreeAction: true,
+                        onClick: (event) => setIsFiltering(state => !state)
+                    },
+                ]}
             editable={{
                 isEditHidden: (rowData) => rowData,
             }}
@@ -443,7 +460,7 @@ export default function Table() {
             icons={{ ViewColumn: ViewColumnIcon, }}
             onRowClick={(event, rowData) => { setDataStatus(rowData) }}
         />
-        <Menu
+        < Menu
             id="basic-menu"
             anchorEl={anchorEl}
             open={open}
@@ -455,28 +472,30 @@ export default function Table() {
             <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
             <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
             <MenuItem onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
-        </Menu>
+        </Menu >
         {isCC &&
             <CreateCandidate
                 open={isCC}
                 item={rowData}
                 handleClose={() => { setIsCC(false) }}
             />}
-        {isEditTicket &&
+        {
+            isEditTicket &&
             <ModalEditItem
                 open={isEditTicket}
                 item={rowData}
                 handleClose={() => { setIsEditTicket(false) }}
             />
         }
-        {isCopyTicket &&
+        {
+            isCopyTicket &&
             <ModalCopyItem
                 open={isCopyTicket}
                 item={rowData}
                 handleClose={() => { setIsCopyTicket(false) }}
             />
         }
-    </Fragment>
+    </Fragment >
 }
 
 

@@ -67,15 +67,16 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const position = useSelector(state => state.fuse.tickets.position)
     const steps = JSON.parse(item['Pheduyet'])
+    console.log(steps)
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id === item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
-    const [selectedDate3, setSelectedDate3] = useState(steps[1].TGMua ? steps[1].TGMua : null)
-    const [selectedDate4, setSelectedDate4] = useState(steps[1].NTC ? steps[1].NTC : null)
+    const [selectedDate3, setSelectedDate3] = useState(steps[1] ? steps[1].TGMua : null)
+    const [selectedDate4, setSelectedDate4] = useState(steps[1] ? steps[1].NTC : null)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
-    const [source, setSource] = useState(steps[1].Nguon ? steps[1].Nguon : "")
-    const [currency, setCurrency] = useState(steps[1].Chiphi ? steps[1].Chiphi : "")
-    const [type, setType] = useState(steps[1].Hinhthuc !== "" ? steps[1].Hinhthuc : "")
+    const [source, setSource] = useState(steps[1] ? steps[1].Nguon : "")
+    const [currency, setCurrency] = useState(steps[1] ? steps[1].Chiphi : "")
+    const [type, setType] = useState(steps[1] ? steps[1].Hinhthuc : "")
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,
@@ -184,8 +185,8 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                     label={"Chi phí mua"}
                                     customInput={TextField}
                                     thousandSeparator
-                                    error={currency == ""}
-                                    helperText={currency == "" ? "Vui lòng nhập chi phí" : null}
+                                    error={steps[1] && currency == ""}
+                                    helperText={(steps[1] && currency == "") == "" ? "Vui lòng nhập chi phí" : null}
                                     onChange={(e, newValue) => { setCurrency(newValue) }}
                                     defaultValue={currency}
                                     allowLeadingZeros={false}

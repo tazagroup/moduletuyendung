@@ -41,7 +41,7 @@ const countObjectProperty = (array, field, value) => {
     const { minPrice, maxPrice } = value
     return array.filter(item => item[`${field}`] >= minPrice && (maxPrice ? item[`${field}`] <= maxPrice : true)).length
 }
-const CustomSelectEdit = (props) => {
+const CustomAutocompleteEdit = (props) => {
     const [arrayData, setArrayData] = useState(props.data ? props.data : [])
     useEffect(async () => {
         const { columnDef: { field } } = props
@@ -85,9 +85,50 @@ const CustomSelectEdit = (props) => {
                     return selected.map(item => item[`${field}`]).join(',')
                 }}
                 renderInput={(params) => (
-                    <TextField {...params} variant="standard" />    
+                    <TextField {...params} variant="standard" />
                 )}
             />
+        </>
+    )
+}
+const CustomSelectEdit = (props) => {
+    const arrayTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                width: props.width
+            }
+        }
+    };
+    const value = props.columnDef.tableData.filterValue || []
+    return (
+        <>
+            <FormControl sx={{ m: 1, width: props.width, marginTop: "20.5px" }} variant="standard">
+                <Select
+                    labelId="demo-multiple-checkbox-label"
+                    id="demo-multiple-checkbox"
+                    multiple
+                    value={value}
+                    onChange={(event) => {
+                        const { target: { value } } = event;
+                        props.onFilterChanged(props.columnDef.tableData.id, value);
+                    }}
+                    renderValue={(selected) => ""}
+                    MenuProps={MenuProps}
+                >
+                    {props.data.map((item) => (
+                        <MenuItem key={item.id} value={item}>
+                            <Checkbox
+                                checked={value.find((option) => option.id === item.id) ? true : false}
+                            />
+                            <ListItemText primary={`${item.name} (${countObjectProperty(arrayTicket, props.field, item)})`} />
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
         </>
     )
 }
@@ -239,4 +280,13 @@ const CustomFileEdit = (props) => {
         </>
     )
 }
-export { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomSelectNumber, CustomFileEdit }
+
+
+export {
+    CustomDateEdit,
+    CustomAutocompleteEdit,
+    CustomSelectPriceEdit,
+    CustomSelectNumber,
+    CustomFileEdit,
+    CustomSelectEdit
+}

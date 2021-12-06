@@ -25,7 +25,7 @@ import EmptyStatus from './EmptyStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
 import CustomPosition from './CustomPosition'
-import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit } from '../CustomField/CustomEdit';
+import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit,CustomAutocompleteEdit } from '../CustomField/CustomEdit';
 import { getStatusRendering } from '../utils';
 //API
 import ticketsAPI from "api/ticketsAPI"

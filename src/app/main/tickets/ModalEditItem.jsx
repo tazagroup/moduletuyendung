@@ -92,13 +92,15 @@ const ModalEditItem = ({ item, open, handleClose }) => {
 
     const handleEditTicket = async (e) => {
         const flagPheduyet = [...JSON.parse(item['Pheduyet'])]
-        flagPheduyet[1] = {
-            ...flagPheduyet[1],
-            Nguon: source,
-            TGMua: new Date(selectedDate3).toISOString(),
-            Chiphi: currency,
-            Hinhthuc: type,
-            NTC: new Date(selectedDate4).toISOString()
+        if (flagPheduyet[2]) {
+            flagPheduyet[1] = {
+                ...flagPheduyet[1],
+                Nguon: source,
+                TGMua: new Date(selectedDate3).toISOString(),
+                Chiphi: currency,
+                Hinhthuc: type,
+                NTC: new Date(selectedDate4).toISOString()
+            }
         }
         const bodyData = {
             ...item,

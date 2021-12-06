@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
+//REDUX
 import { useDispatch } from 'react-redux';
 import { closeDialog } from 'app/store/fuse/dialogSlice';
+import { addTicket } from "app/store/fuse/ticketsSlice"
+//MUI
 import { DialogTitle, DialogContent, DialogActions, Button, Autocomplete } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
@@ -96,7 +99,7 @@ const ModalCreateItem = ({ data }) => {
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
         }
-        const step = { id: 0, Nguoiduyet: censor, status: 0, ngayTao: new Date().toISOString() }
+        const step = { id: 0, Nguoiduyet: valueCensor.id, status: 0, ngayTao: new Date().toISOString() }
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,
@@ -104,6 +107,7 @@ const ModalCreateItem = ({ data }) => {
             Pheduyet: JSON.stringify(flag.Pheduyet)
         }
         const response = await ticketsAPI.postTicket(bodyData)
+        dispatch(addTicket(response.data))
         dispatch(closeDialog())
     }
     return (

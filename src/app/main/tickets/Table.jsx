@@ -254,18 +254,18 @@ export default function Table() {
             field: "Chiphi",
             type: "currency",
             currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
-            // emptyValue:(rowData) => <div>NO</div>,
             render: (rowData) => {
-                console.log(rowData)
                 let flag = true; let value = 0; let flag2 = true; let value2 = 0
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
                     value = JSON.parse(rowData['Pheduyet'])[1].Chiphi;
                     flag = false;
                 }
                 const realCurrency = JSON.parse(rowData['Pheduyet'])[5]
-                if (realCurrency.hasOwnProperty('CPTT')) {
-                    value2 = realCurrency.CPTT
-                    flag2 = false
+                if (realCurrency) {
+                    if (realCurrency.hasOwnProperty('CPTT')) {
+                        value2 = realCurrency.CPTT
+                        flag2 = false
+                    }
                 }
                 const render =
                     <div>
@@ -384,7 +384,7 @@ export default function Table() {
     const handleClick = (event, row) => {
         setRowData(row);
         setAnchorEl(event.currentTarget);
-        if (row.Tinhtrang !== "Đã thanh toán") {
+        if (row.Trangthai !== 1) {
             setIsBlock(true)
         }
     };

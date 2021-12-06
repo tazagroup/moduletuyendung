@@ -1,16 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-
-
 const ticketsSlice = createSlice({
     name: 'tickets',
     initialState: {
         dataTicket: [],
         position: [],
-        users:[],
+        users: [],
         isLoading: true,
     },
     reducers: {
+        addTicket: (state, action) => {
+            const { attributes } = action.payload
+            attributes['key'] = attributes.id
+            attributes['id'] = state.dataTicket.length + 1
+            state.dataTicket.push(attributes)
+        },
         setDataTicket: (state, action) => {
             const { data, position, users } = action.payload
             const flagArray = data.map(item => item.attributes)
@@ -18,7 +22,7 @@ const ticketsSlice = createSlice({
                 id: index,
                 key,
                 ...item,
-            })).slice(0, 1)
+            }))
             state.position = JSON.parse(position);
             state.users = users;
         },
@@ -33,6 +37,6 @@ const ticketsSlice = createSlice({
     },
 });
 
-export const { setDataTicket, updateTicket } = ticketsSlice.actions;
+export const { addTicket, setDataTicket, updateTicket } = ticketsSlice.actions;
 
 export default ticketsSlice.reducer;

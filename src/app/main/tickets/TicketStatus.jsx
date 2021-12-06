@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react'
+import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -24,15 +25,16 @@ const useStyles = makeStyles({
 })
 
 const CustomTitle = ({ item }) => {
+    const users = useSelector(state => state.fuse.tickets.users)
+    const name = users.find(flag => flag.id === item.Nguoiduyet)?.name
     const createdAt = new Date(`${item.ngayTao}`).toLocaleDateString("en-GB")
     const updatedAt = new Date(`${item.ngayUpdate}`).toLocaleDateString("en-GB")
     const status = item.status !== 0 ? (item.status === 1 ? "Đã duyệt" : "Từ chối") : "Chờ duyệt"
-
     return (
         <React.Fragment>
             <p>Trạng thái : {status}</p>
             {item.status === 2 && <p>Lý do : {item.Lydo}</p>}
-            {item.status !== 0 && <p>Người duyệt : {item.nguoiDuyet}</p>}
+            {item.status !== 0 && <p>Người duyệt : {name}</p>}
             <p>Ngày tạo : {createdAt}</p>
             {item.status !== 0 && <p>Ngày cập nhật : {updatedAt}</p>}
         </React.Fragment>
@@ -51,7 +53,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
     },
 }));
 const TicketStatus = ({ item }) => {
-    const steps = item['Pheduyet']
+    const steps = JSON.parse(item['Pheduyet'])
     const classes = useStyles()
     const CustomTimeline = ({ item, title }) => {
         let classStatus = "disabled"

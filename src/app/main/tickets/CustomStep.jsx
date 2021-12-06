@@ -81,6 +81,7 @@ const CustomStep = ({ item, data }) => {
             }
         }
         const bodyData = {
+            Trangthai: item === 5 ? 1 : item.Trangthai,
             Pheduyet: JSON.stringify([...flagArray]),
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
@@ -110,6 +111,7 @@ const CustomStep = ({ item, data }) => {
         // steps[`${newValue.id}`] = { ...newValue }
         flagArray.splice(newValue.id, 1)
         const bodyData = {
+            Trangthai: item === 5 ? 0 : item.Trangthai,
             Pheduyet: JSON.stringify([...flagArray])
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)

@@ -97,7 +97,6 @@ const ModalUpdateItem = ({ data, censor }) => {
     const isValid = form.formState.isValid
     //UPDATE TICKETS
     const handleUpdateTickets = async (e) => {
-        
         const item = dataTicket.find(item => item.key === data.key)
         const step = JSON.parse(item['Pheduyet'])
         step[1] = {
@@ -124,7 +123,7 @@ const ModalUpdateItem = ({ data, censor }) => {
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12} md={6}>
-                            <TextInputCustom value={position.find(item => item.id === data.Vitri)[`Thuoctinh`]} label="Vị trí tuyển dụng" type="text" />
+                            <TextInputCustom value={position.find(item => item.id == data.Vitri)?.Thuoctinh} label="Vị trí tuyển dụng" type="text" />
                         </Grid>
                         <Grid item xs={12} md={3}>
                             <TextInputCustom value={data.SLHT} label="Nhân sự hiện có" type="number" />

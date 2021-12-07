@@ -14,6 +14,13 @@ const AutocompleteObjField = (props) => {
             style={styleSelect}
             options={options}
             getOptionLabel={option => option[`${field}`]}
+            renderOption={(props, option) => {
+                return (
+                    <li {...props} key={option.id}>
+                        {option[`${field}`]}
+                    </li>
+                )
+            }}
             fullWidth={true}
             renderInput={(params) => <TextField {...params} label={label} variant="standard" />}
         />

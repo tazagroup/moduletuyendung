@@ -57,13 +57,13 @@ function ToolbarLayout3(props) {
               <FuseSearch />
             </Hidden>
 
-            <LanguageSwitcher />
+            {/* <LanguageSwitcher /> */}
 
-            <AdjustFontSize />
+            {/* <AdjustFontSize /> */}
 
             <FullScreenToggle />
 
-            <QuickPanelToggleButton />
+            {/* <QuickPanelToggleButton /> */}
 
             <UserMenu />
           </div>

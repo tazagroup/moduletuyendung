@@ -25,8 +25,6 @@ const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
     SLHT: yup.number().min(0, "Dữ liệu không đúng"),
     SLCT: yup.number().min(1, "Dữ liệu không đúng"),
-    Mota: yup.string().required("Vui lòng nhập mô tả tuyển dụng"),
-    Yeucau: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng"),
 });
 const useStyles = makeStyles({
     title: {
@@ -59,7 +57,7 @@ const useStyles = makeStyles({
         paddingLeft: "8px"
     }
 })
-const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực"]
+const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
 const arraySource = ["Facebook", "ITViec", "TopCV"]
 const arrayType = ["Thanh toán tiền mặt", "Chuyển khoản"]
 const ModalEditItem = ({ item, open, handleClose }) => {
@@ -67,51 +65,53 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const position = useSelector(state => state.fuse.tickets.position)
     const steps = JSON.parse(item['Pheduyet'])
-    console.log(steps)
-    const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id === item.Vitri))
+    const checkStep = steps.length < 3
+    const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
-    const [selectedDate3, setSelectedDate3] = useState(steps[1] ? steps[1].TGMua : null)
-    const [selectedDate4, setSelectedDate4] = useState(steps[1] ? steps[1].NTC : null)
+    const [selectedDate3, setSelectedDate3] = useState(steps[1] && steps[1].TGMua || "")
+    const [selectedDate4, setSelectedDate4] = useState(steps[1] && steps[1].NTC || "")
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
     const [source, setSource] = useState(steps[1] ? steps[1].Nguon : "")
-    const [currency, setCurrency] = useState(steps[1] ? steps[1].Chiphi : "")
-    const [type, setType] = useState(steps[1] ? steps[1].Hinhthuc : "")
+    const [currency, setCurrency] = useState(steps[1] && steps[1].Chiphi || "")
+    const [type, setType] = useState(steps[1] && steps[1].Hinhthuc)
+    const [description, setDescription] = useState(item.Mota)
+    const [require, setRequire] = useState(item.Yeucau)
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,
             SLHT: item.SLHT,
-            Mota: item.Mota,
-            Yeucau: item.Yeucau,
             LuongDK: item.LuongDK,
         },
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
-    const checkStep = steps.length <= 3
-
     const handleEditTicket = async (e) => {
         const flagPheduyet = [...JSON.parse(item['Pheduyet'])]
         if (flagPheduyet[2]) {
             flagPheduyet[1] = {
                 ...flagPheduyet[1],
                 Nguon: source,
-                TGMua: new Date(selectedDate3).toISOString(),
                 Chiphi: currency,
+                TGMua: new Date(selectedDate3).toISOString(),
                 Hinhthuc: type,
                 NTC: new Date(selectedDate4).toISOString()
             }
         }
+        console.log(flagPheduyet)
         const bodyData = {
             ...item,
-            Vitri: position.id,
+            LuongDK: e.LuongDK,
+            SLCT: e.SLCT,
+            SLHT: e.SLHT,
+            Vitri: valuePosition.id,
             TGThuviec: selectedDate,
             Lydo: otherReason ? otherReason : reason,
             Pheduyet: JSON.stringify(flagPheduyet)
         }
         const response = await ticketsAPI.updateTicket(bodyData, item.key)
         dispatch(updateTicket(response.data))
-        // handleClose()
+        handleClose()
     }
     return (
         <React.Fragment >
@@ -146,9 +146,9 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             </Grid>
                             {/* Lí do tuyển dụng  */}
                             <Grid item xs={12} md={6}>
-                                <SelectField label="Lí do tuyển dụng" value={reason} arrayItem={arrayReason} handleChange={setReason} />
+                                <SelectField label="Lí do tuyển dụng" value={reason} arrayItem={arrayReason} handleChange={(e) => { setReason(e.target.value) }} />
                             </Grid>
-                            {!arrayReason.includes(item.Lydo) &&
+                            {item.Lydo === "Khác" &&
                                 <Grid item xs={12}>
                                     <TextField
                                         id="demo-helper-text-aligned"
@@ -166,18 +166,18 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             </Grid>
                             {/* Mô tả tuyển dụng  */}
                             <Grid item xs={12}>
-                                <Tinymce form={form} name="Mota" label={"Mô tả tuyển dụng"} />
+                                <Tinymce value={description} onChange={(e) => { setDescription(e) }} label={"mô tả tuyển dụng"} />
                             </Grid>
                             <Grid item xs={12}>
-                                <Tinymce form={form} name="Yeucau" label={"Yêu cầu tuyển dụng"} />
+                                <Tinymce value={require} onChange={(e) => { setRequire(e) }} label={"yêu cầu tuyển dụng"} />
                             </Grid>
                             {/* Nguồn  */}
                             <Grid item xs={12}>
-                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={setSource} disabled={checkStep} />
+                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={(e) => { setSource(e.target.value) }} disabled={checkStep} />
                             </Grid>
                             {/* Thời gian mua  */}
                             <Grid item xs={12}>
-                                <FormControl variant="standard" fullWidth className={classes.field}>
+                                <FormControl variant="standard" fullWidth>
                                     <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} disabled={checkStep} />
                                 </FormControl>
                             </Grid>
@@ -188,23 +188,23 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                     customInput={TextField}
                                     thousandSeparator
                                     error={steps[1] && currency == ""}
-                                    helperText={(steps[1] && currency == "") == "" ? "Vui lòng nhập chi phí" : null}
-                                    onChange={(e, newValue) => { setCurrency(newValue) }}
+                                    helperText={steps[1] && currency == "" ? "Vui lòng nhập chi phí" : null}
+                                    onChange={(e) => { setCurrency(e.target.value.split(",").join('')) }}
                                     defaultValue={currency}
                                     allowLeadingZeros={false}
                                     fullWidth
                                     disabled={checkStep}
                                 />
                             </Grid>
-                            {/* Hình thức thanh toán  */}
-                            <Grid item xs={12}>
-                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={setType} disabled={checkStep} />
-                            </Grid>
                             {/* Ngày cần thanh toán  */}
                             <Grid item xs={12}>
-                                <FormControl variant="standard" fullWidth className={classes.field}>
+                                <FormControl variant="standard" fullWidth>
                                     <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} disabled={checkStep} />
                                 </FormControl>
+                            </Grid>
+                            {/* Hình thức thanh toán  */}
+                            <Grid item xs={12}>
+                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={(e) => { setType(e.target.value) }} disabled={checkStep} />
                             </Grid>
                         </Grid>
                     </DialogContent>

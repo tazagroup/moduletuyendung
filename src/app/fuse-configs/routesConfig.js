@@ -1,13 +1,17 @@
 import { Redirect } from 'react-router-dom';
 import FuseUtils from '@fuse/utils';
-import ExampleConfig from 'app/main/example/ExampleConfig';
+import LoginConfig from 'app/main/Login/LoginConfig'
 import FuseLoading from '@fuse/core/FuseLoading';
 import Error404Page from 'app/main/404/Error404Page';
 import Dashboard from 'app/main/dashboard/index'
 import Tickets from 'app/main/tickets'
 import Candidates from 'app/main/candidate'
 import Calendar from 'app/main/calendar/Calendar'
-const routeConfigs = [ExampleConfig];
+
+const routeConfigs = [
+  LoginConfig,
+];
+const isLogin = localStorage.getItem("isLogin")
 
 const routes = [
   // if you want to make whole app auth protected by default change defaultAuth for example:
@@ -17,17 +21,12 @@ const routes = [
   {
     exact: true,
     path: '/',
-    component: () => <Dashboard />,
+    component: () => !isLogin ? <Dashboard /> : <Redirect to="/login" />,
   },
   {
-    path: '/loading',
     exact: true,
-    component: () => <FuseLoading />,
-  },
-  {
     path: '/tickets',
-    exact: true,
-    component: () => <Tickets />,
+    component: () => !isLogin ? <Tickets /> : <Redirect to="/login" />,
   },
   {
     path: '/candidates',

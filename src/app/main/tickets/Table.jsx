@@ -25,7 +25,7 @@ import EmptyStatus from './EmptyStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
 import CustomPosition from './CustomPosition'
-import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit,CustomAutocompleteEdit } from '../CustomField/CustomEdit';
+import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
 import { getStatusRendering } from '../utils';
 //API
 import ticketsAPI from "api/ticketsAPI"
@@ -49,6 +49,9 @@ const style = {
     overflow: "hidden",
     textOverflow: "ellipsis"
 }
+const MenuButton = {
+    fontSize: "13px"
+}
 export default function Table() {
     const dispatch = useDispatch()
     const data = useSelector(state => state.fuse.tickets.dataTicket)
@@ -60,45 +63,25 @@ export default function Table() {
     const [isFiltering, setIsFiltering] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
     const [isCC, setIsCC] = useState(false)
+    const [isCreateTicket, setIsCreaterTicket] = useState(false)
     const [isEditTicket, setIsEditTicket] = useState(false)
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
     const tableRef = useRef();
-    //FILTER RANGE NUMBER
-    const salary = [
-        { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
-        { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
-        { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
-    ]
-    useEffect(async () => {
-        const responseData = await ticketsAPI.getTicket();
-        const responsePosition = await ticketsAPI.getPosition();
-        const responseUser = await ticketsAPI.getUser();
-        const { data: { attributes: { Dulieu } } } = responsePosition
-        const { data } = responseUser
-        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name }))
-        dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
-        setIsLoading(false)
-    }, [])
     const headers = [
         {
-            title: "", field: "id",
-            render: rowData => (
-                <IconButton
-                    aria-label="Example"
-                    onClick={(event) => { handleClick(event, rowData) }}
-                    size="large">
-                    <MoreVertIcon />
-                </IconButton >
-            ),
-            filterComponent: rowData => null
-        }
-        , {
-            title: "#", field: "key", align: "center",
+            title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
             filterComponent: props => { return <></> },
             render: rowData => (
-                <div>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                    <IconButton
+                        aria-label="Example"
+                        onClick={(event) => { handleClick(event, rowData) }}
+                        size="large">
+                        <MoreVertIcon />
+                    </IconButton >
                     <p>{rowData.id + 1}</p>
                 </div>
             )
@@ -107,7 +90,7 @@ export default function Table() {
             title: "Vị trí tuyển dụng", field: "Vitri",
             render: rowData => (<CustomPosition data={rowData} />),
             filterComponent: props => {
-                return <CustomSelectEdit {...props} width={175} field="Thuoctinh" />
+                return <CustomAutocompleteEdit {...props} width={175} field="Thuoctinh" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
@@ -166,7 +149,7 @@ export default function Table() {
             filterComponent: (props) => <CustomDateEdit {...props} />,
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true
-                const time = Date.parse(rowData.TGThuviec)
+                const time = Date.parse(JSON.parse(rowData.TNNS).ngayDuyet)
                 const beforeDate = Date.parse(term[0])
                 const afterDate = Date.parse(term[1])
                 return time >= beforeDate && time <= afterDate
@@ -209,19 +192,30 @@ export default function Table() {
                 </div>
             )
         },
-        // {
-        //     title: "Nguồn", field: "Nguon",
-        //     emptyValue: () => <ClearIcon />,
-        //     filterComponent: props => {
-        //         const data = ["Facebook", "TopCV", "ITViec"]
-        //         return <CustomSelectEdit {...props} data={data} width={120} field="Nguon" />
-        //     },
-        //     customFilterAndSearch: (term, rowData) => {
-        //         if (term.length === 0) return true;
-        //         const { Nguon } = rowData;
-        //         return term.includes(Nguon);
-        //     }
-        // },
+        {
+            title: "Nguồn", field: "Nguon",
+            render: (rowData) => {
+                let flag = true;
+                let value = 0
+                if (JSON.parse(rowData['Pheduyet'])[2]) {
+                    value = JSON.parse(rowData['Pheduyet'])[1].Nguon || <ClearIcon />
+                    flag = false;
+                }
+                return flag ? <ClearIcon /> : value
+            },
+            filterComponent: props => {
+                const data = ["Facebook", "TopCV", "ITViec"]
+                return <CustomSelectEdit {...props} data={data} width={120} field="Nguon" />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                if (JSON.parse(rowData['Pheduyet'])[2]) {
+                    const { Nguon } = JSON.parse(rowData['Pheduyet'])[1]
+                    return term.includes(Nguon);
+                }
+                return false;
+            }
+        },
         // {
         //     title: "Thời gian mua",
         //     field: "TGMua",
@@ -269,7 +263,7 @@ export default function Table() {
                 }
                 const render =
                     <div>
-                        Dự kiến : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value)}
+                        Dự kiến : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)}
                         {!flag2 && <div>Thực tế : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value2)}</div>}
                     </div>
                 return flag ? <ClearIcon /> : render
@@ -296,7 +290,7 @@ export default function Table() {
             render: (rowData) => {
                 let flag = true; let value = 0
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    value = JSON.parse(rowData['Pheduyet'])[1].Hinhthuc;
+                    value = JSON.parse(rowData['Pheduyet'])[1].Hinhthuc || <ClearIcon />;
                     flag = false;
                 }
                 return flag ? <ClearIcon /> : value
@@ -307,7 +301,7 @@ export default function Table() {
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
-                const { Hinhthuc } = rowData;
+                const { Hinhthuc } = JSON.parse(rowData['Pheduyet'])[1];
                 return term.includes(Hinhthuc);
             }
         },
@@ -378,9 +372,27 @@ export default function Table() {
             filterComponent: (rowData) => <></>
         }
     ];
-    const flagColumns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
+    const isHidden = localStorage.getItem("hidden")
+    let isResult = []
+    if (isHidden) {
+        isResult = isHidden.split(",")
+    }
+    const flagColumns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
     const [columns, setColumns] = useState(flagColumns)
-    const open = Boolean(anchorEl);
+    const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
+    useEffect(async () => {
+        const responseData = await ticketsAPI.getTicket();
+        const responsePosition = await ticketsAPI.getPosition();
+        const responseUser = await ticketsAPI.getUser();
+        const { data: { attributes: { Dulieu } } } = responsePosition
+        const { data } = responseUser
+        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name }))
+        dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+        setIsLoading(false)
+    }, [])
+    useEffect(() => {
+        localStorage.setItem("hidden", hiddenColumns);
+    }, [hiddenColumns])
     const handleClick = (event, row) => {
         setRowData(row);
         setAnchorEl(event.currentTarget);
@@ -404,6 +416,12 @@ export default function Table() {
         setIsCC(true)
         handleClose()
     }
+    //FILTER RANGE NUMBER
+    const salary = [
+        { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
+        { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
+        { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
+    ]
     return isLoading ? <FuseLoading /> : <Fragment>
         {dataStatus ? <TicketStatus item={dataStatus} /> : <EmptyStatus />}
         <MaterialTable
@@ -412,9 +430,7 @@ export default function Table() {
             title={<>
                 <Tooltip title="Tạo hồ sơ tuyển dụng">
                     <IconButton
-                        onClick={() => dispatch(openDialog({
-                            children: <ModalCreateItem data={{ position: position, users: users }} />,
-                        }))}
+                        onClick={() => setIsCreaterTicket(true)}
                         variant="contained"
                         color="secondary"
                         size="large">
@@ -459,6 +475,16 @@ export default function Table() {
             }}
             icons={{ ViewColumn: ViewColumnIcon, }}
             onRowClick={(event, rowData) => { setDataStatus(rowData) }}
+            onChangeColumnHidden={(r) => {
+                const index = hiddenColumns.findIndex(item => item === r.field)
+                if (index !== -1) {
+                    const flag = hiddenColumns.filter(item => item !== r.field)
+                    setHiddenColumns([...flag])
+                }
+                else {
+                    setHiddenColumns(prev => [...prev, r.field])
+                }
+            }}
         />
         < Menu
             id="basic-menu"
@@ -469,10 +495,17 @@ export default function Table() {
                 'aria-labelledby': 'basic-button',
             }}
         >
-            <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
-            <MenuItem onClick={handleCopy}>Sao chép</MenuItem>
-            <MenuItem onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
+            <MenuItem style={MenuButton} onClick={handleEdit}>Chỉnh sửa</MenuItem>
+            <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
+            <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
         </Menu >
+        {isCreateTicket &&
+            <ModalCreateItem
+                open={isCreateTicket}
+                data={{ users: users, position: position }}
+                handleClose={() => { setIsCreaterTicket(false) }}
+            />
+        }
         {isCC &&
             <CreateCandidate
                 open={isCC}

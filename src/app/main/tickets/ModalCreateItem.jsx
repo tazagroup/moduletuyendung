@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { closeDialog } from 'app/store/fuse/dialogSlice';
 import { addTicket } from "app/store/fuse/ticketsSlice"
 //MUI
-import { DialogTitle, DialogContent, DialogActions, Button, Autocomplete } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Autocomplete } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
 import InputField from '../CustomField/InputField';
@@ -12,7 +12,6 @@ import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
 import DateField from "../CustomField/DateField"
 import AutocompleteObjField from '../CustomField/AutocompleteObj';
-import AutocompleteField from '../CustomField/Autocomplete';
 import Tinymce from "../CustomField/Tinymce"
 //FORM
 import { useForm } from "react-hook-form";
@@ -20,12 +19,13 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 //API
 import ticketsAPI from "api/ticketsAPI"
+import Editor from "@tinymce/tinymce-react"
+//TEST
 
 const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập mức lương"),
-    SLHT: yup.number().required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
-    SLCT: yup.number().required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
-    Yeucau: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng")
+    SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
+    SLCT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
 });
 const useStyles = makeStyles({
     title: {
@@ -49,14 +49,12 @@ const useStyles = makeStyles({
     }
 })
 
-const ModalCreateItem = ({ data }) => {
+const ModalCreateItem = ({ data, open, handleClose }) => {
     const form = useForm({
         defaultValues: {
             LuongDK: "",
             SLHT: 0,
             SLCT: 0,
-            Yeucau: "<p>Yêu cầu tuyển dụng</p>",
-            Mota: "<p>Mô tả tuyển dụng</p>",
         },
         mode: 'onBlur',
         resolver: yupResolver(schema),
@@ -67,13 +65,15 @@ const ModalCreateItem = ({ data }) => {
     const [position, setPosition] = useState([...data.position])
     const [valuePosition, setValuePosition] = useState(null)
     const [reasons, setReasons] = useState('');
-    const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const [otherReason, setOtherReason] = useState('');
     const [isOther, setIsOther] = useState(false)
     const [valueCensor, setValueCensor] = useState(null)
+    const [description, setDescription] = useState('')
+    const [require, setRequire] = useState('')
     const [censor, setCensor] = useState([...data.users])
+    const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const reasonValid = isOther ? otherReason !== "" : reasons !== ""
-    const isValid = form.formState.isValid && reasonValid && valueCensor !== null && valuePosition !== null
+    const isValid = form.formState.isValid && reasonValid && valueCensor !== null && valuePosition !== null && require !== "" && description !== ""
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }
@@ -94,12 +94,12 @@ const ModalCreateItem = ({ data }) => {
             TGThuviec: selectedDate.toISOString(),
             TNNS: {},
             Lydo: otherReason ? otherReason : reasons,
-            Mota: e.Mota,
-            Yeucau: e.Yeucau,
+            Mota: description,
+            Yeucau: require,
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
         }
-        const step = { id: 0, Nguoiduyet: valueCensor.id, status: 0, ngayTao: new Date().toISOString() }
+        const step = { id: 0, nguoiDuyet: valueCensor.id, status: 0, ngayTao: new Date().toISOString() }
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,
@@ -111,7 +111,11 @@ const ModalCreateItem = ({ data }) => {
         dispatch(closeDialog())
     }
     return (
-        <React.Fragment >
+        <Dialog
+            open={open}
+            fullWidth={true}
+            maxWidth={'xl'}
+        >
             <form onSubmit={form.handleSubmit(handleCreateTickets)}>
                 <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
                 </DialogTitle>
@@ -126,14 +130,14 @@ const ModalCreateItem = ({ data }) => {
                                 label="Vị trí tuyển dụng"
                             />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={6}>
+                            <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
+                        </Grid>
+                        <Grid item xs={12} md={6}>
                             <InputField form={form} name="SLHT" label={"Nhân sự hiện có"} type="number" />
                         </Grid>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} md={6}>
                             <InputField form={form} name="SLCT" label={"Nhân sự cần tuyển"} type="number" />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <NumberField form={form} name="LuongDK" label="Mức lương dự kiến" error="Vui lòng nhập mức lương" />
@@ -153,10 +157,10 @@ const ModalCreateItem = ({ data }) => {
                             </Grid>
                         }
                         <Grid item xs={12}>
-                            <Tinymce form={form} name="Yeucau" label={"Yêu cầu tuyển dụng"} />
+                            <Tinymce value={require} onChange={(e) => { setRequire(e) }} label={"yêu cầu tuyển dụng"} />
                         </Grid>
                         <Grid item xs={12}>
-                            <Tinymce form={form} name="Mota" label={"Mô tả tuyển dụng"} />
+                            <Tinymce value={description} onChange={(e) => { setDescription(e) }} label={"mô tả tuyển dụng"} />
                         </Grid>
                         <Grid item xs={12}>
                             <AutocompleteObjField
@@ -170,7 +174,7 @@ const ModalCreateItem = ({ data }) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button color="error" autoFocus type="submit" variant="contained" onClick={() => { dispatch(closeDialog()) }}>
+                    <Button color="error" autoFocus type="submit" variant="contained" onClick={() => { handleClose() }}>
                         Đóng
                     </Button>
                     <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid}>
@@ -178,7 +182,7 @@ const ModalCreateItem = ({ data }) => {
                     </Button>
                 </DialogActions>
             </form>
-        </React.Fragment>
+        </Dialog>
     );
 }
 

@@ -2,7 +2,6 @@ import React, { Fragment } from 'react'
 import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import Timeline from '@material-ui/lab/Timeline'
 import TimelineItem from '@material-ui/lab/TimelineItem';
@@ -10,6 +9,7 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
+import Tinymce from '../CustomField/Tinymce';
 import { makeStyles } from '@material-ui/core';
 import { styled } from '@mui/material/styles';
 const useStyles = makeStyles({
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 
 const CustomTitle = ({ item }) => {
     const users = useSelector(state => state.fuse.tickets.users)
-    const name = users.find(flag => flag.id === item.Nguoiduyet)?.name
+    const name = users.find(flag => flag.id === item.nguoiDuyet)?.name
     const createdAt = new Date(`${item.ngayTao}`).toLocaleDateString("en-GB")
     const updatedAt = new Date(`${item.ngayUpdate}`).toLocaleDateString("en-GB")
     const status = item.status !== 0 ? (item.status === 1 ? "Đã duyệt" : "Từ chối") : "Chờ duyệt"

@@ -263,6 +263,14 @@
           To begin the development, run `npm start` or `yarn start`.
           To create a production bundle, use `npm run build` or `yarn build`.
         -->
+    <script>
+        document.addEventListener('focusin', function (e) {
+            let closest = e.target.closest(".tox-tinymce-aux, .tox-dialog, .moxman-window, .tam-assetmanager-root");
+            if (closest !== null && closest !== undefined) {
+                e.stopImmediatePropagation();
+            }
+        });
+    </script>
 </body>
 
 </html>

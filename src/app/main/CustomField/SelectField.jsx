@@ -6,7 +6,7 @@ const SelectField = (props) => {
     const { label, value, handleChange, arrayItem, disabled = false } = props
     return (
         <FormControl variant="standard" fullWidth>
-            <InputLabel htmlFor="demo-customized-textbox" style={styleLabel}>{label}</InputLabel>
+            <InputLabel htmlFor="demo-customized-textbox" style={styleLabel} shrink={true}>{label}</InputLabel>
             <Select
                 labelId="demo-simple-select-standard-label"
                 id="demo-simple-select-standard"

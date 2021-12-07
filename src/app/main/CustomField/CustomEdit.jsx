@@ -22,6 +22,12 @@ const countProperty = (array, field, value) => {
         const inArrayReason = array.filter(item => arrayReason.includes(item.Lydo)).length
         return arrayReason.includes(value) ? array.filter(item => item['Lydo'] === value).length : (array.length - inArrayReason)
     }
+    else if (field === "Nguon" || "Hinhthuc") {
+        const step = array.map(item => JSON.parse(item['Pheduyet']))
+        return step.filter(item => {
+            if (item[2]) return item[1][`${field}`] === value
+        }).length
+    }
     return array.filter(item => item[`${field}`] === value).length
 }
 const countNumber = (array, field, value) => {
@@ -51,10 +57,7 @@ const CustomAutocompleteEdit = (props) => {
             setArrayData(JSON.parse(Dulieu))
         }
     }, [])
-    const { collection = "", field } = props
-    const arrayTicket = useSelector(state => state.fuse.tickets.dataTicket)
-    const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
-    const compareArray = collection ? arrayCandidate : arrayTicket
+    const { field } = props
     const value = props.columnDef.tableData.filterValue || []
     return (
         <>
@@ -116,15 +119,15 @@ const CustomSelectEdit = (props) => {
                         const { target: { value } } = event;
                         props.onFilterChanged(props.columnDef.tableData.id, value);
                     }}
-                    renderValue={(selected) => ""}
+                    renderValue={(selected) => selected.join(', ')}
                     MenuProps={MenuProps}
                 >
-                    {props.data.map((item) => (
-                        <MenuItem key={item.id} value={item}>
+                    {props.data.map((item, index) => (
+                        <MenuItem key={index} value={item}>
                             <Checkbox
-                                checked={value.find((option) => option.id === item.id) ? true : false}
+                                checked={value.indexOf(item) > -1}
                             />
-                            <ListItemText primary={`${item.name} (${countObjectProperty(arrayTicket, props.field, item)})`} />
+                            <ListItemText primary={`${item} (${countProperty(arrayTicket, props.field, item)})`} />
                         </MenuItem>
                     ))}
                 </Select>

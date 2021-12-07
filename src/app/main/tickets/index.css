@@ -54,6 +54,23 @@ thead tr th {
     fill: orangered;
 }
 /* Calendar edit  */
+.PrivatePickersYear-yearButton.css-m1gykc,
+.css-l0iinn,
+.MuiTypography-root.MuiTypography-caption.css-1w13o7u-MuiTypography-root,
+.MuiButtonBase-root.MuiPickersDay-root.MuiPickersDay-dayWithMargin.MuiPickersDay-today.css-195y93z-MuiButtonBase-root-MuiPickersDay-root,
+.MuiButtonBase-root.MuiPickersDay-root.MuiPickersDay-dayWithMargin.css-bkrceb-MuiButtonBase-root-MuiPickersDay-root {
+    font-size: 1.5rem !important;
+}
+.flatpickr-input {
+    width: 100%;
+    border-bottom: 1px solid gray;
+    padding: 5px 0;
+}
+.form-control {
+    width: 100%;
+    border-bottom: 1px solid gray;
+    padding: 5px 0;
+}
 .sc-bbmXgH.kDFSwf {
     width: 100%;
 }
@@ -90,10 +107,10 @@ thead tr th {
 }
 
 /* Form */
-label{
+label {
     font-size: 15px !important;
 }
 /* Menu Item  */
-li.menu__item{
+li.menu__item {
     font-size: 15px !important;
 }

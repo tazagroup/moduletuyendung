@@ -6,7 +6,7 @@ const ticketsAPI = {
         return axiosClient.get(url);
     },
     getUser() {
-        const url = "/users";
+        const url = "/users?&page[offset]=0&page[limit]=*";
         return axiosClient.get(url);
     },
     getPosition() {

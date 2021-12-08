@@ -45,6 +45,15 @@ const countFile = (array, field, value) => {
 }
 const countObjectProperty = (array, field, value) => {
     const { minPrice, maxPrice } = value
+    if (field === "Chiphi") {
+        return array.filter(item => {
+            let result = 0;
+            if (JSON.parse(item['Pheduyet'])[2]) {
+                result = JSON.parse(item['Pheduyet'])[1].Chiphi;
+                return result >= minPrice && (maxPrice ? result <= maxPrice && result > minPrice : true)
+            }
+        }).length
+    }
     return array.filter(item => item[`${field}`] >= minPrice && (maxPrice ? item[`${field}`] <= maxPrice : true)).length
 }
 const CustomAutocompleteEdit = (props) => {

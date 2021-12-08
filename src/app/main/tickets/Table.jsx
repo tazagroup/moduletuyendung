@@ -2,7 +2,6 @@ import React, { Fragment, useRef, useState, useEffect } from 'react'
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { openDialog } from 'app/store/fuse/dialogSlice';
 import { setDataTicket } from 'app/store/fuse/ticketsSlice';
 //ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -10,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
@@ -25,6 +25,7 @@ import EmptyStatus from './EmptyStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
 import CustomPosition from './CustomPosition'
+import CustomNotice from './CustomNotice';
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
 import { getStatusRendering } from '../utils';
 //API
@@ -69,6 +70,7 @@ export default function Table() {
     const [isEditTicket, setIsEditTicket] = useState(false)
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
+    const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
     const headers = [
         {
@@ -178,18 +180,23 @@ export default function Table() {
             title: "Mô tả tuyển dụng",
             field: "Mota",
             render: (rowData) => (
-                // render as HTML 
-                <div style={style} dangerouslySetInnerHTML={{ __html: rowData.Mota }}>
-                </div>
-            )
+                <IconButton
+                    onClick={(event) => { setCustomNotice({ open: true, data: rowData.Mota, field: "Mô tả tuyển dụng" }) }}
+                    size="medium">
+                    <MoreHorizIcon />
+                </IconButton>
+
+            ),
         },
         {
             title: "Yêu cầu tuyển dụng",
             field: "Yeucau",
             render: (rowData) => (
-                // render as HTML 
-                <div style={style} dangerouslySetInnerHTML={{ __html: rowData.Yeucau }}>
-                </div>
+                <IconButton
+                    onClick={(event) => { setCustomNotice({ open: true, data: rowData.Yeucau, field: "Yêu cầu tuyển dụng" }) }}
+                    size="medium">
+                    <MoreHorizIcon />
+                </IconButton>
             )
         },
         {
@@ -214,7 +221,7 @@ export default function Table() {
                     return term.includes(Nguon);
                 }
                 return false;
-            }
+            },
         },
         // {
         //     title: "Thời gian mua",
@@ -244,29 +251,55 @@ export default function Table() {
         //     }
         // },
         {
-            title: "Chi phí",
+            title: "Chi phí dự kiến",
             field: "Chiphi",
             type: "currency",
             currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
             render: (rowData) => {
-                let flag = true; let value = 0; let flag2 = true; let value2 = 0
+                let flag = true; let value = 0;
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
                     value = JSON.parse(rowData['Pheduyet'])[1].Chiphi;
                     flag = false;
                 }
-                const realCurrency = JSON.parse(rowData['Pheduyet'])[5]
-                if (realCurrency) {
-                    if (realCurrency.hasOwnProperty('CPTT')) {
-                        value2 = realCurrency.CPTT
-                        flag2 = false
-                    }
+                const render =
+                    <div>
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)}
+                    </div>
+                return flag ? <ClearIcon /> : render
+            },
+            editComponent: (item) => {
+                const steps = item.rowData['Pheduyet'].length
+                return steps >= 3 ? <MTableEditField {...item} /> : <></>
+            },
+            filterComponent: props => {
+                return <CustomSelectPriceEdit {...props} data={salary} width={150} field="Chiphi" />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const minPrice = Math.min(...term.map(item => item.minPrice))
+                const maxPrice = Math.max(...term.map(item => item.maxPrice))
+                if (!maxPrice) {
+                    return rowData.Chiphi >= minPrice
+                }
+                return rowData.Chiphi >= minPrice && rowData.Chiphi <= maxPrice
+            }
+        },
+        {
+            title: "Chi phí thực tế",
+            field: "CPTT",
+            type: "currency",
+            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
+            render: (rowData) => {
+                let flag = true; let value = 0;
+                if (JSON.parse(rowData['Pheduyet'])[5]) {
+                    value = JSON.parse(rowData['Pheduyet'])[1].CPTT;
+                    flag = false;
                 }
                 const render =
                     <div>
-                        Dự kiến : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)}
-                        {!flag2 && <div>Thực tế : {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value2)}</div>}
+                        {value ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value) : null}
                     </div>
-                return flag ? <ClearIcon /> : render
+                return flag ? null : render
             },
             editComponent: (item) => {
                 const steps = item.rowData['Pheduyet'].length
@@ -297,12 +330,15 @@ export default function Table() {
             },
             filterComponent: props => {
                 const data = ["Chuyển khoản", "Thanh toán tiền mặt"]
-                return <CustomSelectEdit {...props} data={data} width={165} field="Hinhthuc" />
+                return <CustomSelectEdit {...props} data={data} width={170} field="Hinhthuc" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
-                const { Hinhthuc } = JSON.parse(rowData['Pheduyet'])[1];
-                return term.includes(Hinhthuc);
+                if (JSON.parse(rowData['Pheduyet'])[2]) {
+                    const { Hinhthuc } = JSON.parse(rowData['Pheduyet'])[1]
+                    return term.includes(Hinhthuc);
+                }
+                return false;
             }
         },
         // {
@@ -386,7 +422,7 @@ export default function Table() {
         const responseUser = await ticketsAPI.getUser();
         const { data: { attributes: { Dulieu } } } = responsePosition
         const { data } = responseUser
-        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name }))
+        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri }))
         dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
         setIsLoading(false)
     }, [])
@@ -499,6 +535,7 @@ export default function Table() {
             <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
             <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
         </Menu >
+        {/* CREATE TICKET  */}
         {isCreateTicket &&
             <ModalCreateItem
                 open={isCreateTicket}
@@ -506,12 +543,14 @@ export default function Table() {
                 handleClose={() => { setIsCreaterTicket(false) }}
             />
         }
+        {/* CREATE CANDIDATE  */}
         {isCC &&
             <CreateCandidate
                 open={isCC}
                 item={rowData}
                 handleClose={() => { setIsCC(false) }}
             />}
+        {/* EDIT TICKET  */}
         {
             isEditTicket &&
             <ModalEditItem
@@ -520,6 +559,7 @@ export default function Table() {
                 handleClose={() => { setIsEditTicket(false) }}
             />
         }
+        {/* COPY TICKET  */}
         {
             isCopyTicket &&
             <ModalCopyItem
@@ -528,6 +568,12 @@ export default function Table() {
                 handleClose={() => { setIsCopyTicket(false) }}
             />
         }
+        {/* DETAIL DECRIPTIONS / REQUIREMENTS  */}
+        {Object.keys(customNotice).length !== 0 &&
+            <CustomNotice
+                item={customNotice}
+                handleClose={() => { setCustomNotice({}) }}
+            />}
     </Fragment >
 }
 

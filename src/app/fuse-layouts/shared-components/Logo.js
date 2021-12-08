@@ -29,7 +29,7 @@ function Logo() {
   return (
     <div className={clsx(classes.root, 'flex items-center')}>
       <img className="logo-icon w-64 h-64" src="assets/images/logos/fuse.svg" alt="logo" />
-      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Version : 1.4</Typography>
+      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Version : 1.5</Typography>
     </div>
   );
 }

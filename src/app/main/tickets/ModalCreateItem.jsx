@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 //REDUX
 import { useDispatch } from 'react-redux';
 import { closeDialog } from 'app/store/fuse/dialogSlice';

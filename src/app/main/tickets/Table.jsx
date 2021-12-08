@@ -70,6 +70,8 @@ export default function Table() {
     const [isEditTicket, setIsEditTicket] = useState(false)
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
+    const [isHidden, setIsHidden] = useState(false)
+    const [isSelected, setIsSelected] = useState({})
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
     const headers = [
@@ -408,10 +410,10 @@ export default function Table() {
             filterComponent: (rowData) => <></>
         }
     ];
-    const isHidden = localStorage.getItem("hidden")
+    const isHiddenCols = localStorage.getItem("hidden")
     let isResult = []
-    if (isHidden) {
-        isResult = isHidden.split(",")
+    if (isHiddenCols) {
+        isResult = isHiddenCols.split(",")
     }
     const flagColumns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
     const [columns, setColumns] = useState(flagColumns)
@@ -459,7 +461,12 @@ export default function Table() {
         { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
     ]
     return isLoading ? <FuseLoading /> : <Fragment>
-        {dataStatus ? <TicketStatus item={dataStatus} /> : <EmptyStatus />}
+        {dataStatus
+            ?
+            <TicketStatus item={dataStatus} isHidden={isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
+            :
+            <EmptyStatus />
+        }
         <MaterialTable
             data={data}
             tableRef={tableRef}
@@ -482,7 +489,15 @@ export default function Table() {
                 search: false,
                 paging: true,
                 filtering: isFiltering,
-                toolbarButtonAlignment:"left"
+                toolbarButtonAlignment: "left",
+                rowStyle: rowData => {
+                    let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
+                    return {
+                        backgroundColor: selected ? "#3b5998" : "#FFF",
+                        color: selected ? "#fff" : "#000"
+                    };
+                },
+
             }}
             components={{
                 Action: props => {
@@ -500,6 +515,12 @@ export default function Table() {
                         tooltip: 'Lọc',
                         isFreeAction: true,
                         onClick: (event) => setIsFiltering(state => !state)
+                    },
+                    {
+                        icon: isHidden ? 'visibility_off' : 'visibility',
+                        tooltip: 'Trạng thái',
+                        isFreeAction: true,
+                        onClick: (event) => setIsHidden(state => !state)
                     },
                 ]}
             editable={{

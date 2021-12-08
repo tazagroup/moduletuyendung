@@ -21,7 +21,7 @@ import InputField from '../CustomField/InputField';
 import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
 import DateField from "../CustomField/DateField"
-import Tinymce from "../CustomField/Tinymce"
+
 // API
 import axios from 'axios';
 import ticketsAPI from "api/ticketsAPI"

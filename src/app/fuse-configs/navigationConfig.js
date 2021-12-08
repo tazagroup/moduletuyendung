@@ -21,7 +21,7 @@ const navigationConfig = [
     title: 'Tin tuyển dụng',
     type: 'item',
     icon: 'work',
-    url: '/tickets',
+    url: '/ve-tuyen-dung',
     exact: true,
   },
   {
@@ -29,7 +29,7 @@ const navigationConfig = [
     title: 'Ứng viên',
     type: 'item',
     icon: 'face',
-    url: '/candidates',
+    url: '/ung-vien',
     exact: true,
   },
   {
@@ -37,7 +37,7 @@ const navigationConfig = [
     title: 'Lịch phỏng vấn',
     type: 'item',
     icon: 'event',
-    url: '/calendars',
+    url: '/lich-pv',
     exact: true,
   },
 

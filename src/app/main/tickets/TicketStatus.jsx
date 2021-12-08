@@ -10,8 +10,6 @@ import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
 import IconButton from '@mui/material/IconButton';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { makeStyles } from '@material-ui/core';
 import { styled } from '@mui/material/styles';
 const useStyles = makeStyles({
@@ -54,7 +52,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
         border: '1px solid #dadde9',
     },
 }));
-const TicketStatus = ({ item }) => {
+const TicketStatus = ({ item, isHidden }) => {
     const steps = JSON.parse(item['Pheduyet'])
     const classes = useStyles()
     const CustomTimeline = ({ item, title }) => {
@@ -100,44 +98,41 @@ const TicketStatus = ({ item }) => {
             </TimelineItem>
         )
     }
-    const [isHidden, setIsHidden] = useState(false)
-    return (
-        <Fragment>
-            <IconButton size="large" style={{ position: "relative" }} onClick={() => { setIsHidden(state => !state) }}>
-                {isHidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
-            </IconButton>
-            {isHidden ? null : <Box sx={{ flexGrow: 1, textAlign: "center" }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={6} md={3}>
-                        <h3>Ban quản lí</h3>
-                        <Timeline>
-                            <CustomTimeline item={steps[0]} title="B1:Duyệt phiếu tuyển dụng" />
-                        </Timeline>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                        <h3>Ban tuyển dụng</h3>
-                        <Timeline>
-                            <CustomTimelineConnector item={steps[1]} title="B2:Tiếp nhận tuyển dụng" />
-                            <CustomTimelineConnector item={steps[3]} title="B4:Triển khai tuyển dụng" />
-                            <CustomTimeline item={steps[6]} title="B7:Thực hiện tuyển dụng" />
-                        </Timeline>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                        <h3>Ban giám đốc</h3>
-                        <Timeline>
-                            <CustomTimelineConnector item={steps[2]} title="B3:Phê duyệt phiếu" />
-                            <CustomTimeline item={steps[4]} title="B5:Phê duyệt tuyển dụng" />
-                        </Timeline>
-                    </Grid>
-                    <Grid item xs={6} md={3}>
-                        <h3>Ban kế toán</h3>
-                        <Timeline>
-                            <CustomTimeline item={steps[5]} title="B6:Xác nhận thanh toán" />
-                        </Timeline>
-                    </Grid>
+    return (<Fragment>
+        <IconButton size="large" style={{ position: "relative" }}>
+        </IconButton>
+        {isHidden ? null : <Box sx={{ flexGrow: 1, textAlign: "center" }}>
+            <Grid container spacing={2}>
+                <Grid item xs={6} md={3}>
+                    <h3>Ban quản lí</h3>
+                    <Timeline>
+                        <CustomTimeline item={steps[0]} title="B1:Duyệt phiếu tuyển dụng" />
+                    </Timeline>
                 </Grid>
-            </Box>}
-        </Fragment>
+                <Grid item xs={6} md={3}>
+                    <h3>Ban tuyển dụng</h3>
+                    <Timeline>
+                        <CustomTimelineConnector item={steps[1]} title="B2:Tiếp nhận tuyển dụng" />
+                        <CustomTimelineConnector item={steps[3]} title="B4:Triển khai tuyển dụng" />
+                        <CustomTimeline item={steps[6]} title="B7:Thực hiện tuyển dụng" />
+                    </Timeline>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                    <h3>Ban giám đốc</h3>
+                    <Timeline>
+                        <CustomTimelineConnector item={steps[2]} title="B3:Phê duyệt phiếu" />
+                        <CustomTimeline item={steps[4]} title="B5:Phê duyệt tuyển dụng" />
+                    </Timeline>
+                </Grid>
+                <Grid item xs={6} md={3}>
+                    <h3>Ban kế toán</h3>
+                    <Timeline>
+                        <CustomTimeline item={steps[5]} title="B6:Xác nhận thanh toán" />
+                    </Timeline>
+                </Grid>
+            </Grid>
+        </Box>}
+    </Fragment>
     )
 }
 

@@ -25,16 +25,16 @@ const routes = [
   },
   {
     exact: true,
-    path: '/tickets',
+    path: '/ve-tuyen-dung',
     component: () => !isLogin ? <Tickets /> : <Redirect to="/login" />,
   },
   {
-    path: '/candidates',
+    path: '/ung-vien',
     exact: true,
     component: () => <Candidates />,
   },
   {
-    path: '/calendars',
+    path: '/lich-pv',
     exact: true,
     component: () => <Calendar />,
   },

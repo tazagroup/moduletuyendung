@@ -482,6 +482,7 @@ export default function Table() {
                 search: false,
                 paging: true,
                 filtering: isFiltering,
+                toolbarButtonAlignment:"left"
             }}
             components={{
                 Action: props => {
@@ -505,7 +506,7 @@ export default function Table() {
                 isEditHidden: (rowData) => rowData,
             }}
             localization={{
-                toolbar: { showColumnsTitle: "Hiển thị cột", },
+                toolbar: { showColumnsTitle: "Hiển thị cột", addRemoveColumns: "" },
                 header: { actions: "" },
                 body: { emptyDataSourceMessage: "Không có dữ liệu hiển thị..." }
             }}
@@ -564,6 +565,7 @@ export default function Table() {
             isCopyTicket &&
             <ModalCopyItem
                 open={isCopyTicket}
+                data={{ users: users, position: position }}
                 item={rowData}
                 handleClose={() => { setIsCopyTicket(false) }}
             />

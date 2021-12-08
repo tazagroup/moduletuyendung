@@ -44,13 +44,14 @@ const useStyles = makeStyles({
     }
 })
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
-const ModalCopyItem = ({ item, open, handleClose }) => {
+const ModalCopyItem = ({ item, data, open, handleClose }) => {
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate2, setSelectedDate2] = useState(item.TiepnhanNS)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
-    const [censor, setCensor] = useState('')
+    const [position, setPosition] = useState([...data.position])
+    const [censor, setCensor] = useState([...data.users])
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,

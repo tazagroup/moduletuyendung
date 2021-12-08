@@ -153,7 +153,7 @@ const CustomStep = ({ item, data }) => {
                     </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
                 }
                 {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
-                {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Xử lí</MenuItem>}
+                {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}
             </Menu>
             <Dialog
                 open={openRefuseDialog}

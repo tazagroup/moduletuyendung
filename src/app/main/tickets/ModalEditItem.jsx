@@ -208,11 +208,11 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <DialogActions>
-                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose}>
+                    <DialogActions  style={{ paddingRight: "22px" }}>
+                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose} size="large">
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" variant="contained">
+                        <Button color="primary" autoFocus type="submit" variant="contained" size="large">
                             Cập nhật tuyển dụng
                         </Button>
                     </DialogActions>

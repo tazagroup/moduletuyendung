@@ -102,10 +102,10 @@ const ModalUpdateItem = ({ data, censor }) => {
         step[1] = {
             ...step[1],
             Nguon: source,
-            TGMua: selectedDate.toISOString(),
+            TGMua: new Date(selectedDate).toISOString(),
             Chiphi: e.Chiphi.split(',').join(''),
             Hinhthuc: type,
-            NTC: selectedDate2.toISOString()
+            NTC: new Date(selectedDate2).toISOString()
         }
         const bodyData = {
             TNNS: JSON.stringify({ nguoiDuyet: "User", ngayDuyet: new Date().toISOString() }),
@@ -193,8 +193,8 @@ const ModalUpdateItem = ({ data, censor }) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-                <DialogActions>
-                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid}>
+                <DialogActions  style={{ paddingRight: "22px" }}>
+                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid} size="large">
                         Cập nhật tuyển dụng
                     </Button>
                 </DialogActions>

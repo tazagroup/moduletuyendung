@@ -292,7 +292,7 @@ export default function Table() {
             render: (rowData) => {
                 let flag = true; let value = 0;
                 if (JSON.parse(rowData['Pheduyet'])[5]) {
-                    value = JSON.parse(rowData['Pheduyet'])[1].CPTT;
+                    value = JSON.parse(rowData['Pheduyet'])[5].CPTT;
                     flag = false;
                 }
                 const render =

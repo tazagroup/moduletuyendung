@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { useSelector } from 'react-redux';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -9,7 +9,9 @@ import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
 import TimelineConnector from '@material-ui/lab/TimelineConnector';
 import TimelineContent from '@material-ui/lab/TimelineContent';
 import TimelineDot from '@material-ui/lab/TimelineDot';
-import Tinymce from '../CustomField/Tinymce';
+import IconButton from '@mui/material/IconButton';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { makeStyles } from '@material-ui/core';
 import { styled } from '@mui/material/styles';
 const useStyles = makeStyles({
@@ -98,9 +100,13 @@ const TicketStatus = ({ item }) => {
             </TimelineItem>
         )
     }
+    const [isHidden, setIsHidden] = useState(false)
     return (
         <Fragment>
-            <Box sx={{ flexGrow: 1, textAlign: "center" }}>
+            <IconButton size="large" style={{ position: "relative" }} onClick={() => { setIsHidden(state => !state) }}>
+                {isHidden ? <VisibilityOffIcon /> : <VisibilityIcon />}
+            </IconButton>
+            {isHidden ? null : <Box sx={{ flexGrow: 1, textAlign: "center" }}>
                 <Grid container spacing={2}>
                     <Grid item xs={6} md={3}>
                         <h3>Ban quản lí</h3>
@@ -130,7 +136,7 @@ const TicketStatus = ({ item }) => {
                         </Timeline>
                     </Grid>
                 </Grid>
-            </Box>
+            </Box>}
         </Fragment>
     )
 }

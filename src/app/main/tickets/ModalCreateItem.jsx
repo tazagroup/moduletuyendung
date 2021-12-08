@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { closeDialog } from 'app/store/fuse/dialogSlice';
 import { addTicket } from "app/store/fuse/ticketsSlice"
 //MUI
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Autocomplete } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
 import InputField from '../CustomField/InputField';
@@ -19,7 +19,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 //API
 import ticketsAPI from "api/ticketsAPI"
-import Editor from "@tinymce/tinymce-react"
+
 //TEST
 
 const schema = yup.object().shape({
@@ -173,11 +173,11 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-                <DialogActions>
-                    <Button color="error" autoFocus type="submit" variant="contained" onClick={() => { handleClose() }}>
+                <DialogActions style={{ paddingRight: "22px" }}>
+                    <Button color="error" autoFocus type="submit" variant="contained" onClick={() => { handleClose() }} size="large">
                         Đóng
                     </Button>
-                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid}>
+                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid} size="large">
                         Đăng tin tuyển dụng
                     </Button>
                 </DialogActions>

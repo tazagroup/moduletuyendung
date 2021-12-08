@@ -2,8 +2,6 @@ import React, { useState } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import axios from 'axios';
 //FORM
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
@@ -16,13 +14,9 @@ import NumberField from '../CustomField/NumberField';
 import Tinymce from '../CustomField/Tinymce';
 import AutocompleteField from '../CustomField/Autocomplete'
 const schema = yup.object().shape({
-    Vitri: yup.string().required("Vui lòng nhập vị trí"),
-    LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
-    SLHientai: yup.number().min(0, "Dữ liệu không đúng"),
-    SLCantuyen: yup.number().min(1, "Dữ liệu không đúng"),
-    MotaTD: yup.string().required("Vui lòng nhập mô tả tuyển dụng"),
-    YeucauTD: yup.string().required("Vui lòng nhập yêu cầu tuyển dụng"),
-    Tinhtrang: yup.string().default(""),
+    LuongDK: yup.string().required("Vui lòng nhập mức lương"),
+    SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
+    SLCT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
 });
 const useStyles = makeStyles({
     title: {
@@ -50,21 +44,17 @@ const useStyles = makeStyles({
     }
 })
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
-const ModalCopyItem = ({ item, open, handleClose, setIsFetching }) => {
+const ModalCopyItem = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate2, setSelectedDate2] = useState(item.TiepnhanNS)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
     const [censor, setCensor] = useState('')
-    const arrayCensor = ['Phạm Chí Kiệt', 'Phạm Chí Kiệt 2', 'Phạm Chí Kiệt 3']
     const form = useForm({
         defaultValues: {
-            Vitri: item.Vitri + `(Copy)`,
-            SLCantuyen: item.SLCantuyen,
-            SLHientai: item.SLHientai,
-            MotaTD: item.MotaTD,
-            YeucauTD: item.YeucauTD,
+            SLCT: item.SLCT,
+            SLHT: item.SLHT,
             LuongDK: item.LuongDK,
         },
         mode: 'onBlur',
@@ -154,11 +144,11 @@ const ModalCopyItem = ({ item, open, handleClose, setIsFetching }) => {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <DialogActions>
-                        <Button color="error" autoFocus type="submit" variant="contained"  onClick={handleClose}>
+                    <DialogActions style={{ paddingRight: "22px" }}>
+                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose} size="large">
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" disabled={!disabledButton} variant="contained">
+                        <Button color="primary" autoFocus type="submit" disabled={!disabledButton} variant="contained" size="large">
                             Cập nhật tuyển dụng
                         </Button>
                     </DialogActions>

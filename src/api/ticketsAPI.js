@@ -19,7 +19,6 @@ const ticketsAPI = {
     },
     updateTicket(data, id) {
         const url = `/hrms/tuyendung_phieuyeucaus/${id}`;
-        console.log(data)
         return axiosClient.patch(url, data);
     }
 };

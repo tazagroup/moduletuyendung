@@ -10,6 +10,7 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
@@ -182,23 +183,32 @@ export default function Table() {
             title: "Mô tả tuyển dụng",
             field: "Mota",
             render: (rowData) => (
-                <IconButton
-                    onClick={(event) => { setCustomNotice({ open: true, data: rowData.Mota, field: "Mô tả tuyển dụng" }) }}
-                    size="medium">
-                    <MoreHorizIcon />
-                </IconButton>
-
+                <div className="renderHTML">
+                    <Tooltip title="Mô tả">
+                        <IconButton
+                            onClick={(event) => { setCustomNotice({ open: true, data: rowData.Mota, field: "Mô tả tuyển dụng" }) }}
+                            size="medium">
+                            <VisibilityIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <div dangerouslySetInnerHTML={{ __html: rowData.Mota }}></div>
+                </div>
             ),
         },
         {
             title: "Yêu cầu tuyển dụng",
             field: "Yeucau",
             render: (rowData) => (
-                <IconButton
-                    onClick={(event) => { setCustomNotice({ open: true, data: rowData.Yeucau, field: "Yêu cầu tuyển dụng" }) }}
-                    size="medium">
-                    <MoreHorizIcon />
-                </IconButton>
+                <div className="renderHTML">
+                    <Tooltip title="Yêu cầu">
+                        <IconButton
+                            onClick={(event) => { setCustomNotice({ open: true, data: rowData.Yeucau, field: "Yêu cầu tuyển dụng" }) }}
+                            size="medium">
+                            <VisibilityIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <div dangerouslySetInnerHTML={{ __html: rowData.Yeucau }}></div>
+                </div>
             )
         },
         {

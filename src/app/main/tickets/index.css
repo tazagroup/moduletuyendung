@@ -114,3 +114,9 @@ label {
 li.menu__item {
     font-size: 15px !important;
 }
+.renderHTML {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}

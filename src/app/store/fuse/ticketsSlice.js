@@ -29,8 +29,14 @@ const ticketsSlice = createSlice({
         updateTicket: (state, action) => {
             const { attributes } = action.payload
             const index = state.dataTicket.findIndex(item => item.key === attributes.id)
-            state.dataTicket[`${index}`] = {
+            const flag = {
                 ...state.dataTicket[`${index}`],
+                ...attributes
+            }
+            delete flag.id
+            flag.id = state.dataTicket[`${index}`].id
+            state.dataTicket[`${index}`] = {
+                ...flag,
                 Pheduyet: attributes['Pheduyet']
             }
         }

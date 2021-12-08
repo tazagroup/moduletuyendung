@@ -95,7 +95,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
         }
         const response = await ticketsAPI.postTicket(bodyData)
         dispatch(addTicket(response.data))
-        dispatch(closeDialog())
+        handleClose()
     }
     const handleCensorChange = (event, newValue) => {
         setValueCensor(newValue)
@@ -136,7 +136,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
                             </Grid>
                             {/* Lí do tuyển dụng  */}
                             <Grid item xs={12} md={6}>
-                                <SelectField label="Lí do tuyển dụng" value={reason} arrayItem={arrayReason} handleChange={setReason} />
+                                <SelectField label="Lí do tuyển dụng" value={reason} arrayItem={arrayReason} handleChange={(e) => { setReason(e.target.value) }} />
                             </Grid>
                             {!arrayReason.includes(item.Lydo) &&
                                 <Grid item xs={12}>
@@ -177,7 +177,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
                             Đóng
                         </Button>
                         <Button color="primary" autoFocus type="submit" variant="contained" size="large" disabled={!isValid}>
-                            Cập nhật tuyển dụng
+                            Tạo phiếu tuyển dụng
                         </Button>
                     </DialogActions>
                 </form>

@@ -98,12 +98,13 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                 NTC: new Date(selectedDate4).toISOString()
             }
         }
-        console.log(flagPheduyet)
         const bodyData = {
             ...item,
-            LuongDK: e.LuongDK,
+            LuongDK: currency,
             SLCT: e.SLCT,
             SLHT: e.SLHT,
+            Yeucau: require,
+            Mota: description,
             Vitri: valuePosition.id,
             TGThuviec: selectedDate,
             Lydo: otherReason ? otherReason : reason,
@@ -208,7 +209,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             </Grid>
                         </Grid>
                     </DialogContent>
-                    <DialogActions  style={{ paddingRight: "22px" }}>
+                    <DialogActions style={{ paddingRight: "22px" }}>
                         <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose} size="large">
                             Đóng
                         </Button>

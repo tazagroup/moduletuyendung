@@ -2,7 +2,7 @@ import React from 'react'
 import { Controller } from "react-hook-form";
 import { TextField } from '@material-ui/core';
 const InputField = (props) => {
-  const { form, name, label, type, disabled = false } = props;
+  const { form, name, label, type, disabled = false, variant = "standard" } = props;
   return (
     <Controller
       name={name}
@@ -20,7 +20,7 @@ const InputField = (props) => {
             InputLabelProps={{
               shrink: true
             }}
-            variant="standard"
+            variant={variant}
             disabled={disabled}
           />
         );

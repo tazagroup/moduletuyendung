@@ -91,7 +91,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             Vitri: valuePosition['id'],
             SLHT: e.SLHT,
             SLCT: e.SLCT,
-            TGThuviec: selectedDate.toISOString(),
+            TGThuviec: new Date(selectedDate).toISOString(),
             TNNS: {},
             Lydo: otherReason ? otherReason : reasons,
             Mota: description,
@@ -108,13 +108,14 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
         }
         const response = await ticketsAPI.postTicket(bodyData)
         dispatch(addTicket(response.data))
-        dispatch(closeDialog())
+        handleClose()
     }
     return (
         <Dialog
             open={open}
             fullWidth={true}
             maxWidth={'xl'}
+            onClose={handleClose}
         >
             <form onSubmit={form.handleSubmit(handleCreateTickets)}>
                 <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng

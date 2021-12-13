@@ -6,16 +6,17 @@ import { closeDialog } from 'app/store/fuse/dialogSlice';
 //MUI
 import { DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
-import { Grid } from '@mui/material';
+import { Grid, IconButton, Tooltip } from '@mui/material';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DatePicker from '@mui/lab/DatePicker';
 import NumberFormat from 'react-number-format';
-import MenuItem from '@mui/material/MenuItem';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 // REACT-HOOK-FORM
-import { useForm } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from "yup"
+// import { useForm } from "react-hook-form";
+// import { yupResolver } from "@hookform/resolvers/yup"
+// import * as yup from "yup"
 //COMPONENT
 import InputField from '../CustomField/InputField';
 import NumberField from '../CustomField/NumberField'
@@ -54,10 +55,7 @@ const useStyles = makeStyles({
         marginTop: "15px !important"
     },
 })
-const schema = yup.object().shape({
-    Chiphi: yup.string().required("Vui lòng nhập chi phí"),
-    Tinhtrang: yup.string().default("Chưa thanh toán"),
-})
+
 
 const TextInputCustom = (props) => {
     const { value, label, type } = props
@@ -78,33 +76,23 @@ const ModalUpdateItem = ({ data, censor }) => {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const classes = useStyles()
-    const form = useForm({
-        defaultValues: {
-            Chiphi: "",
-            Tinhtrang: "Chưa thanh toán"
-        },
-        mode: 'onBlur',
-        resolver: yupResolver(schema),
-    });
     const [value, setValue] = useState('')
-    const [source, setSource] = useState('')
     const sourceArray = ["Facebook", "TopCV", "ITViec"]
-    const [selectedDate, setSelectedDate] = useState(new Date())
+    const [sourceList, setSourceList] = useState([{ Nguon: "", Chiphi: "", TGMua: new Date(), Hinhthuc: '' }]);
     const [selectedDate2, setSelectedDate2] = useState(new Date())
-    const [type, setType] = useState('')
     const typeArray = ["Chuyển khoản", "Thanh toán tiền mặt"]
     const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
-    const isValid = form.formState.isValid
+    const isValid = sourceList.map(item => Object.values(item).every(x => x !== ''))
     //UPDATE TICKETS
     const handleUpdateTickets = async (e) => {
         const item = dataTicket.find(item => item.key === data.key)
         const step = JSON.parse(item['Pheduyet'])
+        const CPTD = sourceList.map(item => {
+            return { ...item, TGMua: new Date(item.TGMua).toISOString() }
+        })
         step[1] = {
             ...step[1],
-            Nguon: source,
-            TGMua: new Date(selectedDate).toISOString(),
-            Chiphi: e.Chiphi.split(',').join(''),
-            Hinhthuc: type,
+            CPTD: CPTD,
             NTC: new Date(selectedDate2).toISOString()
         }
         const bodyData = {
@@ -115,90 +103,168 @@ const ModalUpdateItem = ({ data, censor }) => {
         dispatch(updateTicket(response.data))
         dispatch(closeDialog())
     }
+    const handleCloseUpdateTickets = async (e) => {
+        const item = dataTicket.find(item => item.key === data.key)
+        const prevSteps = JSON.parse(data['Pheduyet'])
+        const bodyData = {
+            Pheduyet: JSON.stringify([...prevSteps])
+        }
+        dispatch(closeDialog())
+        const response = await ticketsAPI.updateTicket(bodyData, item.key)
+        dispatch(updateTicket(response.data))
+    }
+    const handleAddSource = () => {
+        setSourceList([...sourceList, { Nguon: "", Chiphi: "", Hinhthuc: '', TGMua: new Date() }]);
+    }
+    const handleRemoveSource = (index) => {
+        const list = [...sourceList];
+        list.splice(index, 1);
+        setSourceList(list);
+    }
+    const handleChangeCurrency = (e, index) => {
+        const { value } = e.target;
+        const list = [...sourceList]
+        list[index]['Chiphi'] = value
+        setSourceList(list)
+    }
+    const handleChangeSource = (e, index) => {
+        const { value } = e.target;
+        const list = [...sourceList]
+        list[index]['Nguon'] = value
+        setSourceList(list)
+    }
+    const handleChangeType = (e, index) => {
+        const { value } = e.target;
+        const list = [...sourceList]
+        list[index]['Hinhthuc'] = value
+        setSourceList(list)
+    }
+    const handleChangeDate = (e, index) => {
+        const list = [...sourceList]
+        list[index]['TGMua'] = e[0]
+        setSourceList(list)
+    }
     return (
         <React.Fragment >
-            <form onSubmit={form.handleSubmit(handleUpdateTickets)}>
-                <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
-                </DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} md={6}>
-                            <TextInputCustom value={position.find(item => item.id == data.Vitri)?.Thuoctinh} label="Vị trí tuyển dụng" type="text" />
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                            <TextInputCustom value={data.SLHT} label="Nhân sự hiện có" type="number" />
-                        </Grid>
-                        <Grid item xs={12} md={3}>
-                            <TextInputCustom value={data.SLCT} label="Nhân sự cần tuyển" type="number" />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <NumberFormat customInput={TextField}
-                                label="Mức lương dự kiến"
-                                variant="standard"
-                                thousandSeparator={true}
-                                value={data.LuongDK}
-                                disabled={true}
-                                autoComplete="off"
-                                suffix="đ"
-                                fullWidth
-                            />
-                        </Grid>
-                        <Grid item xs={12} md={6}>
-                            <TextInputCustom value={reasons.includes(data.Lydo) ? data.Lydo : "Khác"} label="Lí do tuyển dụng" type="text" />
-                        </Grid>
-                        {!reasons.includes(data.Lydo) &&
-                            <Grid item xs={12}>
-                                <TextInputCustom value={data.Lydo} label="Lí do khác" type="text" />
-                            </Grid>
-                        }
-                        {/* Thời gian thử việc  */}
-                        <Grid item xs={12} md={12}>
-                            <LocalizationProvider dateAdapter={AdapterDateFns}>
-                                <DatePicker
-                                    views={['year', 'month', 'day']}
-                                    label="Thời gian thử việc"
-                                    value={data.TGThuviec}
-                                    disabled={true}
-                                    onChange={(newValue) => {
-                                        setValue(newValue);
-                                    }}
-                                    inputFormat="dd/MM/yyyy"
-                                    renderInput={(params) => <TextField {...params} fullWidth />}
-                                />
-                            </LocalizationProvider>
-                        </Grid>
-                        {/* Người kiểm duyệt  */}
-                        <Grid item xs={12}>
-                            <TextInputCustom value={censor} label="Người kiểm duyệt" type="text" />
-                        </Grid>
-                        {/* Nguồn mua  */}
-                        <Grid item xs={12}>
-                            <SelectField label="Nguồn mua" value={source} arrayItem={sourceArray} handleChange={(e) => { setSource(e.target.value) }} />
-                        </Grid>
-                        {/* Thời gian mua  */}
-                        <Grid item xs={12}>
-                            <DateField label="Thời gian mua" value={selectedDate} handleChange={setSelectedDate} />
-                        </Grid>
-                        {/* Chi phí mua  */}
-                        <Grid item xs={12}>
-                            <NumberField form={form} name="Chiphi" label="Chi phí" error="Vui lòng nhập chi phí" />
-                        </Grid>
-                        {/* Hình thức thanh toán  */}
-                        <Grid item xs={12}>
-                            <SelectField label="Hình thức thanh toán" value={type} arrayItem={typeArray} handleChange={(e) => { setType(e.target.value) }} />
-                        </Grid>
-                        {/* Ngày cần thanh toán  */}
-                        <Grid item xs={12}>
-                            <DateField label="Ngày cần thanh toán" value={selectedDate2} handleChange={setSelectedDate2} />
-                        </Grid>
+            <DialogTitle id="alert-dialog-title" className={classes.title}>Phiếu yêu cầu tuyển dụng
+            </DialogTitle>
+            <DialogContent>
+                <Grid container spacing={2}>
+                    <Grid item xs={12} md={6}>
+                        <TextInputCustom value={position.find(item => item.id == data.Vitri)?.Thuoctinh} label="Vị trí tuyển dụng" type="text" />
                     </Grid>
-                </DialogContent>
-                <DialogActions  style={{ paddingRight: "22px" }}>
-                    <Button color="primary" autoFocus type="submit" variant="contained" disabled={!isValid} size="large">
-                        Cập nhật tuyển dụng
-                    </Button>
-                </DialogActions>
-            </form>
+                    <Grid item xs={12} md={3}>
+                        <TextInputCustom value={data.SLHT} label="Nhân sự hiện có" type="number" />
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <TextInputCustom value={data.SLCT} label="Nhân sự cần tuyển" type="number" />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <NumberFormat customInput={TextField}
+                            label="Mức lương dự kiến"
+                            variant="standard"
+                            thousandSeparator={true}
+                            value={data.LuongDK}
+                            disabled={true}
+                            autoComplete="off"
+                            suffix="đ"
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <TextInputCustom value={reasons.includes(data.Lydo) ? data.Lydo : "Khác"} label="Lí do tuyển dụng" type="text" />
+                    </Grid>
+                    {!reasons.includes(data.Lydo) &&
+                        <Grid item xs={12}>
+                            <TextInputCustom value={data.Lydo} label="Lí do khác" type="text" />
+                        </Grid>
+                    }
+                    {/* Thời gian thử việc  */}
+                    <Grid item xs={12} md={12}>
+                        <LocalizationProvider dateAdapter={AdapterDateFns}>
+                            <DatePicker
+                                views={['year', 'month', 'day']}
+                                label="Thời gian thử việc"
+                                value={data.TGThuviec}
+                                disabled={true}
+                                onChange={(newValue) => {
+                                    setValue(newValue);
+                                }}
+                                inputFormat="dd/MM/yyyy"
+                                renderInput={(params) => <TextField {...params} fullWidth />}
+                            />
+                        </LocalizationProvider>
+                    </Grid>
+                    {/* Người kiểm duyệt  */}
+                    <Grid item xs={12}>
+                        <TextInputCustom value={censor} label="Người kiểm duyệt" type="text" />
+                    </Grid>
+                    {sourceList.map((item, index) => (
+                        <React.Fragment key={index}>
+                            {/* Nguồn mua  */}
+                            <Grid item xs={12} md={6}>
+                                <SelectField
+                                    label="Nguồn mua" value={item.Nguon} arrayItem={sourceArray}
+                                    handleChange={(e) => handleChangeSource(e, index)}
+                                />
+                            </Grid>
+                            {/* Chi phí mua  */}
+                            <Grid item xs={12} md={5}>
+                                <NumberFormat
+                                    label={"Chi phí"}
+                                    customInput={TextField}
+                                    thousandSeparator
+                                    onChange={(e) => { handleChangeCurrency(e, index) }}
+                                    value={item.Chiphi}
+                                    allowLeadingZeros={false}
+                                    fullWidth
+                                />
+                            </Grid>
+                            {/* Thêm / xóa nguồn  */}
+                            <Grid item xs={12} md>
+                                {sourceList.length !== 1 && <Tooltip title="Xóa nguồn">
+                                    <IconButton onClick={() => { handleRemoveSource(index) }} style={{ marginTop: "16px" }}>
+                                        <RemoveCircleOutlineIcon />
+                                    </IconButton>
+                                </Tooltip>}
+                                <Tooltip title="Thêm nguồn">
+                                    <IconButton onClick={handleAddSource} style={{ marginTop: "16px" }}>
+                                        <AddCircleOutlineIcon />
+                                    </IconButton>
+                                </Tooltip>
+                            </Grid>
+                            {/* Thời gian mua  */}
+                            <Grid item xs={12}>
+                                <DateField label="Thời gian mua" value={item.TGMua}
+                                    handleChange={(e) => handleChangeDate(e, index)}
+                                />
+                            </Grid>
+                            {/* Hình thức thanh toán  */}
+                            <Grid item xs={12}>
+                                <SelectField label="Hình thức thanh toán" value={item.Hinhthuc || ''} arrayItem={typeArray}
+                                    handleChange={(e) => handleChangeType(e, index)}
+                                />
+                            </Grid>
+                        </React.Fragment>
+                    ))}
+                    {/* Ngày cần thanh toán  */}
+                    <Grid item xs={12}>
+                        <DateField label="Ngày cần thanh toán" value={selectedDate2} handleChange={setSelectedDate2} />
+                    </Grid>
+                </Grid>
+            </DialogContent>
+            <DialogActions style={{ paddingRight: "22px" }}>
+                <Button
+                    color="error" autoFocus type="submit" variant="contained" size="large"
+                    onClick={() => { handleCloseUpdateTickets() }}>
+                    Đóng
+                </Button>
+                <Button
+                    color="primary" autoFocus type="submit" variant="contained" size="large" disabled={!isValid.every(Boolean)}
+                    onClick={() => { handleUpdateTickets() }}>
+                    Cập nhật tuyển dụng
+                </Button>
+            </DialogActions>
         </React.Fragment >
     );
 }

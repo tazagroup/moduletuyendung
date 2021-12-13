@@ -18,7 +18,7 @@ const navigationConfig = [
   },
   {
     id: 'list-tickets',
-    title: 'Tin tuyển dụng',
+    title: 'Yêu cầu tuyển dụng',
     type: 'item',
     icon: 'work',
     url: '/ve-tuyen-dung',

@@ -1,6 +1,6 @@
-import Login from './Login';
+import Error404Page from './Error404Page';
 
-const LoginConfig = {
+const Error404PageConfig = {
     settings: {
         layout: {
             config: {
@@ -24,10 +24,10 @@ const LoginConfig = {
     },
     routes: [
         {
-            path: '/dang-nhap',
-            component: Login,
+            path: '/404',
+            component: Error404Page,
         },
     ],
 };
 
-export default LoginConfig;
+export default Error404PageConfig;

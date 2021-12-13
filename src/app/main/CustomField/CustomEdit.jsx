@@ -50,7 +50,7 @@ const countObjectProperty = (array, field, value) => {
             let result = 0;
             if (JSON.parse(item['Pheduyet'])[2]) {
                 result = JSON.parse(item['Pheduyet'])[1].Chiphi;
-                return result >= minPrice && (maxPrice ? result <= maxPrice && result > minPrice : true)
+                return result >= minPrice && (maxPrice ? result < maxPrice : true)
             }
         }).length
     }
@@ -74,7 +74,7 @@ const CustomAutocompleteEdit = (props) => {
                 multiple
                 id="checkboxes-tags-demo"
                 options={arrayData}
-                value={value}
+                // value={value}
                 onChange={(event, newValue) => {
                     props.onFilterChanged(props.columnDef.tableData.id, newValue);
                 }}

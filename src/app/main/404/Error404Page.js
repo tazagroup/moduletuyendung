@@ -19,7 +19,7 @@ function Error404Page() {
           animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}
         >
           <Typography variant="h5" color="textSecondary" className="mb-16 font-normal">
-            Sorry but we could not find the page you are looking for
+            Không tìm thấy trang
           </Typography>
         </motion.div>
       </div>

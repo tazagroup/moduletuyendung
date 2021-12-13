@@ -1,4 +1,4 @@
-import React from 'react'
+import React  from 'react'
 import Table from './Table'
 import FusePageSimple from '@fuse/core/FusePageSimple';
 import './index.css'
@@ -15,7 +15,7 @@ const Tickets = () => {
             //     </div>
             // }
             content={
-                <div className="p-24">
+                <div className="p-24 main-table">
                     <Table />
                     <br />
                 </div>

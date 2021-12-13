@@ -120,3 +120,13 @@ li.menu__item {
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
+
+/* CUSTOM RENDER CELL  */
+.custom__table {
+    padding-top: 30px;
+    display: flex;
+    gap: 0 30px;
+}
+.custom__table .item__title {
+    margin-bottom: 10px;
+}

@@ -6,6 +6,7 @@ import navigation from './navigationSlice';
 import settings from './settingsSlice';
 import tickets from './ticketsSlice'
 import candidates from './candidateSlice'
+import user from './userSlice'
 const fuseReducers = combineReducers({
   navigation,
   settings,
@@ -13,7 +14,8 @@ const fuseReducers = combineReducers({
   message,
   dialog,
   tickets,
-  candidates
+  candidates,
+  user
 });
 
 export default fuseReducers;

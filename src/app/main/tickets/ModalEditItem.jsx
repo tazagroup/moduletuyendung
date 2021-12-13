@@ -5,9 +5,11 @@ import { updateTicket } from 'app/store/fuse/ticketsSlice';
 //MUI
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
-import { Grid } from '@mui/material';
+import { Grid, Tooltip, IconButton } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import NumberFormat from 'react-number-format';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 //FORM
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
@@ -68,15 +70,12 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const checkStep = steps.length < 3
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
-    const [selectedDate3, setSelectedDate3] = useState(steps[1] && steps[1].TGMua || "")
     const [selectedDate4, setSelectedDate4] = useState(steps[1] && steps[1].NTC || "")
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
-    const [source, setSource] = useState(steps[1] ? steps[1].Nguon : "")
-    const [currency, setCurrency] = useState(steps[1] && steps[1].Chiphi || "")
-    const [type, setType] = useState(steps[1] && steps[1].Hinhthuc)
     const [description, setDescription] = useState(item.Mota)
     const [require, setRequire] = useState(item.Yeucau)
+    const [valueCPTD, setValueCPTD] = useState(steps[1]?.CPTD || [])
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,
@@ -89,30 +88,61 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const handleEditTicket = async (e) => {
         const flagPheduyet = [...JSON.parse(item['Pheduyet'])]
         if (flagPheduyet[2]) {
+            const CPTD = valueCPTD.map(item => {
+                return { ...item, TGMua: new Date(item.TGMua).toISOString() }
+            })
             flagPheduyet[1] = {
                 ...flagPheduyet[1],
-                Nguon: source,
-                Chiphi: currency,
-                TGMua: new Date(selectedDate3).toISOString(),
-                Hinhthuc: type,
+                CPTD: CPTD,
                 NTC: new Date(selectedDate4).toISOString()
             }
         }
         const bodyData = {
             ...item,
-            LuongDK: currency,
+            LuongDK: e.LuongDK.split(",").join(''),
             SLCT: e.SLCT,
             SLHT: e.SLHT,
             Yeucau: require,
             Mota: description,
             Vitri: valuePosition.id,
-            TGThuviec: selectedDate,
+            TGThuviec: new Date(selectedDate[0]).toISOString(),
             Lydo: otherReason ? otherReason : reason,
             Pheduyet: JSON.stringify(flagPheduyet)
         }
         const response = await ticketsAPI.updateTicket(bodyData, item.key)
         dispatch(updateTicket(response.data))
         handleClose()
+    }
+    const handleAddSource = (e) => {
+        setValueCPTD([...valueCPTD, { Nguon: "", Chiphi: "", Hinhthuc: '', TGMua: new Date() }]);
+    }
+    const handleRemoveSource = (index) => {
+        const list = [...sourceList];
+        list.splice(index, 1);
+        setSourceList(list);
+    }
+    const handleChangeCurrency = (e, index) => {
+        const { value } = e.target;
+        const list = [...valueCPTD]
+        list[index]['Chiphi'] = value
+        setValueCPTD(list)
+    }
+    const handleChangeSource = (e, index) => {
+        const { value } = e.target;
+        const list = [...valueCPTD]
+        list[index]['Nguon'] = value
+        setValueCPTD(list)
+    }
+    const handleChangeType = (e, index) => {
+        const { value } = e.target;
+        const list = [...valueCPTD]
+        list[index]['Hinhthuc'] = value
+        setValueCPTD(list)
+    }
+    const handleChangeDate = (e, index) => {
+        const list = [...valueCPTD]
+        list[index]['TGMua'] = e[0]
+        setValueCPTD(list)
     }
     return (
         <React.Fragment >
@@ -163,7 +193,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             }
                             {/* Thời gian thử việc  */}
                             <Grid item xs={12}>
-                                <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
+                                <DateField label="Thời gian thử việc" value={selectedDate} handleChange={(e) => { setSelectedDate(e) }} />
                             </Grid>
                             {/* Mô tả tuyển dụng  */}
                             <Grid item xs={12}>
@@ -172,40 +202,61 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             <Grid item xs={12}>
                                 <Tinymce value={require} onChange={(e) => { setRequire(e) }} label={"yêu cầu tuyển dụng"} />
                             </Grid>
-                            {/* Nguồn  */}
-                            <Grid item xs={12}>
-                                <SelectField label="Nguồn" value={source} arrayItem={arraySource} handleChange={(e) => { setSource(e.target.value) }} disabled={checkStep} />
-                            </Grid>
-                            {/* Thời gian mua  */}
-                            <Grid item xs={12}>
-                                <FormControl variant="standard" fullWidth>
-                                    <DateField label="Thời gian mua" value={selectedDate3} handleChange={setSelectedDate3} disabled={checkStep} />
-                                </FormControl>
-                            </Grid>
-                            {/* Chi phí mua  */}
-                            <Grid item xs={12}>
-                                <NumberFormat
-                                    label={"Chi phí mua"}
-                                    customInput={TextField}
-                                    thousandSeparator
-                                    error={steps[1] && currency == ""}
-                                    helperText={steps[1] && currency == "" ? "Vui lòng nhập chi phí" : null}
-                                    onChange={(e) => { setCurrency(e.target.value.split(",").join('')) }}
-                                    defaultValue={currency}
-                                    allowLeadingZeros={false}
-                                    fullWidth
-                                    disabled={checkStep}
-                                />
-                            </Grid>
+                            {valueCPTD && valueCPTD.map((item, index) => (
+                                <React.Fragment key={index}>
+                                    {/* Nguồn mua  */}
+                                    <Grid item xs={12} md={6}>
+                                        <SelectField
+                                            label="Nguồn mua" value={item.Nguon} arrayItem={arraySource}
+                                            handleChange={(e) => handleChangeSource(e, index)}
+                                            disabled={steps.length === 7}
+                                        />
+                                    </Grid>
+                                    {/* Chi phí mua  */}
+                                    <Grid item xs={12} md={5}>
+                                        <NumberFormat
+                                            label={"Chi phí"}
+                                            customInput={TextField}
+                                            thousandSeparator
+                                            onChange={(e) => { handleChangeCurrency(e, index) }}
+                                            value={item.Chiphi}
+                                            allowLeadingZeros={false}
+                                            fullWidth
+                                            disabled={steps.length === 7}
+                                        />
+                                    </Grid>
+                                    {/* Thêm / xóa nguồn  */}
+                                    <Grid item xs={12} md>
+                                        {valueCPTD.length !== 1 && <Tooltip title="Xóa nguồn">
+                                            <IconButton onClick={() => { handleRemoveSource(index) }} style={{ marginTop: "16px" }}>
+                                                <RemoveCircleOutlineIcon />
+                                            </IconButton>
+                                        </Tooltip>}
+                                        <Tooltip title="Thêm nguồn">
+                                            <IconButton onClick={handleAddSource} style={{ marginTop: "16px" }}>
+                                                <AddCircleOutlineIcon />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </Grid>
+                                    {/* Thời gian mua  */}
+                                    <Grid item xs={12}>
+                                        <DateField label="Thời gian mua" value={item.TGMua}
+                                            handleChange={(e) => handleChangeDate(e, index)}
+                                        />
+                                    </Grid>
+                                    {/* Hình thức thanh toán  */}
+                                    <Grid item xs={12}>
+                                        <SelectField label="Hình thức thanh toán" value={item.Hinhthuc || ''} arrayItem={arrayType}
+                                            handleChange={(e) => handleChangeType(e, index)}
+                                        />
+                                    </Grid>
+                                </React.Fragment>
+                            ))}
                             {/* Ngày cần thanh toán  */}
                             <Grid item xs={12}>
                                 <FormControl variant="standard" fullWidth>
                                     <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} disabled={checkStep} />
                                 </FormControl>
-                            </Grid>
-                            {/* Hình thức thanh toán  */}
-                            <Grid item xs={12}>
-                                <SelectField label="Hình thức thanh toán" value={type} arrayItem={arrayType} handleChange={(e) => { setType(e.target.value) }} disabled={checkStep} />
                             </Grid>
                         </Grid>
                     </DialogContent>

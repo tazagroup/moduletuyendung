@@ -22,11 +22,12 @@ import ModalEditItem from './ModalEditItem'
 import ModalCreateItem from "./ModalCreateItem"
 import ModalCopyItem from './ModalCopyItem'
 import TicketStatus from './TicketStatus'
-import EmptyStatus from './EmptyStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
 import CustomPosition from './CustomPosition'
 import CustomNotice from './CustomNotice';
+import CustomRenderCell from './CustomRenderCell'
+import CustomFiltering from './CustomFiltering'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
 import { getStatusRendering } from '../utils';
 //API
@@ -72,7 +73,6 @@ export default function Table() {
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
     const [isHidden, setIsHidden] = useState(false)
-    const [isSelected, setIsSelected] = useState({})
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
     const headers = [
@@ -114,7 +114,6 @@ export default function Table() {
                 return <CustomSelectPriceEdit {...props} data={salary} width={150} field="LuongDK" />
             },
             customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
                 const minPrice = Math.min(...term.map(item => item.minPrice))
                 const maxPrice = Math.max(...term.map(item => item.maxPrice))
                 if (!maxPrice) {
@@ -182,18 +181,20 @@ export default function Table() {
         {
             title: "Mô tả tuyển dụng",
             field: "Mota",
-            render: (rowData) => (
-                <div className="renderHTML">
-                    <Tooltip title="Mô tả">
-                        <IconButton
-                            onClick={(event) => { setCustomNotice({ open: true, data: rowData.Mota, field: "Mô tả tuyển dụng" }) }}
-                            size="medium">
-                            <VisibilityIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <div dangerouslySetInnerHTML={{ __html: rowData.Mota }}></div>
-                </div>
-            ),
+            render: (rowData) => {
+                return (
+                    <div className="renderHTML">
+                        <Tooltip title="Mô tả">
+                            <IconButton
+                                onClick={(event) => { setCustomNotice({ open: true, data: rowData.Mota, field: "Mô tả tuyển dụng" }) }}
+                                size="medium">
+                                <VisibilityIcon />
+                            </IconButton>
+                        </Tooltip>
+                        <div dangerouslySetInnerHTML={{ __html: rowData.Mota }}></div>
+                    </div>
+                )
+            },
         },
         {
             title: "Yêu cầu tuyển dụng",
@@ -212,146 +213,30 @@ export default function Table() {
             )
         },
         {
-            title: "Nguồn", field: "Nguon",
+            title: "Chi phí tuyển dụng", field: "CPTD",
             render: (rowData) => {
                 let flag = true;
                 let value = 0
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    value = JSON.parse(rowData['Pheduyet'])[1].Nguon || <ClearIcon />
                     flag = false;
                 }
-                return flag ? <ClearIcon /> : value
+                return flag ? null : <CustomRenderCell data={rowData} />
             },
             filterComponent: props => {
-                const data = ["Facebook", "TopCV", "ITViec"]
-                return <CustomSelectEdit {...props} data={data} width={120} field="Nguon" />
+                return <CustomFiltering {...props} />
             },
             customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
-                if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    const { Nguon } = JSON.parse(rowData['Pheduyet'])[1]
-                    return term.includes(Nguon);
-                }
-                return false;
+                const salary = [
+                    { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
+                    { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
+                    { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
+                ]
+                const { Nguon, CPDK, CPTT, CPCL } = term
+                //Chi phí dự kiến
+                const valueCPDK = salary.map(item => CPDK.includes(item.name) ? { minPrice: item.minPrice, maxPrice: item.maxPrice } : null)
+                const minPriceCPDK = Math.min(...valueCPDK.filter(item => item !== null).map(item => item.minPrice))
+                const maxPriceCPDK = Math.max(...valueCPDK.filter(item => item !== null).map(item => item.maxPrice))
             },
-        },
-        // {
-        //     title: "Thời gian mua",
-        //     field: "TGMua",
-        //     type: "date",
-        //     dateSetting: { locale: "en-GB" },
-        //     emptyValue: () => <ClearIcon />,
-        //     editComponent: (item) => {
-        //         const steps = item.rowData['Pheduyet'].length
-        //         return steps >= 3 ?
-        //             <div style={{ width: "150px" }}>
-        //                 <DatePicker
-        //                     locale="en-GB"
-        //                     value={item.value}
-        //                     onChange={(date) => props.onChange(date)}
-        //                     style={{ marginTop: "9px" }}
-        //                 />
-        //             </div> : <></>
-        //     },
-        //     filterComponent: (props) => <CustomDateEdit {...props} />,
-        //     customFilterAndSearch: (term, rowData) => {
-        //         if (term.length === 0) return true
-        //         const time = Date.parse(rowData.TGThuviec)
-        //         const beforeDate = Date.parse(term[0])
-        //         const afterDate = Date.parse(term[1])
-        //         return time >= beforeDate && time <= afterDate
-        //     }
-        // },
-        {
-            title: "Chi phí dự kiến",
-            field: "Chiphi",
-            type: "currency",
-            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
-            render: (rowData) => {
-                let flag = true; let value = 0;
-                if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    value = JSON.parse(rowData['Pheduyet'])[1].Chiphi;
-                    flag = false;
-                }
-                const render =
-                    <div>
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)}
-                    </div>
-                return flag ? <ClearIcon /> : render
-            },
-            editComponent: (item) => {
-                const steps = item.rowData['Pheduyet'].length
-                return steps >= 3 ? <MTableEditField {...item} /> : <></>
-            },
-            filterComponent: props => {
-                return <CustomSelectPriceEdit {...props} data={salary} width={150} field="Chiphi" />
-            },
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
-                const minPrice = Math.min(...term.map(item => item.minPrice))
-                const maxPrice = Math.max(...term.map(item => item.maxPrice))
-                if (!maxPrice) {
-                    return rowData.Chiphi >= minPrice
-                }
-                return rowData.Chiphi >= minPrice && rowData.Chiphi <= maxPrice
-            }
-        },
-        {
-            title: "Chi phí thực tế",
-            field: "CPTT",
-            type: "currency",
-            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
-            render: (rowData) => {
-                let flag = true; let value = 0;
-                if (JSON.parse(rowData['Pheduyet'])[5]) {
-                    value = JSON.parse(rowData['Pheduyet'])[5].CPTT;
-                    flag = false;
-                }
-                const render =
-                    <div>
-                        {value ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value) : null}
-                    </div>
-                return flag ? null : render
-            },
-            editComponent: (item) => {
-                const steps = item.rowData['Pheduyet'].length
-                return steps >= 3 ? <MTableEditField {...item} /> : <></>
-            },
-            filterComponent: props => {
-                return <CustomSelectPriceEdit {...props} data={salary} width={150} field="Chiphi" />
-            },
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
-                const minPrice = Math.min(...term.map(item => item.minPrice))
-                const maxPrice = Math.max(...term.map(item => item.maxPrice))
-                if (!maxPrice) {
-                    return rowData.Chiphi >= minPrice
-                }
-                return rowData.Chiphi >= minPrice && rowData.Chiphi <= maxPrice
-            }
-        },
-        {
-            title: "Hình thức", field: "Hinhthuc",
-            render: (rowData) => {
-                let flag = true; let value = 0
-                if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    value = JSON.parse(rowData['Pheduyet'])[1].Hinhthuc || <ClearIcon />;
-                    flag = false;
-                }
-                return flag ? <ClearIcon /> : value
-            },
-            filterComponent: props => {
-                const data = ["Chuyển khoản", "Thanh toán tiền mặt"]
-                return <CustomSelectEdit {...props} data={data} width={170} field="Hinhthuc" />
-            },
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
-                if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    const { Hinhthuc } = JSON.parse(rowData['Pheduyet'])[1]
-                    return term.includes(Hinhthuc);
-                }
-                return false;
-            }
         },
         // {
         //     title: "Trạng thái", field: "Trang thai",
@@ -434,7 +319,7 @@ export default function Table() {
         const responseUser = await ticketsAPI.getUser();
         const { data: { attributes: { Dulieu } } } = responsePosition
         const { data } = responseUser
-        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri }))
+        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
         dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
         setIsLoading(false)
     }, [])
@@ -473,9 +358,9 @@ export default function Table() {
     return isLoading ? <FuseLoading /> : <Fragment>
         {dataStatus
             ?
-            <TicketStatus item={dataStatus} isHidden={isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
+            <TicketStatus item={dataStatus} isHidden={!isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
             :
-            <EmptyStatus />
+            null
         }
         <MaterialTable
             data={data}
@@ -504,7 +389,7 @@ export default function Table() {
                     let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
                     return {
                         backgroundColor: selected ? "#3b5998" : "#FFF",
-                        color: selected ? "#fff" : "#000"
+                        color: selected ? "#fff" : "#000",
                     };
                 },
 
@@ -527,7 +412,7 @@ export default function Table() {
                         onClick: (event) => setIsFiltering(state => !state)
                     },
                     {
-                        icon: isHidden ? 'visibility_off' : 'visibility',
+                        icon: !isHidden ? 'visibility_off' : 'visibility',
                         tooltip: 'Trạng thái',
                         isFreeAction: true,
                         onClick: (event) => setIsHidden(state => !state)

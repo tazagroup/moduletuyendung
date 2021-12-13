@@ -13,6 +13,10 @@ const ticketsAPI = {
         const url = "/hrms/caidats/12";
         return axiosClient.get(url);
     },
+    getDecentralization() {
+        const url = "/hrms/caidats/30";
+        return axiosClient.get(url);
+    },
     postTicket(data) {
         const url = "/hrms/tuyendung_phieuyeucaus";
         return axiosClient.post(url, data);

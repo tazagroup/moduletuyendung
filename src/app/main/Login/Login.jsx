@@ -1,13 +1,11 @@
 import Card from '@mui/material/Card';
 import { styled, darken } from '@mui/material/styles';
 import CardContent from '@mui/material/CardContent';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Typography from '@mui/material/Typography';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import JWTLoginTab from './JWTLoginTab';
+import LoginForm from './Form';
 
 const Root = styled('div')(({ theme }) => ({
   background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
@@ -28,12 +26,6 @@ const Root = styled('div')(({ theme }) => ({
 }));
 
 function Login() {
-  const [selectedTab, setSelectedTab] = useState(0);
-
-  function handleTabChange(event, value) {
-    setSelectedTab(value);
-  }
-
   return (
     <Root className="flex flex-col flex-auto items-center justify-center flex-shrink-0 p-16 md:p-24">
       <motion.div
@@ -50,67 +42,15 @@ function Login() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 0.2 } }}
             >
-              <div className="flex items-center mb-48">
-                <img className="logo-icon w-48" src="assets/images/logos/fuse.svg" alt="logo" />
-                <div className="border-l-1 mr-4 w-1 h-40" />
+              <div className="flex items-center mb-16">
                 <div>
-                  <Typography className="text-24 font-semibold logo-text" color="inherit">
-                    FUSE
-                  </Typography>
-                  <Typography
-                    className="text-16 tracking-widest -mt-8 font-700"
-                    color="textSecondary"
-                  >
-                    REACT
-                  </Typography>
+                  <Typography variant="h3"> Đăng nhập</Typography>
                 </div>
               </div>
             </motion.div>
-
-            <Tabs
-              value={selectedTab}
-              onChange={handleTabChange}
-              variant="fullWidth"
-              className="w-full mb-32"
-            >
-              <Tab
-                icon={
-                  <img
-                    className="h-40 p-4 bg-black rounded-12"
-                    src="assets/images/logos/jwt.svg"
-                    alt="firebase"
-                  />
-                }
-                className="min-w-0"
-                label="JWT"
-              />
-              <Tab
-                icon={
-                  <img className="h-40" src="assets/images/logos/firebase.svg" alt="firebase" />
-                }
-                className="min-w-0"
-                label="Firebase"
-              />
-              <Tab
-                icon={<img className="h-40" src="assets/images/logos/auth0.svg" alt="auth0" />}
-                className="min-w-0"
-                label="Auth0"
-              />
-            </Tabs>
-
-            {selectedTab === 0 && <JWTLoginTab />}
+            <LoginForm />
           </CardContent>
-
           <div className="flex flex-col items-center justify-center pb-32">
-            <div>
-              <span className="font-normal mr-8">Don't have an account?</span>
-              <Link className="font-normal" to="/register">
-                Register
-              </Link>
-            </div>
-            <Link className="font-normal mt-8" to="/">
-              Back to Dashboard
-            </Link>
           </div>
         </Card>
 
@@ -120,19 +60,15 @@ function Login() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0, transition: { delay: 0.2 } }}
             >
-              <Typography variant="h3" color="inherit" className="font-semibold leading-tight">
-                Welcome <br />
-                to the <br /> FUSE React!
-              </Typography>
+              <img className="logo-icon w-256 h-256" src="assets/images/logos/fuse.svg" alt="Logo" />
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1, transition: { delay: 0.3 } }}
             >
-              <Typography variant="subtitle1" color="inherit" className="mt-32">
-                Powerful and professional admin template for Web Applications, CRM, CMS, Admin
-                Panels and more.
+              <Typography variant="h4" color="inherit" className="mt-32">
+                PHẦN MỀM TUYỂN DỤNG
               </Typography>
             </motion.div>
           </div>

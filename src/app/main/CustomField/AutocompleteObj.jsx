@@ -17,7 +17,7 @@ const AutocompleteObjField = (props) => {
             options={options}
             getOptionLabel={option => option[`${field}`]}
             renderOption={(props, option) => {
-                const pos = field == "name" && arrayPosition.find(item => item.id == option.id)?.Thuoctinh
+                const pos = field == "name" && arrayPosition.find(item => item.id == option.position)?.Thuoctinh
                 return (
                     <li {...props} key={option.id}>
                         {option[`${field}`]} {`${pos ? "- " + pos : ""}`}

@@ -124,7 +124,7 @@ const ModalUpdateItem = ({ data, censor }) => {
     const handleChangeCurrency = (e, index) => {
         const { value } = e.target;
         const list = [...sourceList]
-        list[index]['Chiphi'] = value
+        list[index]['Chiphi'] = value.split(",").join('')
         setSourceList(list)
     }
     const handleChangeSource = (e, index) => {

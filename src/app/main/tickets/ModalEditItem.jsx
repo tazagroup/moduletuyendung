@@ -117,14 +117,14 @@ const ModalEditItem = ({ item, open, handleClose }) => {
         setValueCPTD([...valueCPTD, { Nguon: "", Chiphi: "", Hinhthuc: '', TGMua: new Date() }]);
     }
     const handleRemoveSource = (index) => {
-        const list = [...sourceList];
+        const list = [...valueCPTD];
         list.splice(index, 1);
-        setSourceList(list);
+        setValueCPTD(list);
     }
     const handleChangeCurrency = (e, index) => {
         const { value } = e.target;
         const list = [...valueCPTD]
-        list[index]['Chiphi'] = value
+        list[index]['Chiphi'] = value.split(",").join('')
         setValueCPTD(list)
     }
     const handleChangeSource = (e, index) => {
@@ -205,7 +205,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             {valueCPTD && valueCPTD.map((item, index) => (
                                 <React.Fragment key={index}>
                                     {/* Nguồn mua  */}
-                                    <Grid item xs={12} md={6}>
+                                    <Grid item xs={12} md={3}>
                                         <SelectField
                                             label="Nguồn mua" value={item.Nguon} arrayItem={arraySource}
                                             handleChange={(e) => handleChangeSource(e, index)}
@@ -213,7 +213,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                         />
                                     </Grid>
                                     {/* Chi phí mua  */}
-                                    <Grid item xs={12} md={5}>
+                                    <Grid item xs={12} md={3}>
                                         <NumberFormat
                                             label={"Chi phí"}
                                             customInput={TextField}
@@ -222,33 +222,38 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                             value={item.Chiphi}
                                             allowLeadingZeros={false}
                                             fullWidth
-                                            disabled={steps.length === 7}
                                         />
                                     </Grid>
-                                    {/* Thêm / xóa nguồn  */}
-                                    <Grid item xs={12} md>
-                                        {valueCPTD.length !== 1 && <Tooltip title="Xóa nguồn">
-                                            <IconButton onClick={() => { handleRemoveSource(index) }} style={{ marginTop: "16px" }}>
-                                                <RemoveCircleOutlineIcon />
-                                            </IconButton>
-                                        </Tooltip>}
-                                        <Tooltip title="Thêm nguồn">
-                                            <IconButton onClick={handleAddSource} style={{ marginTop: "16px" }}>
-                                                <AddCircleOutlineIcon />
-                                            </IconButton>
-                                        </Tooltip>
-                                    </Grid>
                                     {/* Thời gian mua  */}
-                                    <Grid item xs={12}>
+                                    <Grid item xs={12} md={2}>
                                         <DateField label="Thời gian mua" value={item.TGMua}
                                             handleChange={(e) => handleChangeDate(e, index)}
                                         />
                                     </Grid>
                                     {/* Hình thức thanh toán  */}
-                                    <Grid item xs={12}>
+                                    <Grid item xs={12} md={3}>
                                         <SelectField label="Hình thức thanh toán" value={item.Hinhthuc || ''} arrayItem={arrayType}
                                             handleChange={(e) => handleChangeType(e, index)}
                                         />
+                                    </Grid>
+                                    {/* Thêm / xóa nguồn  */}
+                                    <Grid item xs={12} md>
+                                        {valueCPTD.length !== 1 && <Tooltip title="Xóa nguồn">
+                                            <>
+                                                <IconButton onClick={() => { handleRemoveSource(index) }} style={{ marginTop: "16px" }}
+                                                    disabled={steps.length === 7}>
+                                                    <RemoveCircleOutlineIcon />
+                                                </IconButton>
+                                            </>
+                                        </Tooltip>}
+                                        <Tooltip title="Thêm nguồn">
+                                            <>
+                                                <IconButton onClick={handleAddSource} style={{ marginTop: "16px" }}
+                                                    disabled={steps.length === 7}>
+                                                    <AddCircleOutlineIcon />
+                                                </IconButton>
+                                            </>
+                                        </Tooltip>
                                     </Grid>
                                 </React.Fragment>
                             ))}

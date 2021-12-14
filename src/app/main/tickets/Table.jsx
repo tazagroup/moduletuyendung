@@ -55,9 +55,20 @@ const style = {
 const MenuButton = {
     fontSize: "13px"
 }
+const getPriceValue = (array) => {
+    const salary = [
+        { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
+        { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
+        { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
+    ]
+    const valueArray = salary.map(item => array.includes(item.name) ? { minPrice: item.minPrice, maxPrice: item.maxPrice } : null)
+    const minPrice = Math.min(...valueArray.filter(item => item !== null).map(item => item.minPrice))
+    const maxPrice = Math.max(...valueArray.filter(item => item !== null).map(item => item.maxPrice))
+    return { minPrice, maxPrice }
+}
 export default function Table() {
     const dispatch = useDispatch()
-    const data = useSelector(state => state.fuse.tickets.dataTicket)
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
     const [rowData, setRowData] = useState({})
@@ -226,16 +237,16 @@ export default function Table() {
                 return <CustomFiltering {...props} />
             },
             customFilterAndSearch: (term, rowData) => {
-                const salary = [
-                    { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
-                    { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
-                    { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
-                ]
                 const { Nguon, CPDK, CPTT, CPCL } = term
                 //Chi phí dự kiến
-                const valueCPDK = salary.map(item => CPDK.includes(item.name) ? { minPrice: item.minPrice, maxPrice: item.maxPrice } : null)
-                const minPriceCPDK = Math.min(...valueCPDK.filter(item => item !== null).map(item => item.minPrice))
-                const maxPriceCPDK = Math.max(...valueCPDK.filter(item => item !== null).map(item => item.maxPrice))
+                const priceCPDK = getPriceValue(CPDK)
+                //Chi phí thực tế
+                const priceCPTT = getPriceValue(CPTT)
+                //Chi phí còn lại
+                const priceCPCL = getPriceValue(CPCL)
+                const main = JSON.parse(rowData.Pheduyet)[1]
+                // const mainSource = main?.CPTD.map(item => item.Nguon)
+                console.log(main)
             },
         },
         // {
@@ -314,14 +325,19 @@ export default function Table() {
     const [columns, setColumns] = useState(flagColumns)
     const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
     useEffect(async () => {
-        const responseData = await ticketsAPI.getTicket();
-        const responsePosition = await ticketsAPI.getPosition();
-        const responseUser = await ticketsAPI.getUser();
-        const { data: { attributes: { Dulieu } } } = responsePosition
-        const { data } = responseUser
-        const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
-        dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
-        setIsLoading(false)
+        if (dataTicket.length === 0) {
+            const responseData = await ticketsAPI.getTicket();
+            const responsePosition = await ticketsAPI.getPosition();
+            const responseUser = await ticketsAPI.getUser();
+            const { data: { attributes: { Dulieu } } } = responsePosition
+            const { data } = responseUser
+            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+            dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+            setIsLoading(false)
+        }
+        else {
+            setIsLoading(false)
+        }
     }, [])
     useEffect(() => {
         localStorage.setItem("hidden", hiddenColumns);
@@ -363,7 +379,7 @@ export default function Table() {
             null
         }
         <MaterialTable
-            data={data}
+            data={dataTicket}
             tableRef={tableRef}
             title={<>
                 <Tooltip title="Tạo hồ sơ tuyển dụng">

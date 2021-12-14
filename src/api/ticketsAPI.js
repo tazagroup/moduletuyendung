@@ -2,7 +2,7 @@ import axiosClient from "./index.js";
 
 const ticketsAPI = {
     getTicket() {
-        const url = "/hrms/tuyendung_phieuyeucaus?filter[published]=0";
+        const url = "/hrms/tuyendung_phieuyeucaus?filter[published]=0&page[limit]=*";
         return axiosClient.get(url);
     },
     getUser() {

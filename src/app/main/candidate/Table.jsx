@@ -1,6 +1,5 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCandidates } from 'app/store/fuse/candidateSlice';
 
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
@@ -14,15 +13,17 @@ import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
 import { CustomStatus, CustomCV } from './CustomCell'
 import { CustomDateEdit, CustomSelectEdit, CustomFileEdit, CustomSelectNumber } from '../CustomField/CustomEdit';
-import axios from 'axios'
+//API
+import ticketsAPI from 'api/ticketsAPI';
 const Table = () => {
     const dispatch = useDispatch();
     const data = useSelector(state => state.fuse.candidates.dataCandidate)
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const loading = useSelector(state => state.fuse.candidates.isLoading)
     const [rowData, setRowData] = useState({})
     const [isFiltering, setIsFiltering] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
-    const [isLoading,setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -38,9 +39,21 @@ const Table = () => {
         handleClose()
         setIsEditing(true)
     }
-    useEffect(() => {
-        dispatch(fetchCandidates())
-    }, [])  
+    useEffect(async () => {
+        if (dataTicket.length === 0) {
+            const responseData = await ticketsAPI.getTicket();
+            const responsePosition = await ticketsAPI.getPosition();
+            const responseUser = await ticketsAPI.getUser();
+            const { data: { attributes: { Dulieu } } } = responsePosition
+            const { data } = responseUser
+            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+            dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+            setIsLoading(false)
+        }
+        else {
+            setIsLoading(false)
+        }
+    }, [])
     const headers = [
         { title: "", field: "id", render: rowData => null, filterComponent: rowData => null },
         {

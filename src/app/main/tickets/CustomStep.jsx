@@ -182,11 +182,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     return (
         <div style={{ alignItems: "center", marginLeft: "12px" }}>
             Bước {item.id + 1}-{checkStatus(item.status)}
-            {item.id == 0 &&
-                <CustomTooltip title={item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
-                    <AccountCircleIcon />
-                </CustomTooltip>
-            }
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -200,7 +195,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                         parentMenuOpen={open}
                     >
                         {/* Người duyệt  */}
-                        {users.filter(item => item.PQTD.includes("3")).map(item => (
+                        {users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3).map(item => (
                             <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
                         ))}
                     </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>

@@ -31,7 +31,7 @@ function Logo() {
       <a href="https://tazagroup.vn/dashboard">
         <img className="logo-icon w-64 h-64" src="assets/images/logos/fuse.svg" alt="logo" />
       </a>
-      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Phiên bản : 1.10</Typography>
+      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Phiên bản : 1.11</Typography>
     </div>
   );
 }

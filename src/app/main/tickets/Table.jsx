@@ -248,6 +248,8 @@ export default function Table() {
                 const main = JSON.parse(rowData.Pheduyet)[1]
                 let mainSource = []
                 let mainCPDK = []
+                let mainCPTT = []
+                let mainCPCL = []
                 if (main?.CPTD) {
                     mainSource = main.CPTD.map(item => item.Nguon)
                     mainCPDK = main.CPTD.map(item => Number(item.Chiphi.split(",").join(''))).map(item => item >= priceCPDK.minPrice && (priceCPDK.maxPrice ? item < priceCPDK.maxPrice : true))

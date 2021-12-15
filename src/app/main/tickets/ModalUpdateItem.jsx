@@ -94,11 +94,11 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
         step[1] = {
             ...step[1],
             status: 1,
-            Nguoiduyet: user.profile.id,
+            Daduyet: user.profile.id,
             CPTD: CPTD,
             NTC: new Date(selectedDate2).toISOString()
         }
-        const newStep = { id: 2, status: 0, Ngaytao: new Date().toISOString() }
+        const newStep = { id: 2, status: 0, Nguoiduyet: [censor.id], Ngaytao: new Date().toISOString() }
         step.push(newStep)
         const bodyData = {
             TNNS: JSON.stringify({ Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }),
@@ -208,19 +208,19 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                     </Grid>
                     {/* Người kiểm duyệt  */}
                     <Grid item xs={12}>
-                        <TextInputCustom value={censor} label="Người kiểm duyệt" type="text" />
+                        <TextInputCustom value={censor.name} label="Người kiểm duyệt" type="text" />
                     </Grid>
                     {sourceList.map((item, index) => (
                         <React.Fragment key={index}>
                             {/* Nguồn mua  */}
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={3}>
                                 <SelectField
                                     label="Nguồn mua" value={item.Nguon} arrayItem={sourceArray}
                                     handleChange={(e) => handleChangeSource(e, index)}
                                 />
                             </Grid>
                             {/* Chi phí mua  */}
-                            <Grid item xs={12} md={5}>
+                            <Grid item xs={12} md={3}>
                                 <NumberFormat
                                     label={"Chi phí"}
                                     customInput={TextField}
@@ -229,6 +229,18 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                                     value={item.Chiphi}
                                     allowLeadingZeros={false}
                                     fullWidth
+                                />
+                            </Grid>
+                            {/* Thời gian mua  */}
+                            <Grid item xs={12} md={2}>
+                                <DateField label="Thời gian mua" value={item.TGMua}
+                                    handleChange={(e) => handleChangeDate(e, index)}
+                                />
+                            </Grid>
+                            {/* Hình thức thanh toán  */}
+                            <Grid item xs={12} md={3}>
+                                <SelectField label="Hình thức thanh toán" value={item.Hinhthuc || ''} arrayItem={typeArray}
+                                    handleChange={(e) => handleChangeType(e, index)}
                                 />
                             </Grid>
                             {/* Thêm / xóa nguồn  */}
@@ -243,18 +255,6 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                                         <AddCircleOutlineIcon />
                                     </IconButton>
                                 </Tooltip>
-                            </Grid>
-                            {/* Thời gian mua  */}
-                            <Grid item xs={12}>
-                                <DateField label="Thời gian mua" value={item.TGMua}
-                                    handleChange={(e) => handleChangeDate(e, index)}
-                                />
-                            </Grid>
-                            {/* Hình thức thanh toán  */}
-                            <Grid item xs={12}>
-                                <SelectField label="Hình thức thanh toán" value={item.Hinhthuc || ''} arrayItem={typeArray}
-                                    handleChange={(e) => handleChangeType(e, index)}
-                                />
                             </Grid>
                         </React.Fragment>
                     ))}

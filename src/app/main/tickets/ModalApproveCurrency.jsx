@@ -10,7 +10,7 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/
 // API
 import ticketsAPI from 'api/ticketsAPI';
 const ModalApproveCurrency = (props) => {
-    const { open, data, handleClose } = props
+    const { open, data, handleClose, setDataStatus } = props
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
     const step = JSON.parse(data.Pheduyet)[1].CPTD
@@ -34,7 +34,12 @@ const ModalApproveCurrency = (props) => {
             Pheduyet: JSON.stringify(flag)
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        const rowData = {
+            ...data,
+            Pheduyet: response.data.attributes.Pheduyet
+        }
         dispatch(updateTicket(response.data))
+        setDataStatus(rowData)
     }
     const availableError = value.map(item => Number(item?.CPTT) > Number(item.Chiphi.split(',').join('')))
     const emptyError = value.map(item => item?.CPTT == '' ? Number(item?.CPTT) == 0 : item?.CPTT == undefined)

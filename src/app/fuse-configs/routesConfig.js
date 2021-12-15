@@ -23,6 +23,10 @@ const routes = [
   {
     exact: true,
     path: '/',
+    component: () => isLogin ? <Redirect to="ve-tuyen-dung" /> : <Redirect to="dang-nhap" />,
+  },
+  {
+    path: '/dashboard',
     component: () => isLogin ? <Dashboard /> : <Redirect to="dang-nhap" />,
   },
   {

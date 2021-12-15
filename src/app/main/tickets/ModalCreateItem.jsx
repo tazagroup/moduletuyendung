@@ -73,8 +73,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
     const [censor, setCensor] = useState([...data.users])
     const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const reasonValid = isOther ? otherReason !== "" : reasons !== ""
-    const isValid = form.formState.isValid && reasonValid && valueCensor !== null && valuePosition !== null && require !== "" && description !== ""
-    console.log(valueCensor)
+    const isValid = form.formState.isValid && reasonValid && valueCensor.length !== 0 && valuePosition !== null && require !== "" && description !== ""
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }

@@ -26,7 +26,7 @@ const useStyles = makeStyles({
 
 const CustomTitle = ({ item }) => {
     const users = useSelector(state => state.fuse.tickets.users)
-    const name = users.find(flag => flag.id == item.Nguoiduyet)?.name
+    const name = users.find(flag => flag.id == item.Daduyet)?.name
     const createdAt = new Date(`${item.Ngaytao}`).toLocaleDateString("en-GB")
     const updatedAt = new Date(`${item.Ngayupdate}`).toLocaleDateString("en-GB")
     const status = item.status !== 0 ? (item.status === 1 ? "Đã duyệt" : "Từ chối") : "Chờ duyệt"

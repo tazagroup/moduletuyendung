@@ -31,6 +31,10 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const [openRefuseDialog, setOpenRefuseDialog] = useState(false);
     const [openAccountantDialog, setOpenAccountantDialog] = useState(false);
     const [reason, setReason] = useState('')
+
+    //STEPS
+    const stepBTD = [1, 3, 6]
+    const stepBGD = [2, 4]
     const handleCloseADialog = async (e) => {
         setOpenAccountantDialog(false)
     }
@@ -54,8 +58,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     };
     const handleOpen = (e) => {
         const currentPos = item.id + 1
-        const stepBTD = [1, 3, 6]
-        const stepBGD = [2, 4]
         /*
         CAN CLICK BUTTON WHEN : 
          - Ticket's status unequal 3 ( edit mode )
@@ -64,7 +66,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         */
         const bqlCondition = user.profile.PQTD.includes("5") && currentPos == 1 && item?.Nguoiduyet.includes(user.profile.id)
         const btdCondition = user.profile.PQTD.includes("2") && stepBTD.includes(currentPos - 1)
-        const bgdCondition = user.profile.PQTD.includes("3") && stepBGD.includes(currentPos - 1)
+        const bgdCondition = user.profile.PQTD.includes("3") && stepBGD.includes(currentPos - 1) && item?.Nguoiduyet.includes(user.profile.id)
         const bktCondition = user.profile.PQTD.includes("4") && currentPos == 6
         if (bqlCondition || btdCondition || bgdCondition || bktCondition) {
             if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
@@ -77,11 +79,11 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     };
     const handleApprove = async (e) => {
         handleClose()
-        const value = e.target.innerText
+        const value = users.find(item => item.name == e.target.innerText)
         const flagArray = [...steps]
         let newValue = {}
         if (item.id !== 5 && item.id !== 1) {
-            newValue = { ...item, status: 1, Lydo: "", Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
+            newValue = { ...item, status: 1, Lydo: "", Daduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
             flagArray[`${newValue.id}`] = { ...newValue }
         }
         if (item.id === 1) {
@@ -97,7 +99,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         }
         else if (item.id === 3) {
             //Choose a censor
-            const newStep = { id: item.id + 1, status: 0, Nguoiduyet: value, Ngaytao: new Date().toISOString() }
+            const newStep = { id: item.id + 1, status: 0, Nguoiduyet: [value.id], Ngaytao: new Date().toISOString() }
             flagArray.push(newStep)
         }
         else if (item.id === 5) {
@@ -127,7 +129,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const handleRefuse = async (e) => {
         handleSubClose()
         const flagArray = [...steps]
-        const newValue = { ...item, status: 2, Lydo: reason, Ngayupdate: new Date().toISOString() }
+        const newValue = { ...item, status: 2, Lydo: reason, Daduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
         flagArray[`${newValue.id}`] = { ...newValue }
         const bodyData = {
             Pheduyet: JSON.stringify([...flagArray])
@@ -147,7 +149,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const newValue = { ...item, status: 3, Ngayupdate: new Date().toISOString() }
         //Change previous step's status
         const previousStep = flagArray[`${newValue.id - 1}`]
-        flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, Ngayupdate: new Date().toISOString() }
+        flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, Ngayupdate: new Date().toISOString(), Daduyet: undefined }
         if (newValue.id - 1 == 5) {
             const step = flagArray[1].CPTD
             step.map(item => delete item.CPTT)
@@ -159,7 +161,12 @@ const CustomStep = ({ item, data, setDataStatus }) => {
             Pheduyet: JSON.stringify([...flagArray])
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        const rowData = {
+            ...data,
+            Pheduyet: response.data.attributes.Pheduyet
+        }
         dispatch(updateTicket(response.data))
+        setDataStatus(rowData)
         showNotify()
     }
     //RENDER STATUS
@@ -180,68 +187,76 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     }
     const stepSuccessName = item.id !== 6 ? (item.id === 5 ? "Đã thanh toán" : "Phê duyệt") : "Triển khai tuyển dụng"
     return (
-        <div style={{ alignItems: "center", marginLeft: "12px" }}>
-            Bước {item.id + 1}-{checkStatus(item.status)}
-            <Menu
-                id="basic-menu"
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleClose}
-            >
-                {item.status !== 1 &&
-                    (item.id === 1 || item.id === 3) ?
-                    <NestedMenuItem
-                        label={"Phê duyệt"}
-                        parentMenuOpen={open}
-                    >
-                        {/* Người duyệt  */}
-                        {users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3).map(item => (
-                            <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
-                        ))}
-                    </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
-                }
-                {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
-                {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}
-            </Menu>
-
-            {/* Dialog Refuse  */}
-            <Dialog
-                open={openRefuseDialog}
-                fullWidth={true}
-                maxWidth={"sm"}
-            >
-                <DialogTitle id="alert-dialog-title" style={{ fontSize: "20px", textAlign: "center" }}>Từ chối phiếu tuyển dụng</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        id="outlined-helperText"
-                        onChange={(e) => { setReason(e.target.value) }}
-                        label="Lí do"
-                        InputLabelProps={{
-                            shrink: true,
-                        }}
-                        style={{ fontSize: "15px" }}
-                        fullWidth
-                        variant="standard"
+        <>
+            <div style={{ alignItems: "center", marginLeft: "12px" }}>
+                Bước {item.id + 1}-{checkStatus(item.status)}
+                <Menu
+                    id="basic-menu"
+                    anchorEl={anchorEl}
+                    open={open}
+                    onClose={handleClose}
+                >
+                    {item.status !== 1 &&
+                        (item.id === 1 || item.id === 3) ?
+                        <NestedMenuItem
+                            label={"Phê duyệt"}
+                            parentMenuOpen={open}
+                        >
+                            {/* Người duyệt  */}
+                            {users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3).map(item => (
+                                <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
+                            ))}
+                        </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
+                    }
+                    {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
+                    {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}
+                </Menu>
+                {/* Dialog Refuse  */}
+                <Dialog
+                    open={openRefuseDialog}
+                    fullWidth={true}
+                    maxWidth={"sm"}
+                >
+                    <DialogTitle id="alert-dialog-title" style={{ fontSize: "20px", textAlign: "center" }}>Từ chối phiếu tuyển dụng</DialogTitle>
+                    <DialogContent>
+                        <TextField
+                            id="outlined-helperText"
+                            onChange={(e) => { setReason(e.target.value) }}
+                            label="Lí do"
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            style={{ fontSize: "15px" }}
+                            fullWidth
+                            variant="standard"
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleSubClose}>
+                            Đóng
+                        </Button>
+                        <Button color="primary" autoFocus type="submit" variant="contained" onClick={handleRefuse}>
+                            Cập nhật
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+                {/* Dialog Accountant  */}
+                {openAccountantDialog &&
+                    <ModalApproveCurrency
+                        open={openAccountantDialog}
+                        data={data}
+                        setDataStatus={setDataStatus}
+                        handleClose={handleCloseADialog}
                     />
-                </DialogContent>
-                <DialogActions>
-                    <Button color="error" autoFocus type="submit" variant="contained" onClick={handleSubClose}>
-                        Đóng
-                    </Button>
-                    <Button color="primary" autoFocus type="submit" variant="contained" onClick={handleRefuse}>
-                        Cập nhật
-                    </Button>
-                </DialogActions>
-            </Dialog>
-            {/* Dialog Accountant  */}
-            {openAccountantDialog &&
-                <ModalApproveCurrency
-                    open={openAccountantDialog}
-                    data={data}
-                    handleClose={handleCloseADialog}
-                />
+                }
+            </div >
+            {item.status == 0 && [0, 2, 4].includes(item.id)
+                &&
+                <CustomTooltip title={item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
+                    <AccountCircleIcon />
+                </CustomTooltip>
             }
-        </div >
+        </>
     )
 }
 

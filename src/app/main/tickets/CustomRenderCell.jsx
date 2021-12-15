@@ -50,7 +50,7 @@ const CustomRenderCell = ({ data }) => {
                         {Number(realCurrencyBody) !== 0 ? convertRenderCurrency(expectedCurrencyBody - realCurrencyBody) : <ClearIcon />}
                     </div>
                 </div>
-                <div className="table__item">
+                <div className="table__item" style={{ width: "130px" }}>
                     <div className="item__title">
                         <p>Hình thức</p>
                     </div>

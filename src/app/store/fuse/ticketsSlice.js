@@ -15,6 +15,9 @@ const ticketsSlice = createSlice({
             attributes['id'] = state.dataTicket.length + 1
             state.dataTicket.push(attributes)
         },
+        refreshTicket: (state, action) => {
+            state.dataTicket = action.payload
+        },
         setDataTicket: (state, action) => {
             const { data, position, users } = action.payload
             const flagArray = data.map(item => item.attributes)
@@ -43,6 +46,6 @@ const ticketsSlice = createSlice({
     },
 });
 
-export const { addTicket, setDataTicket, updateTicket } = ticketsSlice.actions;
+export const { addTicket, refreshTicket, setDataTicket, updateTicket } = ticketsSlice.actions;
 
 export default ticketsSlice.reducer;

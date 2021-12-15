@@ -1,8 +1,9 @@
 import React, { useState, Fragment } from 'react'
 //REDUX
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateTicket } from 'app/store/fuse/ticketsSlice';
 import { openDialog } from 'app/store/fuse/dialogSlice';
+import { showMessage } from 'app/store/fuse/messageSlice';
 //MUI
 import Menu from '@mui/material/Menu';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
@@ -18,8 +19,10 @@ import ModalUpdateItem from './ModalUpdateItem'
 import ModalApproveCurrency from './ModalApproveCurrency'
 //API
 import ticketsAPI from "api/ticketsAPI"
-const CustomStep = ({ item, data }) => {
+const CustomStep = ({ item, data, setDataStatus }) => {
     const dispatch = useDispatch()
+    const users = useSelector(state => state.fuse.tickets.users)
+    const user = JSON.parse(localStorage.getItem("profile"))
     const steps = JSON.parse(data['Pheduyet'])
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -29,18 +32,16 @@ const CustomStep = ({ item, data }) => {
     const handleCloseADialog = async (e) => {
         setOpenAccountantDialog(false)
     }
-    const handleADialog = async (e) => {
-        setOpenAccountantDialog(false)
-        // const flagArray = [...steps]
-        // const step = { ...flagArray[5], status: 1, CPTT: currency.split(",").join('') }
-        // const newStep = { id: 6, status: 0, nguoiDuyet: "User", ngayTao: new Date().toISOString() }
-        // flagArray[5] = { ...step }
-        // flagArray.push(newStep)
-        // const bodyData = {
-        //     Pheduyet: JSON.stringify([...flagArray])
-        // }
-        // const response = await ticketsAPI.updateTicket(bodyData, data.key)
-        // dispatch(updateTicket(response.data))
+    const showNotify = () => {
+        dispatch(showMessage({
+            message: 'Cập nhật phiếu tuyển dụng thành công',
+            autoHideDuration: 3000,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'right'
+            },
+            variant: 'success'
+        }))
     }
     const handleSubClick = (e) => {
         setAnchorEl(null)
@@ -51,14 +52,23 @@ const CustomStep = ({ item, data }) => {
     };
     const handleOpen = (e) => {
         const currentPos = item.id + 1
+        console.log(currentPos)
+        const stepBTD = [1, 3, 6]
+        const stepBGD = [2, 4]
         /*
         CAN CLICK BUTTON WHEN : 
          - Ticket's status unequal 3 ( edit mode )
          - Ticket's step equal array steps
          - If the current step is in mode edit, only previous step can change mode
         */
-        if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
-            setAnchorEl(e.currentTarget)
+        const bqlCondition = user.profile.PQTD == 5 && currentPos == 1
+        const btdCondition = user.profile.PQTD == 2 && stepBTD.includes(currentPos - 1)
+        const bgdCondition = user.profile.PQTD == 3 && stepBGD.includes(currentPos - 1)
+        const bktCondition = user.profile.PQTD == 4 && currentPos == 6
+        if (bqlCondition || btdCondition || bgdCondition || bktCondition) {
+            if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
+                setAnchorEl(e.currentTarget)
+            }
         }
     }
     const handleClose = () => {
@@ -68,22 +78,26 @@ const CustomStep = ({ item, data }) => {
         handleClose()
         const value = e.target.innerText
         const flagArray = [...steps]
-        //Change status of step
         let newValue = {}
-        if (item.id !== 5) {
-            newValue = { ...item, status: 1, Lydo: "", ngayUpdate: new Date().toISOString() }
+        if (item.id !== 5 && item.id !== 1) {
+            newValue = { ...item, status: 1, Lydo: "", Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
             flagArray[`${newValue.id}`] = { ...newValue }
         }
-        if (item.id === 1 || item.id === 3) {
+        if (item.id === 1) {
+            dispatch(openDialog({
+                children:
+                    <ModalUpdateItem
+                        data={data}
+                        censor={value}
+                        showNotify={showNotify}
+                        setDataStatus={setDataStatus}
+                    />
+            }))
+        }
+        else if (item.id === 3) {
             //Choose a censor
-            const newStep = { id: item.id + 1, status: 0, nguoiDuyet: value, ngayTao: new Date().toISOString() }
+            const newStep = { id: item.id + 1, status: 0, Nguoiduyet: value, Ngaytao: new Date().toISOString() }
             flagArray.push(newStep)
-            if (item.id === 1) {
-                dispatch(openDialog({
-                    children: <ModalUpdateItem
-                        data={data} censor={value} />
-                }))
-            }
         }
         else if (item.id === 5) {
             setOpenAccountantDialog(true)
@@ -91,7 +105,7 @@ const CustomStep = ({ item, data }) => {
         //Add new steps ( - step 6th )
         else if (item.id !== 6) {
             //Current user check
-            const newStep = { id: item.id + 1, status: 0, nguoiDuyet: "User", ngayTao: new Date().toISOString() }
+            const newStep = { id: item.id + 1, status: 0, Ngaytao: new Date().toISOString() }
             flagArray.push(newStep)
         }
         const bodyData = {
@@ -99,26 +113,40 @@ const CustomStep = ({ item, data }) => {
             Pheduyet: JSON.stringify([...flagArray]),
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        const rowData = {
+            ...data,
+            Pheduyet: response.data.attributes.Pheduyet
+        }
         dispatch(updateTicket(response.data))
+        setDataStatus(rowData)
+        if (item.id !== 1 && item.id !== 5) {
+            showNotify()
+        }
     }
     const handleRefuse = async (e) => {
         handleSubClose()
         const flagArray = [...steps]
-        const newValue = { ...item, status: 2, Lydo: reason, ngayUpdate: new Date().toISOString() }
+        const newValue = { ...item, status: 2, Lydo: reason, Ngayupdate: new Date().toISOString() }
         flagArray[`${newValue.id}`] = { ...newValue }
         const bodyData = {
             Pheduyet: JSON.stringify([...flagArray])
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
+        const rowData = {
+            ...data,
+            Pheduyet: response.data.attributes.Pheduyet
+        }
         dispatch(updateTicket(response.data))
+        setDataStatus(rowData)
+        showNotify()
     }
     const handleEdit = async (e) => {
         handleClose()
         const flagArray = [...steps]
-        const newValue = { ...item, status: 3, ngayTao: new Date().toISOString() }
+        const newValue = { ...item, status: 3, Ngayupdate: new Date().toISOString() }
         //Change previous step's status
         const previousStep = flagArray[`${newValue.id - 1}`]
-        flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, ngayUpdate: new Date().toISOString() }
+        flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, Ngayupdate: new Date().toISOString() }
         if (newValue.id - 1 == 5) {
             const step = flagArray[1].CPTD
             step.map(item => delete item.CPTT)
@@ -131,6 +159,7 @@ const CustomStep = ({ item, data }) => {
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
         dispatch(updateTicket(response.data))
+        showNotify()
     }
     //RENDER STATUS
     const checkStatus = (status) => {
@@ -162,9 +191,9 @@ const CustomStep = ({ item, data }) => {
                         parentMenuOpen={open}
                     >
                         {/* Người duyệt  */}
-                        <MenuItem onClick={handleApprove}>Phạm Chí Kiệt</MenuItem>
-                        <MenuItem >Phạm Chí Kiệt</MenuItem>
-                        <MenuItem >Phạm Chí Kiệt</MenuItem>
+                        {users.filter(item => item.PQTD == 3).map(item => (
+                            <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
+                        ))}
                     </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
                 }
                 {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}

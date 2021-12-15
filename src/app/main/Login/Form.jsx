@@ -15,7 +15,7 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import _ from '@lodash';
 // COMPONENTS 
-import InputField from "app/main/CustomField/InputField"
+import Swal from "sweetalert2"
 // AXIOS 
 import axios from "axios"
 /**
@@ -35,7 +35,6 @@ const defaultValues = {
 
 function LoginForm(props) {
     const [showPassword, setShowPassword] = useState(false);
-    const isLogin = useSelector(state => state.fuse.user.isLogin);
     const user = JSON.parse(localStorage.getItem("profile"))
     const isLoginFlag = user?.isLogin
     const form = useForm({
@@ -46,10 +45,28 @@ function LoginForm(props) {
     async function onSubmit(e) {
         const response = await axios.post(`https://tazagroup.vn/index.php?option=com_users&task=user.loginAjax&username=${e.username}&password=${e.password}&format=json`)
         //7 days
-        const profile = JSON.parse(response.data.User.Profile)
-        const user = { isLogin: response.data.loggedIn === 1 ? true : false, profile: profile, expire: new Date().getTime() + 7 * 24 * 3600 }
-        localStorage.setItem("profile", JSON.stringify(user))
-        document.location.reload(true)
+        let profile = response.data.User
+        if (response.data.loggedIn == 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Đăng nhập thất bại',
+                text: 'Tài khoản hoặc mật khẩu không đúng !',
+            })
+        }
+        else if (JSON.parse(profile.Profile).PQTD == 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Đăng nhập thất bại',
+                text: 'Bạn không có quyền truy cập!',
+            })
+        }
+        else {
+            const info = JSON.parse(profile.Profile)
+            // 3 days
+            const user = { isLogin: response.data.loggedIn === 1 ? true : false, profile: { ...info, id: profile.id }, expire: new Date().getTime() + 3 * 24 * 3600 }
+            localStorage.setItem("profile", JSON.stringify(user))
+            document.location.reload(true)
+        }
     }
     if (isLoginFlag) return <Redirect to="/" />
     return (

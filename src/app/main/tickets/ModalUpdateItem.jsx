@@ -71,11 +71,13 @@ const TextInputCustom = (props) => {
         />
     )
 }
-const ModalUpdateItem = ({ data, censor }) => {
+const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     const dispatch = useDispatch();
+    const classes = useStyles()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
-    const classes = useStyles()
+    const user = JSON.parse(localStorage.getItem("profile"))
+    console.log(user)
     const [value, setValue] = useState('')
     const sourceArray = ["Facebook", "TopCV", "ITViec"]
     const [sourceList, setSourceList] = useState([{ Nguon: "", Chiphi: "", TGMua: new Date(), Hinhthuc: '' }]);
@@ -92,14 +94,24 @@ const ModalUpdateItem = ({ data, censor }) => {
         })
         step[1] = {
             ...step[1],
+            status: 1,
+            Nguoiduyet: user.profile.id,
             CPTD: CPTD,
             NTC: new Date(selectedDate2).toISOString()
         }
+        const newStep = { id: 2, status: 0, Ngaytao: new Date().toISOString() }
+        step.push(newStep)
         const bodyData = {
-            TNNS: JSON.stringify({ nguoiDuyet: "User", ngayDuyet: new Date().toISOString() }),
+            TNNS: JSON.stringify({ Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }),
             Pheduyet: JSON.stringify([...step])
         }
         const response = await ticketsAPI.updateTicket(bodyData, item.key)
+        const rowData = {
+            ...data,
+            Pheduyet: response.data.attributes.Pheduyet
+        }
+        showNotify()
+        setDataStatus(rowData)
         dispatch(updateTicket(response.data))
         dispatch(closeDialog())
     }

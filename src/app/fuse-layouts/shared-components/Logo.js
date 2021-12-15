@@ -28,8 +28,10 @@ function Logo() {
 
   return (
     <div className={clsx(classes.root, 'flex items-center')}>
-      <img className="logo-icon w-64 h-64" src="assets/images/logos/fuse.svg" alt="logo" />
-      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Phiên bản : 1.8</Typography>
+      <a href="https://tazagroup.vn/dashboard">
+        <img className="logo-icon w-64 h-64" src="assets/images/logos/fuse.svg" alt="logo" />
+      </a>
+      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Phiên bản : 1.9</Typography>
     </div>
   );
 }

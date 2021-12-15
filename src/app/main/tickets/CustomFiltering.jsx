@@ -29,7 +29,6 @@ const CustomFiltering = (props) => {
         setFilterValue(value)
         props.onFilterChanged(props.columnDef.tableData.id, value);
     }
-    console.log(filterValue)
     return (
         <Grid container spacing={2} style={{ width: "500px", paddingTop: "2.5px" }}>
             <Grid item xs={12} md={6}>

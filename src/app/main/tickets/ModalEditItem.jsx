@@ -222,17 +222,25 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                             value={item.Chiphi}
                                             allowLeadingZeros={false}
                                             fullWidth
+                                            disabled={steps.length === 7}
                                         />
                                     </Grid>
                                     {/* Thời gian mua  */}
                                     <Grid item xs={12} md={2}>
-                                        <DateField label="Thời gian mua" value={item.TGMua}
+                                        <DateField
+                                            label="Thời gian mua"
+                                            value={item.TGMua}
+                                            disabled={steps.length === 7}
                                             handleChange={(e) => handleChangeDate(e, index)}
                                         />
                                     </Grid>
                                     {/* Hình thức thanh toán  */}
                                     <Grid item xs={12} md={3}>
-                                        <SelectField label="Hình thức thanh toán" value={item.Hinhthuc || ''} arrayItem={arrayType}
+                                        <SelectField
+                                            label="Hình thức thanh toán"
+                                            value={item.Hinhthuc || ''}
+                                            arrayItem={arrayType}
+                                            disabled={steps.length === 7}
                                             handleChange={(e) => handleChangeType(e, index)}
                                         />
                                     </Grid>

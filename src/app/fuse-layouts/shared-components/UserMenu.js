@@ -21,6 +21,10 @@ function UserMenu(props) {
   const userMenuClose = () => {
     setUserMenu(null);
   };
+  const handleLogout = () => {
+    localStorage.removeItem("profile")
+    window.location.reload()
+  }
   return (
     <>
       <Button className="min-h-40 min-w-40 px-0 md:px-16 py-0 md:py-6" onClick={userMenuClick}>
@@ -56,24 +60,18 @@ function UserMenu(props) {
             <ListItemIcon className="min-w-40">
               <Icon>account_circle</Icon>
             </ListItemIcon>
-            <ListItemText primary="My Profile" />
-          </MenuItem>
-          <MenuItem component={Link} to="/apps/mail" onClick={userMenuClose} role="button">
-            <ListItemIcon className="min-w-40">
-              <Icon>mail</Icon>
-            </ListItemIcon>
-            <ListItemText primary="Inbox" />
+            <ListItemText primary="Tài khoản" />
           </MenuItem>
           <MenuItem
             onClick={() => {
-              dispatch(logoutUser());
+              handleLogout();
               userMenuClose();
             }}
           >
             <ListItemIcon className="min-w-40">
               <Icon>exit_to_app</Icon>
             </ListItemIcon>
-            <ListItemText primary="Logout" />
+            <ListItemText primary="Đăng xuất" />
           </MenuItem>
         </>
       </Popover>

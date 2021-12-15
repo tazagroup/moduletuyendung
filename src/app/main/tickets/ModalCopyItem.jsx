@@ -86,7 +86,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
         }
-        const step = { id: 0, nguoiDuyet: valueCensor.id, status: 0, ngayTao: new Date().toISOString() }
+        const step = { id: 0, Nguoiduyet: valueCensor.id, status: 0, Ngaytao: new Date().toISOString() }
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,

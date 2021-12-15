@@ -13,7 +13,7 @@ const DateField = (props) => {
     const { label, value, handleChange, disabled = false } = props
     return (
         <>
-            <p style={{ color: "rgba(0,0,0,0.6)",fontSize:"11px" }}>{label}</p>
+            <p style={{ color: "rgba(0,0,0,0.6)", fontSize: "11px", lineHeight: "1.325" }}>{label}</p>
             <Flatpickr
                 value={value} // giá trị ngày tháng
                 disabled={disabled}
@@ -22,6 +22,7 @@ const DateField = (props) => {
                     allowInvalidPreload: true,
                 }}
                 // event
+                style={{ color: disabled && "#a1a8b2", backgroundColor: "#fff", borderStyle: disabled && "dotted" }}
                 onChange={handleChange}
             />
         </>

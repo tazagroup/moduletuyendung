@@ -26,9 +26,12 @@ const useStyles = makeStyles({
 
 const CustomTitle = ({ item }) => {
     const users = useSelector(state => state.fuse.tickets.users)
-    const name = users.find(flag => flag.id === item.nguoiDuyet)?.name
-    const createdAt = new Date(`${item.ngayTao}`).toLocaleDateString("en-GB")
-    const updatedAt = new Date(`${item.ngayUpdate}`).toLocaleDateString("en-GB")
+    console.log(users)
+    console.log(item)
+    const name = users.find(flag => flag.id == item.Nguoiduyet)?.name
+    console.log(name)
+    const createdAt = new Date(`${item.Ngaytao}`).toLocaleDateString("en-GB")
+    const updatedAt = new Date(`${item.Ngayupdate}`).toLocaleDateString("en-GB")
     const status = item.status !== 0 ? (item.status === 1 ? "Đã duyệt" : "Từ chối") : "Chờ duyệt"
     return (
         <React.Fragment>
@@ -52,6 +55,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
         border: '1px solid #dadde9',
     },
 }));
+
 const TicketStatus = ({ item, isHidden }) => {
     const steps = JSON.parse(item['Pheduyet'])
     const classes = useStyles()

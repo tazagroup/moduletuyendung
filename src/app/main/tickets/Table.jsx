@@ -1,8 +1,8 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
-import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
+import MaterialTable, { MTableAction } from '@material-table/core';
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { setDataTicket } from 'app/store/fuse/ticketsSlice';
+import { setDataTicket, refreshTicket } from 'app/store/fuse/ticketsSlice';
 //ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
@@ -11,11 +11,11 @@ import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CachedIcon from '@mui/icons-material/Cached';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { DatePicker } from "react-rainbow-components";
 //COMPONENTS
 import FuseLoading from '@fuse/core/FuseLoading';
 import ModalEditItem from './ModalEditItem'
@@ -71,6 +71,7 @@ export default function Table() {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
+    const user = JSON.parse(localStorage.getItem("profile"))
     const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
@@ -79,13 +80,14 @@ export default function Table() {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const [isCC, setIsCC] = useState(false)
-    const [isCreateTicket, setIsCreaterTicket] = useState(false)
+    const [isCreateTicket, setIsCreateTicket] = useState(false)
     const [isEditTicket, setIsEditTicket] = useState(false)
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
     const [isHidden, setIsHidden] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
+
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
@@ -111,7 +113,7 @@ export default function Table() {
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
                 const { Vitri } = rowData;
-                return term.map(item => item.id).includes(Vitri);
+                return term.map(item => parseInt(item.id)).includes(Vitri);
             }
         },
         { title: "Nhân sự hiện có", field: "SLHT", type: 'numeric' },
@@ -156,7 +158,7 @@ export default function Table() {
                 let flag = true;
                 let value = 0
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
-                    value = JSON.parse(rowData['Pheduyet'])[1].ngayUpdate
+                    value = JSON.parse(rowData['TNNS']).Ngayupdate
                     flag = false;
                 }
                 return flag ? <ClearIcon /> : new Date(value).toLocaleDateString("en-GB")
@@ -164,7 +166,7 @@ export default function Table() {
             filterComponent: (props) => <CustomDateEdit {...props} />,
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true
-                const time = Date.parse(JSON.parse(rowData.TNNS).ngayDuyet)
+                const time = Date.parse(JSON.parse(rowData.TNNS).Ngayupdate)
                 const beforeDate = Date.parse(term[0])
                 const afterDate = Date.parse(term[1])
                 return time >= beforeDate && time <= afterDate
@@ -227,7 +229,6 @@ export default function Table() {
             title: "Chi phí tuyển dụng", field: "CPTD",
             render: (rowData) => {
                 let flag = true;
-                let value = 0
                 if (JSON.parse(rowData['Pheduyet'])[2]) {
                     flag = false;
                 }
@@ -239,14 +240,21 @@ export default function Table() {
             customFilterAndSearch: (term, rowData) => {
                 const { Nguon, CPDK, CPTT, CPCL } = term
                 //Chi phí dự kiến
-                const priceCPDK = getPriceValue(CPDK)
+                const priceCPDK = CPDK.length !== 0 ? getPriceValue(CPDK) : []
                 //Chi phí thực tế
-                const priceCPTT = getPriceValue(CPTT)
+                const priceCPTT = CPTT.length !== 0 ? getPriceValue(CPTT) : []
                 //Chi phí còn lại
-                const priceCPCL = getPriceValue(CPCL)
+                const priceCPCL = CPCL.length !== 0 ? getPriceValue(CPCL) : []
                 const main = JSON.parse(rowData.Pheduyet)[1]
-                // const mainSource = main?.CPTD.map(item => item.Nguon)
-                console.log(main)
+                let mainSource = []
+                let mainCPDK = []
+                if (main?.CPTD) {
+                    mainSource = main.CPTD.map(item => item.Nguon)
+                    mainCPDK = main.CPTD.map(item => Number(item.Chiphi.split(",").join(''))).map(item => item >= priceCPDK.minPrice && (priceCPDK.maxPrice ? item < priceCPDK.maxPrice : true))
+                }
+                let sourceCondition = Nguon.length !== 0 ? mainSource.map(item => Nguon.includes(item)) : true
+                let CPDKCondition = priceCPDK.length !== 0 ? mainCPDK.includes(true) : true
+                return sourceCondition && CPDKCondition
             },
         },
         // {
@@ -270,7 +278,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BQL']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} />
+                        <CustomStep key={item.id} item={item} data={rowData} setDataStatus={setDataStatus} />
                     )
                 })
             },
@@ -283,7 +291,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BTD']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} />
+                        <CustomStep key={item.id} item={item} data={rowData} setDataStatus={setDataStatus} />
                     )
                 })
             },
@@ -296,7 +304,7 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BGD']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} />
+                        <CustomStep key={item.id} item={item} data={rowData} setDataStatus={setDataStatus} />
                     )
                 })
             },
@@ -309,11 +317,25 @@ export default function Table() {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BKT']
                 return arraySteps.map(item => {
                     return (
-                        <CustomStep key={item.id} item={item} data={rowData} />
+                        <CustomStep key={item.id} item={item} data={rowData} setDataStatus={setDataStatus} />
                     )
                 })
             },
             filterComponent: (rowData) => <></>
+        },
+        {
+            title: "Ngày tạo",
+            field: "Ngaytao",
+            type: "date",
+            dateSetting: { locale: "en-GB" },
+            filterComponent: (props) => <CustomDateEdit {...props} />,
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true
+                const time = Date.parse(rowData.Ngaytao)
+                const beforeDate = Date.parse(term[0])
+                const afterDate = Date.parse(term[1])
+                return time >= beforeDate && time <= afterDate
+            }
         }
     ];
     const isHiddenCols = localStorage.getItem("hidden")
@@ -365,6 +387,12 @@ export default function Table() {
         setIsCC(true)
         handleClose()
     }
+    const handleRefresh = () => {
+        dispatch(refreshTicket([]))
+        setTimeout(() => {
+            dispatch(refreshTicket([...dataTicket]))
+        }, 0)
+    }
     //FILTER RANGE NUMBER
     const salary = [
         { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
@@ -383,13 +411,16 @@ export default function Table() {
             tableRef={tableRef}
             title={<>
                 <Tooltip title="Tạo hồ sơ tuyển dụng">
-                    <IconButton
-                        onClick={() => setIsCreaterTicket(true)}
-                        variant="contained"
-                        color="secondary"
-                        size="large">
-                        <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
-                    </IconButton>
+                    <div>
+                        <IconButton
+                            onClick={() => setIsCreateTicket(true)}
+                            variant="contained"
+                            color="secondary"
+                            disabled={user.profile.PQTD != 1}
+                            size="large">
+                            <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
+                        </IconButton>
+                    </div>
                 </Tooltip>
             </>
             }
@@ -433,6 +464,12 @@ export default function Table() {
                         isFreeAction: true,
                         onClick: (event) => setIsHidden(state => !state)
                     },
+                    {
+                        icon: 'refresh',
+                        tooltip: "Đặt lại",
+                        isFreeAction: true,
+                        onClick: (event) => { handleRefresh() }
+                    }
                 ]}
             editable={{
                 isEditHidden: (rowData) => rowData,
@@ -473,7 +510,7 @@ export default function Table() {
             <ModalCreateItem
                 open={isCreateTicket}
                 data={{ users: users, position: position }}
-                handleClose={() => { setIsCreaterTicket(false) }}
+                handleClose={() => { setIsCreateTicket(false) }}
             />
         }
         {/* CREATE CANDIDATE  */}

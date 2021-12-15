@@ -5,12 +5,13 @@ const Tinymce = (props) => {
     return (
         <>
             <Editor
-                apiKey="pwt68f2spsp89axgckzudkmml6j2pp62azv5thtrpjx5gf3d"
+                apiKey="1cdi3qs7qw7nogvpu6poxqc6z7bf4a4hurwyao0kdbd741dl"
                 value={value}
                 init={{
                     placeholder: `Nhập ${label} `,
                     menubar: false,
                     branding: false,
+                    elementpath: false,
                     a11y_advanced_options: true,
                     plugins: [
                         'advlist autolink lists link image',
@@ -22,14 +23,6 @@ const Tinymce = (props) => {
                         var input = document.createElement('input');
                         input.setAttribute('type', 'file');
                         input.setAttribute('accept', 'image/*');
-
-                        /*
-                          Note: In modern browsers input[type="file"] is functional without
-                          even adding it to the DOM, but that might not be the case in some older
-                          or quirky browsers like IE, so you might want to add it to the DOM
-                          just in case, and visually hide it. And do not forget do remove it
-                          once you do not need it anymore.
-                        */
 
                         input.onchange = function () {
                             var file = this.files[0];
@@ -45,7 +38,6 @@ const Tinymce = (props) => {
                             };
                             reader.readAsDataURL(file);
                         };
-
                         input.click();
                     },
                     toolbar:

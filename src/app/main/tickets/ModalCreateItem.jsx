@@ -99,7 +99,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
         }
-        const step = { id: 0, nguoiDuyet: valueCensor.id, status: 0, ngayTao: new Date().toISOString() }
+        const step = { id: 0, Nguoiduyet: valueCensor.id, status: 0, Ngaytao: new Date().toISOString() }
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,
@@ -166,7 +166,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                         <Grid item xs={12}>
                             <AutocompleteObjField
                                 value={valueCensor}
-                                options={censor}
+                                options={censor.filter(item => item.PQTD == 3)}
                                 onChange={handleCensorChange}
                                 field="name"
                                 label="Quản lí phê duyệt"

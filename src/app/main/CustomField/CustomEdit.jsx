@@ -67,7 +67,6 @@ const CustomAutocompleteEdit = (props) => {
         }
     }, [])
     const { field } = props
-    const value = props.columnDef.tableData.filterValue || []
     return (
         <>
             <Autocomplete
@@ -82,7 +81,7 @@ const CustomAutocompleteEdit = (props) => {
                 getOptionLabel={(option) => option[`${field}`]}
                 renderOption={(props, option, { selected }) => {
                     return (
-                        <li {...props}>
+                        <li key={option.id} {...props}>
                             <Checkbox
                                 icon={icon}
                                 checkedIcon={checkedIcon}

@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import LoginForm from './Form';
-
+import './index.css'
 const Root = styled('div')(({ theme }) => ({
   background: `linear-gradient(to right, ${theme.palette.primary.dark} 0%, ${darken(
     theme.palette.primary.dark,

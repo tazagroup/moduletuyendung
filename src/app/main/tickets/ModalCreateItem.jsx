@@ -67,13 +67,14 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
     const [reasons, setReasons] = useState('');
     const [otherReason, setOtherReason] = useState('');
     const [isOther, setIsOther] = useState(false)
-    const [valueCensor, setValueCensor] = useState(null)
+    const [valueCensor, setValueCensor] = useState([])
     const [description, setDescription] = useState('')
     const [require, setRequire] = useState('')
     const [censor, setCensor] = useState([...data.users])
     const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const reasonValid = isOther ? otherReason !== "" : reasons !== ""
     const isValid = form.formState.isValid && reasonValid && valueCensor !== null && valuePosition !== null && require !== "" && description !== ""
+    console.log(valueCensor)
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }
@@ -99,7 +100,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
         }
-        const step = { id: 0, Nguoiduyet: valueCensor.id, status: 0, Ngaytao: new Date().toISOString() }
+        const step = { id: 0, Nguoiduyet: valueCensor.map(item => item.id), status: 0, Ngaytao: new Date().toISOString() }
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,
@@ -166,7 +167,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                         <Grid item xs={12}>
                             <AutocompleteObjField
                                 value={valueCensor}
-                                options={censor.filter(item => item.PQTD == 3)}
+                                options={censor.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3)}
                                 onChange={handleCensorChange}
                                 field="name"
                                 label="Quản lí phê duyệt"

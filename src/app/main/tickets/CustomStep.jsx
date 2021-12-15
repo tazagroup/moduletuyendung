@@ -12,11 +12,13 @@ import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import ErrorIcon from '@mui/icons-material/Error';
 import { TextField } from '@material-ui/core';
 //COMPONENT
 import ModalUpdateItem from './ModalUpdateItem'
 import ModalApproveCurrency from './ModalApproveCurrency'
+import { CustomTooltip } from "./TicketStatus"
 //API
 import ticketsAPI from "api/ticketsAPI"
 const CustomStep = ({ item, data, setDataStatus }) => {
@@ -52,7 +54,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     };
     const handleOpen = (e) => {
         const currentPos = item.id + 1
-        console.log(currentPos)
         const stepBTD = [1, 3, 6]
         const stepBGD = [2, 4]
         /*
@@ -61,10 +62,10 @@ const CustomStep = ({ item, data, setDataStatus }) => {
          - Ticket's step equal array steps
          - If the current step is in mode edit, only previous step can change mode
         */
-        const bqlCondition = user.profile.PQTD == 5 && currentPos == 1
-        const btdCondition = user.profile.PQTD == 2 && stepBTD.includes(currentPos - 1)
-        const bgdCondition = user.profile.PQTD == 3 && stepBGD.includes(currentPos - 1)
-        const bktCondition = user.profile.PQTD == 4 && currentPos == 6
+        const bqlCondition = user.profile.PQTD.includes("5") && currentPos == 1 && item?.Nguoiduyet.includes(user.profile.id)
+        const btdCondition = user.profile.PQTD.includes("2") && stepBTD.includes(currentPos - 1)
+        const bgdCondition = user.profile.PQTD.includes("3") && stepBGD.includes(currentPos - 1)
+        const bktCondition = user.profile.PQTD.includes("4") && currentPos == 6
         if (bqlCondition || btdCondition || bgdCondition || bktCondition) {
             if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
                 setAnchorEl(e.currentTarget)
@@ -174,10 +175,18 @@ const CustomStep = ({ item, data, setDataStatus }) => {
             </Fragment>
         )
     }
+    const findNameById = (id) => {
+        return users.find(item => item.id == id).name
+    }
     const stepSuccessName = item.id !== 6 ? (item.id === 5 ? "Đã thanh toán" : "Phê duyệt") : "Triển khai tuyển dụng"
     return (
         <div style={{ alignItems: "center", marginLeft: "12px" }}>
             Bước {item.id + 1}-{checkStatus(item.status)}
+            {item.id == 0 &&
+                <CustomTooltip title={item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
+                    <AccountCircleIcon />
+                </CustomTooltip>
+            }
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -191,7 +200,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                         parentMenuOpen={open}
                     >
                         {/* Người duyệt  */}
-                        {users.filter(item => item.PQTD == 3).map(item => (
+                        {users.filter(item => item.PQTD.includes("3")).map(item => (
                             <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
                         ))}
                     </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>

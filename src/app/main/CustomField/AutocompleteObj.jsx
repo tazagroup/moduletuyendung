@@ -9,6 +9,7 @@ const AutocompleteObjField = (props) => {
         <Autocomplete
             {...props}
             disablePortal
+            multiple={Array.isArray(value)}
             id="combo-box-demo"
             value={value}
             onChange={onChange}

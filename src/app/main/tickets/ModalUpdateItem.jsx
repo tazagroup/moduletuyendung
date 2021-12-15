@@ -77,7 +77,6 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const user = JSON.parse(localStorage.getItem("profile"))
-    console.log(user)
     const [value, setValue] = useState('')
     const sourceArray = ["Facebook", "TopCV", "ITViec"]
     const [sourceList, setSourceList] = useState([{ Nguon: "", Chiphi: "", TGMua: new Date(), Hinhthuc: '' }]);

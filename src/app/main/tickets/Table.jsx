@@ -251,10 +251,14 @@ export default function Table() {
                 if (main?.CPTD) {
                     mainSource = main.CPTD.map(item => item.Nguon)
                     mainCPDK = main.CPTD.map(item => Number(item.Chiphi.split(",").join(''))).map(item => item >= priceCPDK.minPrice && (priceCPDK.maxPrice ? item < priceCPDK.maxPrice : true))
+                    mainCPTT = main.CPTD.map(item => Number(item.Chiphi.split(",").join(''))).map(item => item >= priceCPTT.minPrice && (priceCPTT.maxPrice ? item < priceCPTT.maxPrice : true))
+                    mainCPCL = main.CPTD.map(item => Number(item.Chiphi.split(",").join(''))).map(item => item >= priceCPCL.minPrice && (priceCPCL.maxPrice ? item < priceCPCL.maxPrice : true))
                 }
-                let sourceCondition = Nguon.length !== 0 ? mainSource.map(item => Nguon.includes(item)) : true
+                let sourceCondition = Nguon.length !== 0 ? mainSource.map(item => Nguon.includes(item)).includes(true) : true
                 let CPDKCondition = priceCPDK.length !== 0 ? mainCPDK.includes(true) : true
-                return sourceCondition && CPDKCondition
+                let CPTTCondition = priceCPTT.length !== 0 ? mainCPTT.includes(true) : true
+                let CPCLCondition = priceCPCL.length !== 0 ? mainCPCL.includes(true) : true
+                return sourceCondition && CPDKCondition && CPTTCondition && CPCLCondition
             },
         },
         // {
@@ -388,6 +392,7 @@ export default function Table() {
         handleClose()
     }
     const handleRefresh = () => {
+        setIsFiltering(false)
         dispatch(refreshTicket([]))
         setTimeout(() => {
             dispatch(refreshTicket([...dataTicket]))
@@ -416,7 +421,7 @@ export default function Table() {
                             onClick={() => setIsCreateTicket(true)}
                             variant="contained"
                             color="secondary"
-                            disabled={user.profile.PQTD != 1}
+                            disabled={!user.profile.PQTD.includes("5")}
                             size="large">
                             <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                         </IconButton>

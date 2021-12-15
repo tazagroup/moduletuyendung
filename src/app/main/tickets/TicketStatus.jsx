@@ -26,10 +26,7 @@ const useStyles = makeStyles({
 
 const CustomTitle = ({ item }) => {
     const users = useSelector(state => state.fuse.tickets.users)
-    console.log(users)
-    console.log(item)
     const name = users.find(flag => flag.id == item.Nguoiduyet)?.name
-    console.log(name)
     const createdAt = new Date(`${item.Ngaytao}`).toLocaleDateString("en-GB")
     const updatedAt = new Date(`${item.Ngayupdate}`).toLocaleDateString("en-GB")
     const status = item.status !== 0 ? (item.status === 1 ? "Đã duyệt" : "Từ chối") : "Chờ duyệt"
@@ -44,7 +41,7 @@ const CustomTitle = ({ item }) => {
     )
 }
 
-const CustomTooltip = styled(({ className, ...props }) => (
+export const CustomTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {

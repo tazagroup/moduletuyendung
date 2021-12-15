@@ -45,7 +45,8 @@ function LoginForm(props) {
     async function onSubmit(e) {
         const response = await axios.post(`https://tazagroup.vn/index.php?option=com_users&task=user.loginAjax&username=${e.username}&password=${e.password}&format=json`)
         //7 days
-        let profile = response.data.User
+        const profile = response.data.User
+        const decentralization = JSON.parse(profile.Profile).PQTD
         if (response.data.loggedIn == 0) {
             Swal.fire({
                 icon: 'error',
@@ -53,7 +54,7 @@ function LoginForm(props) {
                 text: 'Tài khoản hoặc mật khẩu không đúng !',
             })
         }
-        else if (JSON.parse(profile.Profile).PQTD == 0) {
+        else if (!decentralization.map(item => item >= 1).includes(true) || decentralization == undefined) {
             Swal.fire({
                 icon: 'error',
                 title: 'Đăng nhập thất bại',

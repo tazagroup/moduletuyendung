@@ -9,6 +9,7 @@ const Tinymce = (props) => {
                 value={value}
                 init={{
                     placeholder: `Nhập ${label} `,
+                    height: "480",
                     menubar: false,
                     branding: false,
                     elementpath: false,

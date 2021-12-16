@@ -112,7 +112,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
             flagArray.push(newStep)
         }
         const bodyData = {
-            Trangthai: item === 5 ? 1 : item.Trangthai,
+            Trangthai: item.id === 6 ? 2 : 1,
             Pheduyet: JSON.stringify([...flagArray]),
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
@@ -132,7 +132,8 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const newValue = { ...item, status: 2, Lydo: reason, Daduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
         flagArray[`${newValue.id}`] = { ...newValue }
         const bodyData = {
-            Pheduyet: JSON.stringify([...flagArray])
+            Pheduyet: JSON.stringify([...flagArray]),
+            Trangthai: 3,
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
         const rowData = {
@@ -157,7 +158,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         }
         flagArray.splice(newValue.id, 1)
         const bodyData = {
-            Trangthai: item === 5 ? 0 : item.Trangthai,
+            Trangthai: 1,
             Pheduyet: JSON.stringify([...flagArray])
         }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)

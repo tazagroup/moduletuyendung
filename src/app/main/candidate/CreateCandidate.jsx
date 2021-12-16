@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from 'react'
+//REDUX
+import { useDispatch, useSelector } from "react-redux"
+import { showMessage } from "app/store/fuse/messageSlice"
+//MUI
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
     Button, Grid, InputLabel, MenuItem, FormControl, Box,
     Typography, Select
 } from '@mui/material';
-import { useDispatch, useSelector } from "react-redux"
-import { showMessage } from "app/store/fuse/messageSlice"
 import { TextField, makeStyles } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
+//COMPONENTS
 import InputField from "../CustomField/InputField"
-import AutocompleteObjField from "../CustomField/Autocomplete"
 import DateField from "../CustomField/DateField"
 import NumberFormat from 'react-number-format';
-import Tooltip from '@mui/material/Tooltip';
+import AutocompleteField from './../CustomField/Autocomplete'
+// API
 import { storage } from "../../services/firebaseService/fireBase"
-import axios from "axios"
+import candidatesAPI from 'api/candidatesAPI';
 const schema = yup.object().shape({
     Hoten: yup.string().required("Vui lòng nhập tên ứng viên"),
     Email: yup.string().email("Vui lòng nhập đúng định dạng email").required("Vui lòng nhập email"),
@@ -44,20 +47,24 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const dispatch = useDispatch()
     const classes = useStyles()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const position = useSelector(state => state.fuse.tickets.position)
     const [ticket, setTicket] = useState(item)
     const [tickets, setTickets] = useState([])
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [fileName, setFileName] = useState("")
     const [isFileEmpty, setIsFileEmpty] = useState(false)
+    const [source, setSource] = useState(null)
+    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[1].CPTD.map(item => item.Nguon) : []
     useEffect(async () => {
         //GET THE CURRENT TICKETS
-        const tickets = dataTicket.filter(item => item.Tinhtrang === "Đã thanh toán")
+        const tickets = dataTicket.filter(item => item.Trangthai == 2)
         setTickets(tickets)
     }, [])
+    const getPositionById = (id) => {
+        return position.find(item => item.id == id)?.Thuoctinh
+    }
     const form = useForm({
         defaultValues: {
-            Vitri: ticket.Vitri || "",
-            Nguon: ticket.Nguon || "",
             Hoten: "",
             Email: "",
             SDT: "",
@@ -65,35 +72,25 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
-    const isValid = form.formState.isValid && fileName !== ""
+    const isValid = form.formState.isValid && fileName !== "" && source != null
     const handleCreateCandidate = async (e) => {
-        const bodyData = {
-            ...e,
-            idTicket: ticket.key,
+        const profile = {
+            Hoten: e.Hoten,
+            Email: e.Email,
+            Phone: e.SDT,
             CV: fileName,
-            DuyetCV: 0,
-            MoiPV: null,
-            NgayUT: selectedDate.toISOString(),
-            NgayTao: new Date().toISOString()
+            Nguon: source,
+            NgayUT: new Date(selectedDate).toISOString(),
         }
-        if (fileName === "") { setIsFileEmpty(true) }
-        else {
-            const response = await axios.post(`https://6195d82474c1bd00176c6ede.mockapi.io/Candidate`, bodyData)
-            if (response.data) {
-                dispatch(showMessage({
-                    message: 'Tạo hồ sơ thành công',
-                    autoHideDuration: 2000,
-                    anchorOrigin: {
-                        vertical: 'top',
-                        horizontal: 'center'
-                    },
-                    variant: 'success'
-                }))
-                handleClose()
-            }
+        const bodyData = {
+            idTicket: ticket.key,
+            Profile: JSON.stringify(profile),
+            LichPV: null,
+            Ngaytao: new Date().toISOString()
         }
-
-
+        console.log(bodyData)
+        const response = await candidatesAPI.postCandidate(bodyData)
+        console.log(response)
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]
@@ -107,7 +104,6 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                 })
             })
     }
-
     return (
         <Dialog
             open={open}
@@ -128,38 +124,26 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                     className={classes.select}
                                     value={ticket}
                                     renderValue={value => {
-                                        return (value && Object.keys(value).length !== 0) ? <div>Phiếu {value.key} - {value.Vitri}</div> : <></>
+                                        return (value && Object.keys(value).length !== 0) ? <div>{getPositionById(value.Vitri)}</div> : <></>
                                     }}
                                     onChange={(e) => setTicket(e.target.value)}
                                 >
-                                    {tickets.map(item => (
-                                        <MenuItem key={item.key} value={item} className="menu__item">Phiếu {item.key} - {item.Vitri}</MenuItem>
+                                    {tickets && tickets.map(item => (
+                                        <MenuItem key={item.key} value={item} className="menu__item">{getPositionById(item.Vitri)}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <Controller
-                                name="Vitri"
-                                control={form.control}
-                                render={(props) => {
-                                    const { invalid, error } = props.fieldState;
-                                    return (
-                                        <TextField
-                                            {...props.field}
-                                            error={invalid}
-                                            helperText={error?.message}
-                                            label={"Vị trí tuyển dụng"}
-                                            fullWidth
-                                            InputLabelProps={{
-                                                shrink: true
-                                            }}
-                                            value={ticket.Vitri || ''}
-                                            variant="standard"
-                                            disabled={true}
-                                        />
-                                    );
+                            <TextField
+                                label={"Vị trí tuyển dụng"}
+                                fullWidth
+                                InputLabelProps={{
+                                    shrink: item == ""
                                 }}
+                                value={getPositionById(ticket.Vitri) || ''}
+                                variant="standard"
+                                disabled={true}
                             />
                         </Grid>
                         <Grid item xs={12} md={4}>
@@ -174,27 +158,12 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                             />
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <Controller
-                                name="Nguon"
-                                control={form.control}
-                                render={(props) => {
-                                    const { invalid, error } = props.fieldState;
-                                    return (
-                                        <TextField
-                                            {...props.field}
-                                            error={invalid}
-                                            helperText={error?.message}
-                                            label={"Nguồn ứng tuyển"}
-                                            fullWidth
-                                            InputLabelProps={{
-                                                shrink: true
-                                            }}
-                                            value={ticket.Nguon || ''}
-                                            variant="standard"
-                                            disabled={true}
-                                        />
-                                    );
-                                }}
+                            <AutocompleteField
+                                value={source}
+                                label="Nguồn"
+                                handleChange={(e, newValue) => { setSource(newValue) }}
+                                arrayItem={arraySource}
+                                disabled={ticket == ""}
                             />
                         </Grid>
                         <Grid item xs={12} md={4}>

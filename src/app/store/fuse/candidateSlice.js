@@ -1,44 +1,44 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios'
-export const fetchCandidates = createAsyncThunk(
-    'candidates/fetchCandidates',
-    async (data, thunkAPI) => {
-        const response = await axios.get("https://6195d82474c1bd00176c6ede.mockapi.io/Candidate")
-        return response.data
-    }
-)
+import { createSlice } from '@reduxjs/toolkit';
+
 
 const candidatesSlice = createSlice({
     name: 'candidates',
     initialState: {
-        loading: false,
         dataCandidate: []
     },
     reducers: {
         setDataCandidate: (state, action) => {
-            state.dataCandidate = action.payload
-        },
-        updateCandidate: (state, action) => {
-            const { key: id } = action.payload
-            const index = state.dataCandidate.findIndex(item => item.key === id)
-            state.dataCandidate[index] = action.payload
-        }
-    },
-    extraReducers: {
-        [fetchCandidates.pending]: (state) => {
-            state.loading = true;
-        },
-        [fetchCandidates.fulfilled]: (state, action) => {
-            state.loading = false;
-            state.dataCandidate = action.payload.map(({ id: key, ...item }, index) => ({
+            const { data } = action.payload
+            const flagArray = data.map(item => item.attributes)
+            state.dataCandidate = flagArray.map(({ id: key, ...item }, index) => ({
                 id: index,
                 key,
                 ...item,
             }))
         },
-    }
+        addCandidate: (state, action) => {
+            const { attributes } = action.payload
+            attributes['key'] = attributes.id
+            attributes['id'] = state.dataTicket.length + 1
+            state.dataCandidate.push(attributes)
+        },
+        updateCandidate: (state, action) => {
+            const { attributes } = action.payload
+            const index = state.dataCandidate.findIndex(item => item.key === attributes.id)
+            const flag = {
+                ...state.dataCandidate[`${index}`],
+                ...attributes
+            }
+            delete flag.id
+            flag.id = state.dataCandidate[`${index}`].id
+            state.dataCandidate[`${index}`] = {
+                ...flag,
+                Profile: attributes['Profile']
+            }
+        }
+    },
 });
 
-export const { setDataCandidate, updateCandidate } = candidatesSlice.actions;
+export const { setDataCandidate, updateCandidate, addCandidate } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

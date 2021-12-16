@@ -37,13 +37,13 @@ const countNumber = (array, field, value) => {
     return value !== "Chưa duyệt" ? (value === "Đã duyệt" ? fulfiledVariable : rejectedVariable) : pendingVariable
 }
 const countFile = (array, field, value) => {
-    const fileArray = array.map(item => item[`${field}`].split('%2F')[1].split('?alt')[0].split('.')[1])
+    const fileArray = array.map(item => JSON.parse(item.Profile).CV.split('%2F')[1].split('?alt')[0].split('.')[1])
     const pdfFile = fileArray.filter(item => item === "pdf").length
     const docxFile = fileArray.filter(item => item === "docx").length
     const xlsxFile = fileArray.filter(item => item === "xlsx").length
     return value !== "xlsx" ? (value === "pdf" ? pdfFile : docxFile) : xlsxFile
 }
-const countObjectProperty = (array, field, value) => {
+const countPriceProperty = (array, field, value) => {
     const { minPrice, maxPrice } = value
     if (field === "Chiphi") {
         return array.filter(item => {
@@ -56,30 +56,53 @@ const countObjectProperty = (array, field, value) => {
     }
     return array.filter(item => item[`${field}`] >= minPrice && (maxPrice ? item[`${field}`] <= maxPrice : true)).length
 }
+
+const sortCount = (array = []) => {
+    var map = array.reduce(function (p, c) {
+        p[c] = (p[c] || 0) + 1;
+        return p;
+    }, {});
+    return Object.keys(map).sort(function (a, b) {
+        return map[b] - map[a];
+    });
+}
 const CustomAutocompleteEdit = (props) => {
-    const [arrayData, setArrayData] = useState(props.data ? props.data : [])
-    useEffect(async () => {
-        const { columnDef: { field } } = props
-        if (field === "Vitri") {
-            const response = await ticketsAPI.getPosition();
-            const { data: { attributes: { Dulieu } } } = response
-            setArrayData(JSON.parse(Dulieu))
+    const { field, main } = props
+    const position = useSelector(state => state.fuse.tickets.position)
+    const positionId = position.map(item => Number(item.id))
+    const arrayTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
+    //Tickets
+    const positionTicket = arrayTicket.map(item => item.Vitri)
+    //Candidates
+    const flagCandidate = arrayCandidate.map(item => item.idTicket)
+    const positionCandidate = arrayTicket.filter(item => flagCandidate.includes(item.key)).map(item => item.Vitri)
+    //RENDER DROPDOWN
+    const compareArray = main == "candidate" ? positionCandidate : positionTicket
+    const result = sortCount(compareArray)
+    const options = result.map(item => {
+        if (Number(item) in positionId) {
+            return position.find(item2 => Number(item2.id) == Number(item))
         }
-    }, [])
-    const { field } = props
+    })
+    //Functions
+    const countElement = (array, field, value) => {
+        const index = position.find(item => item[`${field}`] == value).id
+        return array.filter(item => item == index).length
+    }
     return (
         <>
             <Autocomplete
                 multiple
                 id="checkboxes-tags-demo"
-                options={arrayData}
-                // value={value}
+                options={options}
                 onChange={(event, newValue) => {
                     props.onFilterChanged(props.columnDef.tableData.id, newValue);
                 }}
                 style={{ width: props.width }}
                 getOptionLabel={(option) => option[`${field}`]}
                 renderOption={(props, option, { selected }) => {
+                    const value = option[`${field}`]
                     return (
                         <li key={option.id} {...props}>
                             <Checkbox
@@ -88,7 +111,7 @@ const CustomAutocompleteEdit = (props) => {
                                 style={{ marginRight: 8 }}
                                 checked={selected}
                             />
-                            {option[`${field}`]}
+                            {`${value} (${countElement(compareArray, field, value)})`}
                         </li>
                     )
                 }}
@@ -176,7 +199,7 @@ const CustomSelectPriceEdit = (props) => {
                             <Checkbox
                                 checked={value.find((option) => option.id === item.id) ? true : false}
                             />
-                            <ListItemText primary={`${item.name} (${countObjectProperty(arrayTicket, props.field, item)})`} />
+                            <ListItemText primary={`${item.name} (${countPriceProperty(arrayTicket, props.field, item)})`} />
                         </MenuItem>
                     ))}
                 </Select>
@@ -241,7 +264,6 @@ const CustomSelectNumber = (props) => {
         </>
     )
 }
-
 //NAME - TYPE - FILE
 const convertFileName = (value) => {
     const arrayObj = [
@@ -253,7 +275,6 @@ const convertFileName = (value) => {
 }
 const CustomFileEdit = (props) => {
     const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
-
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
     const MenuProps = {

@@ -59,7 +59,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
     const [position, setPosition] = useState([...data.position])
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [censor, setCensor] = useState([...data.users])
-    const [valueCensor, setValueCensor] = useState(null)
+    const [valueCensor, setValueCensor] = useState([])
     const [description, setDescription] = useState('')
     const [require, setRequire] = useState('')
     const form = useForm({
@@ -72,7 +72,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
         resolver: yupResolver(schema),
     });
     const reasonValid = otherReason ? otherReason !== "" : reason !== ""
-    const isValid = form.formState.isValid && reasonValid && valueCensor !== null && valuePosition !== null && require !== "" && description !== ""
+    const isValid = form.formState.isValid && reasonValid && valueCensor.length !== 0 && valuePosition !== null && require !== "" && description !== ""
     const handleEditTicket = async (e) => {
         const flag = {
             Vitri: valuePosition['id'],
@@ -86,7 +86,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
         }
-        const step = { id: 0, Nguoiduyet: valueCensor.id, status: 0, Ngaytao: new Date().toISOString() }
+        const step = { id: 0, Nguoiduyet: valueCensor.map(item => item.id), status: 0, Ngaytao: new Date().toISOString() }
         flag.Pheduyet.push(step)
         const bodyData = {
             ...flag,
@@ -155,16 +155,16 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
                                 <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
                             </Grid>
                             {/* Mô tả / yêu cầu tuyển dụng  */}
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={6}>
                                 <Tinymce value={require} onChange={(e) => { setRequire(e) }} label={"yêu cầu tuyển dụng"} />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={6}>
                                 <Tinymce value={description} onChange={(e) => { setDescription(e) }} label={"mô tả tuyển dụng"} />
                             </Grid>
                             <Grid item xs={12}>
                                 <AutocompleteObjField
                                     value={valueCensor}
-                                    options={censor}
+                                    options={censor.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3)}
                                     onChange={handleCensorChange}
                                     field="name"
                                     label="Quản lí phê duyệt"

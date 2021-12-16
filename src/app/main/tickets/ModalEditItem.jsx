@@ -196,10 +196,10 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                 <DateField label="Thời gian thử việc" value={selectedDate} handleChange={(e) => { setSelectedDate(e) }} />
                             </Grid>
                             {/* Mô tả tuyển dụng  */}
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={6}>
                                 <Tinymce value={description} onChange={(e) => { setDescription(e) }} label={"mô tả tuyển dụng"} />
                             </Grid>
-                            <Grid item xs={12}>
+                            <Grid item xs={12} md={6}>
                                 <Tinymce value={require} onChange={(e) => { setRequire(e) }} label={"yêu cầu tuyển dụng"} />
                             </Grid>
                             {valueCPTD && valueCPTD.map((item, index) => (

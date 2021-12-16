@@ -33,7 +33,7 @@ function UserMenu(props) {
             {user?.profile.Hoten}
           </Typography>
           <Typography className="text-11 font-medium capitalize" color="textSecondary">
-            Guest
+            Nhân viên
           </Typography>
         </div>
         <Avatar className="md:mx-4">{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>

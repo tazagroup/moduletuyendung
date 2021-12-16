@@ -108,7 +108,7 @@ export default function Table() {
             title: "Vị trí tuyển dụng", field: "Vitri",
             render: rowData => (<CustomPosition data={rowData} />),
             filterComponent: props => {
-                return <CustomAutocompleteEdit {...props} width={175} field="Thuoctinh" />
+                return <CustomAutocompleteEdit {...props} width={175} field="Thuoctinh" main="ticket" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
@@ -354,9 +354,11 @@ export default function Table() {
     const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
     useEffect(async () => {
         if (dataTicket.length === 0) {
-            const responseData = await ticketsAPI.getTicket();
-            const responsePosition = await ticketsAPI.getPosition();
-            const responseUser = await ticketsAPI.getUser();
+            const [responseData, responsePosition, responseUser] = await Promise.all([
+                ticketsAPI.getTicket(),
+                ticketsAPI.getPosition(),
+                ticketsAPI.getUser()
+            ])
             const { data: { attributes: { Dulieu } } } = responsePosition
             const { data } = responseUser
             const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
@@ -373,9 +375,7 @@ export default function Table() {
     const handleClick = (event, row) => {
         setRowData(row);
         setAnchorEl(event.currentTarget);
-        if (row.Trangthai !== 1) {
-            setIsBlock(true)
-        }
+        setIsBlock(row.Trangthai != 2 ? true : false)
     };
     const handleClose = () => {
         setAnchorEl(null);
@@ -406,153 +406,159 @@ export default function Table() {
         { id: 2, name: "7 triệu - 15 triệu", minPrice: 7000000, maxPrice: 15000000 },
         { id: 3, name: "Trên 15 triệu", minPrice: 15000000 }
     ]
-    return isLoading ? <FuseLoading /> : <Fragment>
-        {dataStatus
-            ?
-            <TicketStatus item={dataStatus} isHidden={!isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
-            :
-            null
-        }
-        <MaterialTable
-            data={dataTicket}
-            tableRef={tableRef}
-            title={<>
-                <Tooltip title="Tạo hồ sơ tuyển dụng">
-                    <div>
-                        <IconButton
-                            onClick={() => setIsCreateTicket(true)}
-                            variant="contained"
-                            color="secondary"
-                            disabled={!user.profile.PQTD.includes("5")}
-                            size="large">
-                            <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
-                        </IconButton>
-                    </div>
-                </Tooltip>
-            </>
+    return isLoading ? <FuseLoading /> :
+        <Fragment>
+            {dataStatus
+                ?
+                <TicketStatus item={dataStatus} isHidden={!isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
+                :
+                null
             }
-            initialFormData={initialData}
-            options={{
-                showDetailPanelIcon: false,
-                columnsButton: true,
-                search: false,
-                paging: true,
-                filtering: isFiltering,
-                toolbarButtonAlignment: "left",
-                rowStyle: rowData => {
-                    let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
-                    return {
-                        backgroundColor: selected ? "#3b5998" : "#FFF",
-                        color: selected ? "#fff" : "#000",
-                    };
-                },
+            <MaterialTable
+                data={dataTicket}
+                tableRef={tableRef}
+                title={<>
+                    <Tooltip title="Tạo hồ sơ tuyển dụng">
+                        <div>
+                            <IconButton
+                                onClick={() => setIsCreateTicket(true)}
+                                variant="contained"
+                                color="secondary"
+                                disabled={!user.profile.PQTD.includes("5")}
+                                size="large">
+                                <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
+                            </IconButton>
+                        </div>
+                    </Tooltip>
+                </>
+                }
+                initialFormData={initialData}
+                options={{
+                    showDetailPanelIcon: false,
+                    columnsButton: true,
+                    search: false,
+                    paging: true,
+                    filtering: isFiltering,
+                    toolbarButtonAlignment: "left",
+                    rowStyle: rowData => {
+                        let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
+                        return {
+                            backgroundColor: selected ? "#3b5998" : "#FFF",
+                            color: selected ? "#fff" : "#000",
+                        };
+                    },
 
-            }}
-            components={{
-                Action: props => {
-                    if (props.action.tooltip === "Add") {
-                        return <div></div>
-                    }
-                    return <MTableAction {...props} />
-                },
-            }}
-            columns={columns}
-            actions={
-                [
-                    {
-                        icon: 'search',
-                        tooltip: 'Lọc',
-                        isFreeAction: true,
-                        onClick: (event) => setIsFiltering(state => !state)
+                }}
+                components={{
+                    Action: props => {
+                        if (props.action.tooltip === "Add") {
+                            return <div></div>
+                        }
+                        return <MTableAction {...props} />
                     },
-                    {
-                        icon: !isHidden ? 'visibility_off' : 'visibility',
-                        tooltip: 'Trạng thái',
-                        isFreeAction: true,
-                        onClick: (event) => setIsHidden(state => !state)
-                    },
-                    {
-                        icon: 'refresh',
-                        tooltip: "Đặt lại",
-                        isFreeAction: true,
-                        onClick: (event) => { handleRefresh() }
+                }}
+                columns={columns}
+                actions={
+                    [
+                        {
+                            icon: 'search',
+                            tooltip: 'Lọc',
+                            isFreeAction: true,
+                            onClick: (event) => setIsFiltering(state => !state)
+                        },
+                        {
+                            icon: !isHidden ? 'visibility_off' : 'visibility',
+                            tooltip: 'Trạng thái',
+                            isFreeAction: true,
+                            onClick: (event) => setIsHidden(state => !state)
+                        },
+                        {
+                            icon: 'refresh',
+                            tooltip: "Đặt lại",
+                            isFreeAction: true,
+                            onClick: (event) => { handleRefresh() }
+                        }
+                    ]}
+                editable={{
+                    isEditHidden: (rowData) => rowData,
+                }}
+                localization={{
+                    toolbar: { showColumnsTitle: "Hiển thị cột", addRemoveColumns: "" },
+                    header: { actions: "" },
+                    body: { emptyDataSourceMessage: "Không có dữ liệu hiển thị..." },
+                    pagination: {
+                        nextTooltip: "Trang kế tiếp", firstTooltip: "Trang đầu",
+                        previousTooltip: "Trang trước", lastTooltip: "Trang cuối",
+                        labelRowsSelect: "phiếu"
                     }
-                ]}
-            editable={{
-                isEditHidden: (rowData) => rowData,
-            }}
-            localization={{
-                toolbar: { showColumnsTitle: "Hiển thị cột", addRemoveColumns: "" },
-                header: { actions: "" },
-                body: { emptyDataSourceMessage: "Không có dữ liệu hiển thị..." }
-            }}
-            icons={{ ViewColumn: ViewColumnIcon, }}
-            onRowClick={(event, rowData) => { setDataStatus(rowData) }}
-            onChangeColumnHidden={(r) => {
-                const index = hiddenColumns.findIndex(item => item === r.field)
-                if (index !== -1) {
-                    const flag = hiddenColumns.filter(item => item !== r.field)
-                    setHiddenColumns([...flag])
-                }
-                else {
-                    setHiddenColumns(prev => [...prev, r.field])
-                }
-            }}
-        />
-        < Menu
-            id="basic-menu"
-            anchorEl={anchorEl}
-            open={open}
-            onClose={handleClose}
-            MenuListProps={{
-                'aria-labelledby': 'basic-button',
-            }}
-        >
-            <MenuItem style={MenuButton} onClick={handleEdit}>Chỉnh sửa</MenuItem>
-            <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
-            <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
-        </Menu >
-        {/* CREATE TICKET  */}
-        {isCreateTicket &&
-            <ModalCreateItem
-                open={isCreateTicket}
-                data={{ users: users, position: position }}
-                handleClose={() => { setIsCreateTicket(false) }}
+                }}
+                icons={{ ViewColumn: ViewColumnIcon, }}
+                onRowClick={(event, rowData) => { setDataStatus(rowData) }}
+                onChangeColumnHidden={(r) => {
+                    const index = hiddenColumns.findIndex(item => item === r.field)
+                    if (index !== -1) {
+                        const flag = hiddenColumns.filter(item => item !== r.field)
+                        setHiddenColumns([...flag])
+                    }
+                    else {
+                        setHiddenColumns(prev => [...prev, r.field])
+                    }
+                }}
             />
-        }
-        {/* CREATE CANDIDATE  */}
-        {isCC &&
-            <CreateCandidate
-                open={isCC}
-                item={rowData}
-                handleClose={() => { setIsCC(false) }}
-            />}
-        {/* EDIT TICKET  */}
-        {
-            isEditTicket &&
-            <ModalEditItem
-                open={isEditTicket}
-                item={rowData}
-                handleClose={() => { setIsEditTicket(false) }}
-            />
-        }
-        {/* COPY TICKET  */}
-        {
-            isCopyTicket &&
-            <ModalCopyItem
-                open={isCopyTicket}
-                data={{ users: users, position: position }}
-                item={rowData}
-                handleClose={() => { setIsCopyTicket(false) }}
-            />
-        }
-        {/* DETAIL DECRIPTIONS / REQUIREMENTS  */}
-        {Object.keys(customNotice).length !== 0 &&
-            <CustomNotice
-                item={customNotice}
-                handleClose={() => { setCustomNotice({}) }}
-            />}
-    </Fragment >
+            < Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleClose}
+                MenuListProps={{
+                    'aria-labelledby': 'basic-button',
+                }}
+            >
+                <MenuItem style={MenuButton} onClick={handleEdit}>Chỉnh sửa</MenuItem>
+                <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
+                <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
+            </Menu >
+            {/* CREATE TICKET  */}
+            {isCreateTicket &&
+                <ModalCreateItem
+                    open={isCreateTicket}
+                    data={{ users: users, position: position }}
+                    handleClose={() => { setIsCreateTicket(false) }}
+                />
+            }
+            {/* CREATE CANDIDATE  */}
+            {isCC &&
+                <CreateCandidate
+                    open={isCC}
+                    item={rowData}
+                    handleClose={() => { setIsCC(false) }}
+                />}
+            {/* EDIT TICKET  */}
+            {
+                isEditTicket &&
+                <ModalEditItem
+                    open={isEditTicket}
+                    item={rowData}
+                    handleClose={() => { setIsEditTicket(false) }}
+                />
+            }
+            {/* COPY TICKET  */}
+            {
+                isCopyTicket &&
+                <ModalCopyItem
+                    open={isCopyTicket}
+                    data={{ users: users, position: position }}
+                    item={rowData}
+                    handleClose={() => { setIsCopyTicket(false) }}
+                />
+            }
+            {/* DETAIL DECRIPTIONS / REQUIREMENTS  */}
+            {Object.keys(customNotice).length !== 0 &&
+                <CustomNotice
+                    item={customNotice}
+                    handleClose={() => { setCustomNotice({}) }}
+                />}
+        </Fragment >
 }
 
 

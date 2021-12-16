@@ -16,7 +16,7 @@ const AutocompleteObjField = (props) => {
             disabled={disabled}
             style={styleSelect}
             options={options}
-            getOptionLabel={option => option[`${field}`]}
+            getOptionLabel={option => `${option[`${field}`]}`}
             renderOption={(props, option) => {
                 const pos = field == "name" && arrayPosition.find(item => item.id == option.position)?.Thuoctinh
                 return (

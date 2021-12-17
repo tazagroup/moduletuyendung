@@ -17,6 +17,7 @@ const AutocompleteObjField = (props) => {
             style={styleSelect}
             options={options}
             getOptionLabel={option => `${option[`${field}`]}`}
+            getOptionDisabled={option => Array.isArray(value) && !!value.find(item => item === option)}
             renderOption={(props, option) => {
                 const pos = field == "name" && arrayPosition.find(item => item.id == option.position)?.Thuoctinh
                 return (
@@ -26,7 +27,7 @@ const AutocompleteObjField = (props) => {
                 )
             }}
             fullWidth={true}
-            renderInput={(params) => <TextField {...params} label={label} variant="standard" />}
+            renderInput={(params) => <TextField {...params} id="Haha" InputLabelProps={{ shrink: true }} label={label} variant="standard" />}
         />
     )
 }

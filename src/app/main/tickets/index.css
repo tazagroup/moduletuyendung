@@ -130,3 +130,7 @@ li.menu__item {
 .custom__table .item__title {
     margin-bottom: 10px;
 }
+
+/* hide scrollbar  */
+.scroll__status {
+}

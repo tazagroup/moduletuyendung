@@ -1,5 +1,8 @@
-import React, { Fragment } from 'react'
+import React, { useState } from 'react'
+import { IconButton } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import ModalExpand from './ModalExpand'
 const convertCurrency = (value) => {
     return value && Number(value.split(",").join(''))
 }
@@ -7,7 +10,8 @@ const convertRenderCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)
 }
 const CustomRenderCell = ({ data }) => {
-    const step = JSON.parse(data['Pheduyet'])[1]
+    const step = JSON.parse(data['Pheduyet'])[3]
+    const [isExpand, setIsExpand] = useState(false)
     const main = step?.CPTD
     const sourceBody = main && main.map(item => item.Nguon) || []
     const expectedCurrencyBody = main && main.map(item => convertCurrency(item?.Chiphi)).reduce((a, b) => a + b, 0) || []
@@ -16,14 +20,17 @@ const CustomRenderCell = ({ data }) => {
     return (
         <>
             <div className="custom__table">
-                <div className="table__item">
+                <div className="table__item" style={{ width: "65px" }}>
                     <div className="item__title">
                         <p>Nguồn</p>
                     </div>
                     <div className="item__content">
-                        {sourceBody.map((item, index) => (
-                            <p key={index}>{item}</p>
-                        ))}
+                        {sourceBody.length >= 2 ?
+                            <IconButton onClick={() => { setIsExpand(true) }}>
+                                <MoreHorizIcon />
+                            </IconButton> : sourceBody.map((item, index) => (
+                                <p key={index}>{item}</p>
+                            ))}
                     </div>
                 </div>
                 <div className="table__item">
@@ -55,12 +62,21 @@ const CustomRenderCell = ({ data }) => {
                         <p>Hình thức</p>
                     </div>
                     <div className="item__content">
-                        {typeBody.map((item, index) => (
-                            <p key={index}>{item}</p>
-                        ))}
+                        {typeBody.length >= 2 ?
+                            <IconButton onClick={() => { setIsExpand(true) }}>
+                                <MoreHorizIcon />
+                            </IconButton> : sourceBody.map((item, index) => (
+                                <p key={index}>{item}</p>
+                            ))}
                     </div>
                 </div>
             </div>
+            {isExpand &&
+                <ModalExpand
+                    open={isExpand}
+                    data={main}
+                    handleClose={() => { setIsExpand(false) }}
+                />}
         </>
     )
 }

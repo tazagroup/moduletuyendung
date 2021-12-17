@@ -13,7 +13,7 @@ const ModalApproveCurrency = (props) => {
     const { open, data, handleClose, setDataStatus } = props
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
-    const step = JSON.parse(data.Pheduyet)[1].CPTD
+    const step = JSON.parse(data.Pheduyet)[3].CPTD
     const sourceArray = step.map(item => item.Nguon)
     const expectedCurrencyArray = step.map(item => item.Chiphi)
     const [value, setValue] = useState(step)
@@ -26,7 +26,7 @@ const ModalApproveCurrency = (props) => {
         handleClose()
         const step = JSON.parse(data.Pheduyet)
         const flag = [...step]
-        flag[1].CPTD = value
+        flag[3].CPTD = value
         flag[5] = { ...flag[5], status: 1, Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
         const newStep = { id: 6, status: 0, ngayTao: new Date().toISOString() }
         flag.push(newStep)

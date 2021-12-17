@@ -15,6 +15,11 @@ const routeConfigs = [
 ];
 const user = JSON.parse(localStorage.getItem("profile"))
 const isLogin = user?.isLogin || false
+//REMOVE IF UPDATE VERSION OR UP TO DATE
+if (user && user.version != process.env.REACT_APP_VERSION) {
+  localStorage.removeItem("profile")
+  window.location.reload()
+}
 const routes = [
   // if you want to make whole app auth protected by default change defaultAuth for example:
   // ...FuseUtils.generateRoutesFromConfigs(routeConfigs, ['admin','staff','user']),

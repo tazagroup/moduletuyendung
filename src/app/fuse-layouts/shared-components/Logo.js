@@ -25,13 +25,12 @@ const useStyles = makeStyles((theme) => ({
 
 function Logo() {
   const classes = useStyles();
-
   return (
     <div className={clsx(classes.root, 'flex items-center')}>
       <a href="https://tazagroup.vn/dashboard">
         <img className="logo-icon w-64 h-64" src="assets/images/logos/fuse.svg" alt="logo" />
       </a>
-      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Phiên bản : 1.12</Typography>
+      <Typography className="text-10 leading-none mx-12 font-medium logo-text" color="inherit">Phiên bản : {process.env.REACT_APP_VERSION}</Typography>
     </div>
   );
 }

@@ -9,9 +9,7 @@ import { styled } from "@mui/material/styles"
 const TextTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
 ))(`
-      color: lightblue;
-      background-color: green;
-      font-size: 1.5em;
+      font-size: 1em;
   `);
 export const CustomStatus = ({ item, field }) => {
     const dispatch = useDispatch()
@@ -25,7 +23,6 @@ export const CustomStatus = ({ item, field }) => {
     const handleClose = (e) => {
         setAnchorEl(null)
     }
-
     //RENDER STATUS
     const checkStatus = (status) => {
         let variable;
@@ -59,11 +56,11 @@ export const CustomCV = ({ item }) => {
     const type = arrStr.split('.')[1]
     return (
         <Fragment>
-            <Tooltip title="Tải cv">
+            <TextTooltip title="Tải cv">
                 <a href={item}>
                     {type !== "docx" ? (type === "xlsx" ? <AiOutlineFileExcel className="excel__file" /> : <AiOutlineFilePdf className="ppt__file" />) : <AiOutlineFileWord className="word__file" />}
                 </a>
-            </Tooltip>
+            </TextTooltip>
         </Fragment>
     )
 }

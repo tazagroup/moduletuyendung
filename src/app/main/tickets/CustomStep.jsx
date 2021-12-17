@@ -82,11 +82,11 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const value = users.find(item => item.name == e.target.innerText)
         const flagArray = [...steps]
         let newValue = {}
-        if (item.id !== 5 && item.id !== 1) {
+        if (item.id !== 5 && item.id !== 3) {
             newValue = { ...item, status: 1, Lydo: "", Daduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
             flagArray[`${newValue.id}`] = { ...newValue }
         }
-        if (item.id === 1) {
+        if (item.id === 3) {
             dispatch(openDialog({
                 children:
                     <ModalUpdateItem
@@ -97,9 +97,10 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                     />
             }))
         }
-        else if (item.id === 3) {
+        else if (item.id === 1) {
             //Choose a censor
             const newStep = { id: item.id + 1, status: 0, Nguoiduyet: [value.id], Ngaytao: new Date().toISOString() }
+
             flagArray.push(newStep)
         }
         else if (item.id === 5) {
@@ -115,6 +116,9 @@ const CustomStep = ({ item, data, setDataStatus }) => {
             Trangthai: item.id === 6 ? 2 : 1,
             Pheduyet: JSON.stringify([...flagArray]),
         }
+        if (item.id === 1) {
+            bodyData['TNNS'] = JSON.stringify({ Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() })
+        }
         const response = await ticketsAPI.updateTicket(bodyData, data.key)
         const rowData = {
             ...data,
@@ -122,7 +126,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         }
         dispatch(updateTicket(response.data))
         setDataStatus(rowData)
-        if (item.id !== 1 && item.id !== 5) {
+        if (item.id !== 3 && item.id !== 5) {
             showNotify()
         }
     }
@@ -152,9 +156,9 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const previousStep = flagArray[`${newValue.id - 1}`]
         flagArray[`${newValue.id - 1}`] = { ...previousStep, status: 0, Ngayupdate: new Date().toISOString(), Daduyet: undefined }
         if (newValue.id - 1 == 5) {
-            const step = flagArray[1].CPTD
+            const step = flagArray[3].CPTD
             step.map(item => delete item.CPTT)
-            flagArray[1] = { ...flagArray[1], CPTD: step }
+            flagArray[3] = { ...flagArray[3], CPTD: step }
         }
         flagArray.splice(newValue.id, 1)
         const bodyData = {

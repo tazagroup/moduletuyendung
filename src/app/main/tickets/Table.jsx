@@ -229,7 +229,7 @@ export default function Table() {
             title: "Chi phí tuyển dụng", field: "CPTD",
             render: (rowData) => {
                 let flag = true;
-                if (JSON.parse(rowData['Pheduyet'])[2]) {
+                if (JSON.parse(rowData['Pheduyet'])[4]) {
                     flag = false;
                 }
                 return flag ? null : <CustomRenderCell data={rowData} />
@@ -245,7 +245,7 @@ export default function Table() {
                 const priceCPTT = CPTT.length !== 0 ? getPriceValue(CPTT) : []
                 //Chi phí còn lại
                 const priceCPCL = CPCL.length !== 0 ? getPriceValue(CPCL) : []
-                const main = JSON.parse(rowData.Pheduyet)[1]
+                const main = JSON.parse(rowData.Pheduyet)[3]
                 let mainSource = []
                 let mainCPDK = []
                 let mainCPTT = []

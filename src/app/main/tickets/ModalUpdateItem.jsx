@@ -91,17 +91,16 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
         const CPTD = sourceList.map(item => {
             return { ...item, TGMua: new Date(item.TGMua).toISOString() }
         })
-        step[1] = {
-            ...step[1],
+        step[3] = {
+            ...step[3],
             status: 1,
             Daduyet: user.profile.id,
             CPTD: CPTD,
             NTC: new Date(selectedDate2).toISOString()
         }
-        const newStep = { id: 2, status: 0, Nguoiduyet: [censor.id], Ngaytao: new Date().toISOString() }
+        const newStep = { id: 4, status: 0, Nguoiduyet: [censor.id], Ngaytao: new Date().toISOString() }
         step.push(newStep)
         const bodyData = {
-            TNNS: JSON.stringify({ Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }),
             Pheduyet: JSON.stringify([...step])
         }
         const response = await ticketsAPI.updateTicket(bodyData, item.key)

@@ -111,7 +111,6 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             maxWidth={'lg'}
         >
             <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Tạo hồ sơ ứng viên</DialogTitle>
-            <CloseIcon className={classes.icon} onClick={handleClose} />
             <form onSubmit={form.handleSubmit(handleCreateCandidate)}>
                 <DialogContent>
                     <Grid container spacing={2}>
@@ -195,7 +194,10 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button color="primary" autoFocus type="submit" disabled={!isValid} variant="contained">
+                    <Button color="error" autoFocus type="submit" variant="contained" size="large" onClick={() => { handleClose() }}>
+                        Hùy
+                    </Button>
+                    <Button color="primary" autoFocus type="submit" disabled={!isValid} variant="contained" size="large">
                         Tạo hồ sơ
                     </Button>
                 </DialogActions>

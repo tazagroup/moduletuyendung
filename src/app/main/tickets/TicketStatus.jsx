@@ -100,37 +100,41 @@ const TicketStatus = ({ item, isHidden }) => {
         )
     }
     return (<Fragment>
-        {isHidden ? null : <Box sx={{ flexGrow: 1, textAlign: "center" }}>
-            <Grid container spacing={2}>
-                <Grid item xs={6} md={3}>
-                    <h3>Ban quản lí</h3>
-                    <Timeline>
-                        <CustomTimeline item={steps[0]} title="B1:Duyệt phiếu tuyển dụng" />
-                    </Timeline>
-                </Grid>
-                <Grid item xs={6} md={3}>
-                    <h3>Ban tuyển dụng</h3>
-                    <Timeline>
-                        <CustomTimelineConnector item={steps[1]} title="B2:Tiếp nhận tuyển dụng" />
-                        <CustomTimelineConnector item={steps[3]} title="B4:Triển khai tuyển dụng" />
-                        <CustomTimeline item={steps[6]} title="B7:Thực hiện tuyển dụng" />
-                    </Timeline>
-                </Grid>
-                <Grid item xs={6} md={3}>
-                    <h3>Ban giám đốc</h3>
-                    <Timeline>
-                        <CustomTimelineConnector item={steps[2]} title="B3:Phê duyệt phiếu" />
-                        <CustomTimeline item={steps[4]} title="B5:Phê duyệt tuyển dụng" />
-                    </Timeline>
-                </Grid>
-                <Grid item xs={6} md={3}>
-                    <h3>Ban kế toán</h3>
-                    <Timeline>
-                        <CustomTimeline item={steps[5]} title="B6:Xác nhận thanh toán" />
-                    </Timeline>
-                </Grid>
-            </Grid>
-        </Box>}
+        {isHidden ? null :
+            <div className="scroll__status" style={{ width: "100%", overflow: "auto" }}>
+                <Box sx={{ flexGrow: 1, textAlign: "center", width: "1200px" }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={3}>
+                            <h3>Ban quản lí</h3>
+                            <Timeline>
+                                <CustomTimeline item={steps[0]} title="B1:Duyệt phiếu tuyển dụng" />
+                            </Timeline>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <h3>Ban tuyển dụng</h3>
+                            <Timeline>
+                                <CustomTimelineConnector item={steps[1]} title="B2:Tiếp nhận tuyển dụng" />
+                                <CustomTimelineConnector item={steps[3]} title="B4:Triển khai tuyển dụng" />
+                                <CustomTimeline item={steps[6]} title="B7:Thực hiện tuyển dụng" />
+                            </Timeline>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <h3>Ban giám đốc</h3>
+                            <Timeline>
+                                <CustomTimelineConnector item={steps[2]} title="B3:Phê duyệt phiếu" />
+                                <CustomTimeline item={steps[4]} title="B5:Phê duyệt tuyển dụng" />
+                            </Timeline>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <h3>Ban kế toán</h3>
+                            <Timeline>
+                                <CustomTimeline item={steps[5]} title="B6:Xác nhận thanh toán" />
+                            </Timeline>
+                        </Grid>
+                    </Grid>
+                </Box>
+            </div>
+        }
     </Fragment>
     )
 }

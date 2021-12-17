@@ -67,15 +67,15 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const position = useSelector(state => state.fuse.tickets.position)
     const steps = JSON.parse(item['Pheduyet'])
-    const checkStep = steps.length < 3
+    const checkStep = steps.length < 5
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
-    const [selectedDate4, setSelectedDate4] = useState(steps[1] && steps[1].NTC || "")
+    const [selectedDate4, setSelectedDate4] = useState(steps[3] && steps[3].NTC || "")
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
     const [description, setDescription] = useState(item.Mota)
     const [require, setRequire] = useState(item.Yeucau)
-    const [valueCPTD, setValueCPTD] = useState(steps[1]?.CPTD || [])
+    const [valueCPTD, setValueCPTD] = useState(steps[3]?.CPTD || [])
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,
@@ -87,12 +87,12 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     });
     const handleEditTicket = async (e) => {
         const flagPheduyet = [...JSON.parse(item['Pheduyet'])]
-        if (flagPheduyet[2]) {
+        if (flagPheduyet[4]) {
             const CPTD = valueCPTD.map(item => {
                 return { ...item, TGMua: new Date(item.TGMua).toISOString() }
             })
-            flagPheduyet[1] = {
-                ...flagPheduyet[1],
+            flagPheduyet[3] = {
+                ...flagPheduyet[3],
                 CPTD: CPTD,
                 NTC: new Date(selectedDate4).toISOString()
             }

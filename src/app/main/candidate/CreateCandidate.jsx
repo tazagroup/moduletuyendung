@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 //REDUX
 import { useDispatch, useSelector } from "react-redux"
+import { addCandidate } from 'app/store/fuse/candidateSlice';
 import { showMessage } from "app/store/fuse/messageSlice"
 //MUI
 import {
@@ -54,7 +55,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const [fileName, setFileName] = useState("")
     const [isFileEmpty, setIsFileEmpty] = useState(false)
     const [source, setSource] = useState(null)
-    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[1].CPTD.map(item => item.Nguon) : []
+    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => item.Nguon) : []
     useEffect(async () => {
         //GET THE CURRENT TICKETS
         const tickets = dataTicket.filter(item => item.Trangthai == 2)
@@ -85,12 +86,11 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         const bodyData = {
             idTicket: ticket.key,
             Profile: JSON.stringify(profile),
-            LichPV: null,
-            Ngaytao: new Date().toISOString()
+            LichPV: JSON.stringify({}),
         }
-        console.log(bodyData)
         const response = await candidatesAPI.postCandidate(bodyData)
-        console.log(response)
+        dispatch(addCandidate(response.data))
+        handleClose();
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]
@@ -138,7 +138,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                 label={"Vị trí tuyển dụng"}
                                 fullWidth
                                 InputLabelProps={{
-                                    shrink: item == ""
+                                    shrink: true
                                 }}
                                 value={getPositionById(ticket.Vitri) || ''}
                                 variant="standard"

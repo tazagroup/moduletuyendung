@@ -514,7 +514,7 @@ export default function Table() {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem style={MenuButton} onClick={handleEdit}>Chỉnh sửa</MenuItem>
+                <MenuItem style={MenuButton} onClick={handleEdit} disabled={[2, 3].includes(rowData.Trangthai)}>Chỉnh sửa</MenuItem>
                 <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
                 <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
             </Menu >

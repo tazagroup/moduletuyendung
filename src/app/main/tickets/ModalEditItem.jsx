@@ -67,7 +67,6 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const position = useSelector(state => state.fuse.tickets.position)
     const steps = JSON.parse(item['Pheduyet'])
-    const checkStep = steps.length < 5
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate4, setSelectedDate4] = useState(steps[3] && steps[3].NTC || "")
@@ -268,7 +267,10 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                             {/* Ngày cần thanh toán  */}
                             <Grid item xs={12}>
                                 <FormControl variant="standard" fullWidth>
-                                    <DateField label="Ngày cần thanh toán" value={selectedDate4} handleChange={setSelectedDate4} disabled={checkStep} />
+                                    <DateField label="Ngày cần thanh toán"
+                                        value={selectedDate4}
+                                        handleChange={setSelectedDate4}
+                                        disabled={steps.length === 7} />
                                 </FormControl>
                             </Grid>
                         </Grid>

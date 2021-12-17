@@ -1,11 +1,10 @@
+import React from 'react'
 import FuseLayout from '@fuse/core/FuseLayout';
 import FuseTheme from '@fuse/core/FuseTheme';
 import history from '@history';
-import { Router, Switch } from 'react-router-dom';
+import { BrowserRouter, Router, Switch } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
-import { Auth } from './auth';
 import withAppProviders from './withAppProviders';
-
 // import axios from 'axios';
 
 /**
@@ -16,6 +15,12 @@ import withAppProviders from './withAppProviders';
 // axios.defaults.headers.common['Content-Type'] = 'application/x-www-form-urlencoded';
 
 const App = () => {
+  React.useEffect(() => {
+    window.addEventListener('storage', () => {
+      localStorage.removeItem("profile")
+      window.location.reload();
+    })
+  }, [])
   return (
     <Router history={history}>
       <FuseTheme>

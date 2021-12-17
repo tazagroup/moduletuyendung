@@ -80,8 +80,8 @@ thead tr th {
 }
 .MuiSvgIcon-root.MuiSvgIcon-fontSizeMedium.clear__button {
     position: absolute;
-    right: 35px;
-    top: 5.5px;
+    right: 15px;
+    top: 2.5px;
     cursor: pointer;
     transition: all 0.5s;
 }

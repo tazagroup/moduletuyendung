@@ -19,7 +19,7 @@ const candidatesSlice = createSlice({
         addCandidate: (state, action) => {
             const { attributes } = action.payload
             attributes['key'] = attributes.id
-            attributes['id'] = state.dataTicket.length + 1
+            attributes['id'] = state.dataCandidate.length == 0 ? 0 : state.dataCandidate.length
             state.dataCandidate.push(attributes)
         },
         updateCandidate: (state, action) => {

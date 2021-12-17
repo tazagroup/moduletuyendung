@@ -12,8 +12,8 @@ const Main = () => {
         {
             Id: 1,
             Subject: 'Phỏng vấn vòng 1',
-            StartTime: new Date(2021, 10, 16, 6, 0),
-            EndTime: new Date(2021, 10, 16, 6, 30),
+            StartTime: new Date(2021, 12, 26, 6, 0),
+            EndTime: new Date(2021, 12, 26, 6, 30),
             Location: "Taza"
         }
     ]

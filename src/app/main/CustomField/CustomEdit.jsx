@@ -10,9 +10,10 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 import Select from "@mui/material/Select";
 import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from "@mui/material/Checkbox";
-import ticketsAPI from "api/ticketsAPI"
+import Flatpickr from "react-flatpickr";
+
 const containerStyles = {
-    width: 300,
+    width: 250,
     position: "relative"
 };
 
@@ -140,7 +141,7 @@ const CustomSelectEdit = (props) => {
     const value = props.columnDef.tableData.filterValue || []
     return (
         <>
-            <FormControl sx={{ m: 1, width: props.width, marginTop: "20.5px" }} variant="standard">
+            <FormControl sx={{ m: 1, width: props.width, marginTop: "15.5px" }} variant="standard">
                 <Select
                     labelId="demo-multiple-checkbox-label"
                     id="demo-multiple-checkbox"
@@ -181,7 +182,7 @@ const CustomSelectPriceEdit = (props) => {
     const value = props.columnDef.tableData.filterValue || []
     return (
         <>
-            <FormControl sx={{ m: 1, width: props.width, marginTop: "20.5px" }} variant="standard">
+            <FormControl sx={{ m: 1, width: props.width, marginTop: "15.5px" }} variant="standard">
                 <Select
                     labelId="demo-multiple-checkbox-label"
                     id="demo-multiple-checkbox"
@@ -213,11 +214,13 @@ const CustomDateEdit = (props) => {
         <div className="rainbow-align-content_center rainbow-m-vertical_large rainbow-p-horizontal_small rainbow-m_auto"
             style={containerStyles}
         >
-            <DatePicker
-                id="calendar-15"
-                selectionType="range"
+            <Flatpickr
                 value={value}
-                onChange={(e) => props.onFilterChanged(props.columnDef.tableData.id, e)}
+                options={{
+                    dateFormat: "d-m-Y",
+                    mode: "range"
+                }}
+                onChange={(dateSelect) => props.onFilterChanged(props.columnDef.tableData.id, dateSelect)}
             />
             <ClearIcon className='clear__button' onClick={(e) => props.onFilterChanged(props.columnDef.tableData.id, [])} />
         </div>

@@ -1,16 +1,17 @@
 import React, { useState } from 'react'
+//REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCandidate } from 'app/store/fuse/candidateSlice';
+import { updateCandidate } from 'app/store/fuse/candidateSlice'
+import { showMessage } from 'app/store/fuse/messageSlice';
+//MUI
 import { makeStyles, TextField } from '@material-ui/core';
-import { Grid, Typography } from '@mui/material';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, Autocomplete } from '@mui/material';
+import { Grid } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import DateTimePicker from '@mui/lab/DateTimePicker';
-import AdapterDateFns from '@mui/lab/AdapterDateFns';
-import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import Flatpickr from "react-flatpickr";
 import AutocompleteObjField from "../CustomField/AutocompleteObj"
-import axios from 'axios';
+//API
+import candidatesAPI from "api/candidatesAPI"
 const useStyles = makeStyles({
     title: {
         width: "100%",
@@ -28,10 +29,9 @@ const useStyles = makeStyles({
 const CreateCalendar = ({ open, handleClose, candidate }) => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.fuse.tickets.users)
-    console.log(users)
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(new Date())
-    const [censor, setCensor] = useState([])
+    const [censor, setCensor] = useState(null)
     const [note, setNote] = useState('')
     const handleChangeDate = (newValue) => {
         setSelectedDate(newValue)
@@ -43,19 +43,38 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
         const { target: { value } } = e;
         setNote(value)
     }
-    const handleCreateCalendar = (e) => {
-        const bodyData = {
-            LichPV: []
+    const handleCreateCalendar = async (e) => {
+        const main = JSON.parse(candidate.LichPV)
+        const emptyObject = Object.keys(main).length == 0
+        const flag = {
+            ThoigianPV: emptyObject ? new Date(selectedDate).toISOString() : main.ThoigianPV,
+            VongPV: emptyObject ? [] : main.VongPV
         }
         const newRound = {
-            id: 0,
+            id: emptyObject ? 0 : main.VongPV.length,
+            Nguoiduyet: censor,
             ThoigianPV: selectedDate.toISOString(),
             Trangthai: 0,
             Danhgia: "",
             Ghichu: note,
         }
-        bodyData[`LichPV`].push(newRound)
-        console.log(bodyData)
+        flag['VongPV'].push(newRound)
+        const bodyData = {
+            ...candidate,
+            LichPV: JSON.stringify(flag)
+        }
+        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        dispatch(showMessage({
+            message: 'Tạo lịch phỏng vấn thành công',
+            autoHideDuration: 3000,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'right'
+            },
+            variant: 'success'
+        }))
+        dispatch(updateCandidate(response.data))
+        handleClose()
     }
     return (
         <Dialog

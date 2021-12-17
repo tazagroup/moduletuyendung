@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 //REDUX
 import { useDispatch } from 'react-redux';
-import { closeDialog } from 'app/store/fuse/dialogSlice';
+import { showMessage } from "app/store/fuse/messageSlice"
 import { addTicket } from "app/store/fuse/ticketsSlice"
 //MUI
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
@@ -108,6 +108,15 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
         }
         const response = await ticketsAPI.postTicket(bodyData)
         dispatch(addTicket(response.data))
+        dispatch(showMessage({
+            message: 'Tạo yêu cầu tuyển dụng thành công',
+            autoHideDuration: 3000,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'right'
+            },
+            variant: 'success'
+        }))
         handleClose()
     }
     return (

@@ -1,4 +1,7 @@
 import React from 'react'
+//REDUX
+import { useSelector } from "react-redux"
+//MUI
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardHeader from '@mui/material/CardHeader';
@@ -14,13 +17,6 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
-//Test
-import Paper from '@mui/material/Paper';
-import InputBase from '@mui/material/InputBase';
-import Divider from '@mui/material/Divider';
-import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import DirectionsIcon from '@mui/icons-material/Directions';
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
@@ -32,18 +28,20 @@ const ExpandMore = styled((props) => {
   }),
 }));
 
-export default function CardCalendar({item}) {
+export default function CardCalendar({ item }) {
+  const users = useSelector(state => state.fuse.tickets.users)
   const [expanded, setExpanded] = React.useState(false);
   const [value, setValue] = React.useState(0)
   const time = new Date(item[`ThoigianPV`])
-  console.log(item)
   const handleChange = (event) => {
     setValue(event.target.value);
   };
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
-
+  const getNameById = (id) => {
+    return users.find(item => item.id == id)?.name
+  }
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardHeader
@@ -57,10 +55,10 @@ export default function CardCalendar({item}) {
       />
       <CardContent>
         <Typography sx={{ fontSize: 15 }} color="text.secondary">
-          Thời gian : {time.toLocaleDateString("en-GB")} - {time.toLocaleString('en-US', {hour: 'numeric',minute:'numeric', hour12: false })}
+          Thời gian : {time.toLocaleDateString("en-GB")} - {time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: false })}
         </Typography>
         <Typography sx={{ fontSize: 15 }} color="text.secondary">
-          Người phỏng vấn : Phạm Chí Kiệt
+          Người phỏng vấn : {getNameById(item.Nguoiduyet)}
         </Typography>
       </CardContent>
       <CardActions disableSpacing>
@@ -77,23 +75,11 @@ export default function CardCalendar({item}) {
         <CardContent>
           <Typography variant="h5">Đánh giá:</Typography>
           <Typography variant="body1" paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over
-            medium-high heat. Add chicken, shrimp and chorizo, and cook, stirring
-            occasionally until lightly browned, 6 to 8 minutes. Transfer shrimp to a
-            large plate and set aside, leaving chicken and chorizo in the pan. Add
-            pimentón, bay leaves, garlic, tomatoes, onion, salt and pepper, and cook,
-            stirring often until thickened and fragrant, about 10 minutes. Add
-            saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
+            {item.Danhgia}
           </Typography>
           <Typography variant="h5">Ghi chú:</Typography>
           <Typography variant="body1" paragraph>
-            Heat oil in a (14- to 16-inch) paella pan or a large, deep skillet over
-            medium-high heat. Add chicken, shrimp and chorizo, and cook, stirring
-            occasionally until lightly browned, 6 to 8 minutes. Transfer shrimp to a
-            large plate and set aside, leaving chicken and chorizo in the pan. Add
-            pimentón, bay leaves, garlic, tomatoes, onion, salt and pepper, and cook,
-            stirring often until thickened and fragrant, about 10 minutes. Add
-            saffron broth and remaining 4 1/2 cups chicken broth; bring to a boil.
+            {item.Ghichu}
           </Typography>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <Typography variant="h5">Tình trạng</Typography>

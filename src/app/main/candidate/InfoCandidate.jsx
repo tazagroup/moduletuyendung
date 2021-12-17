@@ -65,6 +65,7 @@ const InfoCandidate = ({ item, open, handleClose }) => {
     const [ticket, setTicket] = useState({})
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [isCreating, setIsCreating] = useState(false)
+    const calendar = JSON.parse(item.LichPV)
     //FUNCTIONS
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh
@@ -82,7 +83,6 @@ const InfoCandidate = ({ item, open, handleClose }) => {
     }
     const handleEditCandidate = async (e) => {
         // Upload Candidate
-        console.log("HAHA")
         const newProfile = {
             ...profile,
             Hoten: e.Hoten,
@@ -98,6 +98,7 @@ const InfoCandidate = ({ item, open, handleClose }) => {
         dispatch(updateCandidate(response.data))
         handleClose()
     }
+
     return (
         <Fragment>
             <Dialog
@@ -174,11 +175,11 @@ const InfoCandidate = ({ item, open, handleClose }) => {
                                     </IconButton>
                                 </Typography>
                             </Grid>
-                            {/* {item.LichPV.map((option, index) => (
+                            {calendar?.VongPV.map((option, index) => (
                                 <Grid key={index} item xs={12} md={3}>
                                     <CardCalendar key={index} item={option} />
                                 </Grid>
-                            ))} */}
+                            ))}
                         </Grid >
                     </DialogContent>
                     <DialogActions>

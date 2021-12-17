@@ -12,7 +12,7 @@ const ticketsSlice = createSlice({
         addTicket: (state, action) => {
             const { attributes } = action.payload
             attributes['key'] = attributes.id
-            attributes['id'] = state.dataTicket.length + 1
+            attributes['id'] = state.dataTicket.length == 0 ? 0 : state.dataTicket.length
             state.dataTicket.push(attributes)
         },
         refreshTicket: (state, action) => {

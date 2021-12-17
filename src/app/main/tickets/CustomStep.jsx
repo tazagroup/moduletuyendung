@@ -31,7 +31,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const [openRefuseDialog, setOpenRefuseDialog] = useState(false);
     const [openAccountantDialog, setOpenAccountantDialog] = useState(false);
     const [reason, setReason] = useState('')
-
     //STEPS
     const stepBTD = [1, 3, 6]
     const stepBGD = [2, 4]
@@ -68,7 +67,9 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const btdCondition = user.profile.PQTD.includes("2") && stepBTD.includes(currentPos - 1)
         const bgdCondition = user.profile.PQTD.includes("3") && stepBGD.includes(currentPos - 1) && item?.Nguoiduyet.includes(user.profile.id)
         const bktCondition = user.profile.PQTD.includes("4") && currentPos == 6
-        if (bqlCondition || btdCondition || bgdCondition || bktCondition) {
+        const refuseTicket = data.Trangthai == 3 || data.Trangthai == 2
+        const stepCondition = (bqlCondition || btdCondition || bgdCondition || bktCondition)
+        if (!refuseTicket && stepCondition) {
             if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
                 setAnchorEl(e.currentTarget)
             }
@@ -201,7 +202,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                     open={open}
                     onClose={handleClose}
                 >
-                    {item.status !== 1 &&
+                    {(item.status !== 1) &&
                         (item.id === 1 || item.id === 3) ?
                         <NestedMenuItem
                             label={"Phê duyệt"}
@@ -211,7 +212,8 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                             {users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3).map(item => (
                                 <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
                             ))}
-                        </NestedMenuItem> : <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
+                        </NestedMenuItem> :
+                        <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
                     }
                     {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
                     {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}

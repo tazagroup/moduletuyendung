@@ -20,7 +20,7 @@ const CustomRenderCell = ({ data }) => {
     return (
         <>
             <div className="custom__table">
-                <div className="table__item" style={{ width: "65px" }}>
+                <div className="table__item" style={{ width: "65px", wordWrap: "break-word" }}>
                     <div className="item__title">
                         <p>Nguồn</p>
                     </div>

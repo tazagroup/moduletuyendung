@@ -2,7 +2,7 @@ import React, { Fragment, useRef, useState, useEffect } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
 import { setDataTicket } from 'app/store/fuse/ticketsSlice';
-import { setDataCandidate } from 'app/store/fuse/candidateSlice';
+import { setDataCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
 //MUI
 import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
@@ -45,6 +45,7 @@ const Table = () => {
     };
     const handleEdit = (e) => {
         handleClose()
+        dispatch(updateFlagCandidate(rowData))
         setIsEditing(true)
     }
     useEffect(async () => {
@@ -66,7 +67,7 @@ const Table = () => {
     }, [])
     const headers = [
         {
-            title: "#", field: "key", align: "center",
+            title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
             filterComponent: props => { return <></> },
             render: rowData => (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -235,9 +236,14 @@ const Table = () => {
                     isEditHidden: (rowData) => rowData,
                 }}
                 localization={{
-                    toolbar: { showColumnsTitle: "Hiển thị cột" },
+                    toolbar: { showColumnsTitle: "Hiển thị cột", addRemoveColumns: "" },
                     header: { actions: "" },
-                    body: { emptyDataSourceMessage: "Không có dữ liệu hiển thị..." }
+                    body: { emptyDataSourceMessage: "Không có dữ liệu hiển thị..." },
+                    pagination: {
+                        nextTooltip: "Trang kế tiếp", firstTooltip: "Trang đầu",
+                        previousTooltip: "Trang trước", lastTooltip: "Trang cuối",
+                        labelRowsSelect: "hồ sơ"
+                    }
                 }}
                 options={{
                     showDetailPanelIcon: false,
@@ -267,7 +273,6 @@ const Table = () => {
                 />}
             {isEditing &&
                 <InfoCandidate
-                    item={rowData}
                     open={isEditing}
                     handleClose={() => { setIsEditing(false) }}
                 />}

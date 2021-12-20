@@ -61,6 +61,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
     });
     const dispatch = useDispatch();
     const classes = useStyles()
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")))
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [position, setPosition] = useState([...data.position])
     const [valuePosition, setValuePosition] = useState(null)
@@ -98,6 +99,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             Yeucau: require,
             Pheduyet: [],
             LuongDK: e.LuongDK.split(',').join(''),
+            idTao: user.profile.id
         }
         const step = { id: 0, Nguoiduyet: valueCensor.map(item => item.id), status: 0, Ngaytao: new Date().toISOString() }
         flag.Pheduyet.push(step)

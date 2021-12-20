@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCandidate } from 'app/store/fuse/candidateSlice'
+import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
 import { showMessage } from 'app/store/fuse/messageSlice';
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
-import { Grid } from '@mui/material';
+import { InputLabel, Grid } from '@mui/material';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Flatpickr from "react-flatpickr";
@@ -34,6 +34,7 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
     const [censor, setCensor] = useState(null)
     const [note, setNote] = useState('')
     const handleChangeDate = (newValue) => {
+        console.log(new Date(newValue[0]).toISOString())
         setSelectedDate(newValue)
     }
     const handleChangeCensor = (e, newValue) => {
@@ -52,18 +53,19 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
         }
         const newRound = {
             id: emptyObject ? 0 : main.VongPV.length,
-            Nguoiduyet: censor,
+            Nguoiduyet: censor.id,
             ThoigianPV: selectedDate.toISOString(),
             Trangthai: 0,
             Danhgia: "",
             Ghichu: note,
         }
+        console.log(newRound)
         flag['VongPV'].push(newRound)
         const bodyData = {
             ...candidate,
             LichPV: JSON.stringify(flag)
         }
-        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        // const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(showMessage({
             message: 'Tạo lịch phỏng vấn thành công',
             autoHideDuration: 3000,
@@ -73,7 +75,7 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
             },
             variant: 'success'
         }))
-        dispatch(updateCandidate(response.data))
+        dispatch(updateFlagCandidate(bodyData))
         handleClose()
     }
     return (
@@ -98,6 +100,7 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12}>
+                        <p style={{ fontSize: "12.5px", color: "rgba(0, 0, 0, 0.6)" }}>Thời gian phỏng vấn</p>
                         <FormControl fullWidth>
                             <Flatpickr
                                 value={selectedDate}

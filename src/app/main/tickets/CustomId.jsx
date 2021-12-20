@@ -9,5 +9,13 @@ const CustomPosition = ({ data }) => {
         </div>
     )
 }
-
-export default CustomPosition
+const CustomName = ({ data }) => {
+    const users = useSelector(state => state.fuse.tickets.users)
+    const flagArray = users.map(item => item)
+    return (
+        <div>
+            {flagArray.find(item => item.id == data)?.name}
+        </div>
+    )
+}
+export { CustomPosition, CustomName }

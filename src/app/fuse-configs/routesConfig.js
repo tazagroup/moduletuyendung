@@ -15,8 +15,9 @@ const routeConfigs = [
 ];
 const user = JSON.parse(localStorage.getItem("profile"))
 const isLogin = user?.isLogin || false
+const isExpired = new Date().getTime() > user?.expire
 //REMOVE IF UPDATE VERSION OR UP TO DATE
-if (user && user.version != process.env.REACT_APP_VERSION) {
+if (user && user.version != process.env.REACT_APP_VERSION || isExpired) {
   localStorage.removeItem("profile")
   window.location.reload()
 }

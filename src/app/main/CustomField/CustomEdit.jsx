@@ -126,6 +126,66 @@ const CustomAutocompleteEdit = (props) => {
         </>
     )
 }
+const CustomAutocompleteNameEdit = (props) => {
+    const { field, main } = props
+    const users = useSelector(state => state.fuse.tickets.users)
+    const usersId = users.map(item => Number(item.id))
+    const arrayTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
+    //Tickets
+    const usersTicket = arrayTicket.map(item => item.idTao)
+    //Candidates
+    // const flagCandidate = arrayCandidate.map(item => item.idTicket)
+    // const positionCandidate = arrayTicket.filter(item => flagCandidate.includes(item.key)).map(item => item.Vitri)
+    //RENDER DROPDOWN
+    // const compareArray = main == "candidate" ? positionCandidate : positionTicket
+    const compareArray = usersTicket
+    const result = sortCount(compareArray)
+    const options = result.map(item => {
+        if (usersId.find(option => option == Number(item))) {
+            return users.find(item2 => Number(item2.id) == Number(item))
+        }
+    })
+    //Functions
+    const countElement = (array, field, value) => {
+        const index = users.find(item => item[`${field}`] == value).id
+        return array.filter(item => item == index).length
+    }
+    return (
+        <>
+            <Autocomplete
+                multiple
+                id="checkboxes-tags-demo"
+                options={options}
+                onChange={(event, newValue) => {
+                    props.onFilterChanged(props.columnDef.tableData.id, newValue);
+                }}
+                style={{ width: props.width }}
+                getOptionLabel={(option) => option[`${field}`]}
+                renderOption={(props, option, { selected }) => {
+                    const value = option[`${field}`]
+                    return (
+                        <li key={option.id} {...props}>
+                            <Checkbox
+                                icon={icon}
+                                checkedIcon={checkedIcon}
+                                style={{ marginRight: 8 }}
+                                checked={selected}
+                            />
+                            {`${value} (${countElement(compareArray, field, value)})`}
+                        </li>
+                    )
+                }}
+                renderTags={(selected) => {
+                    return selected.map(item => item[`${field}`]).join(',')
+                }}
+                renderInput={(params) => (
+                    <TextField {...params} variant="standard" />
+                )}
+            />
+        </>
+    )
+}
 const CustomSelectEdit = (props) => {
     const arrayTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const ITEM_HEIGHT = 48;
@@ -320,6 +380,7 @@ const CustomFileEdit = (props) => {
 export {
     CustomDateEdit,
     CustomAutocompleteEdit,
+    CustomAutocompleteNameEdit,
     CustomSelectPriceEdit,
     CustomSelectNumber,
     CustomFileEdit,

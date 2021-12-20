@@ -24,11 +24,11 @@ import ModalCopyItem from './ModalCopyItem'
 import TicketStatus from './TicketStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
-import CustomPosition from './CustomPosition'
+import { CustomPosition, CustomName } from './CustomId'
 import CustomNotice from './CustomNotice';
 import CustomRenderCell from './CustomRenderCell'
 import CustomFiltering from './CustomFiltering'
-import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
+import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit, CustomAutocompleteNameEdit } from '../CustomField/CustomEdit';
 import { getStatusRendering } from '../utils';
 //API
 import ticketsAPI from "api/ticketsAPI"
@@ -116,8 +116,8 @@ export default function Table() {
                 return term.map(item => parseInt(item.id)).includes(Vitri);
             }
         },
-        { title: "Nhân sự hiện có", field: "SLHT", type: 'numeric' },
-        { title: "Nhân sự cần tuyển", field: "SLCT", type: "numeric" },
+        { title: "Hiện có", field: "SLHT", type: 'numeric' },
+        { title: "Cần tuyển", field: "SLCT", type: "numeric" },
         {
             title: "Mức lương dự kiến",
             field: "LuongDK",
@@ -341,6 +341,21 @@ export default function Table() {
                 const beforeDate = Date.parse(term[0])
                 const afterDate = Date.parse(term[1])
                 return time >= beforeDate && time <= afterDate
+            }
+        },
+        {
+            title: "Người tạo",
+            field: "idTao",
+            render: rowData => (
+                <CustomName data={rowData.idTao} />
+            ),
+            filterComponent: props => {
+                return <CustomAutocompleteNameEdit {...props} width={175} field="name" main="ticket" />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const { idTao } = rowData;
+                return term.map(item => parseInt(item.id)).includes(idTao);
             }
         }
     ];

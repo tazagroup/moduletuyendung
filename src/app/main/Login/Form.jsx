@@ -64,7 +64,7 @@ function LoginForm(props) {
         else {
             const info = JSON.parse(profile.Profile)
             // 3 days
-            const user = { isLogin: response.data.loggedIn === 1 ? true : false, profile: { ...info, id: profile.id }, expire: new Date().getTime() + 3 * 24 * 3600, version: process.env.REACT_APP_VERSION }
+            const user = { isLogin: response.data.loggedIn === 1 ? true : false, profile: { ...info, id: profile.id }, expire: new Date().getTime() + 3 * 24 * 3600 * 1000, version: process.env.REACT_APP_VERSION }
             localStorage.setItem("profile", JSON.stringify(user))
             document.location.reload(true)
         }

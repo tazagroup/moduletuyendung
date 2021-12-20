@@ -4,7 +4,8 @@ import { createSlice } from '@reduxjs/toolkit';
 const candidatesSlice = createSlice({
     name: 'candidates',
     initialState: {
-        dataCandidate: []
+        dataCandidate: [],
+        flagCandidate: {},
     },
     reducers: {
         setDataCandidate: (state, action) => {
@@ -35,10 +36,15 @@ const candidatesSlice = createSlice({
                 ...flag,
                 Profile: attributes['Profile']
             }
+        },
+        updateFlagCandidate: (state, action) => {
+            state.flagCandidate = {
+                ...action.payload,
+            };
         }
     },
 });
 
-export const { setDataCandidate, updateCandidate, addCandidate } = candidatesSlice.actions;
+export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

@@ -172,7 +172,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                             <InputField form={form} name="Email" label={"Email"} type="text" />
                         </Grid>
                         <Grid item xs={12} md={4}>
-                            <InputField form={form} name="SDT" label={"Phone"} type="number" />
+                            <InputField form={form} name="SDT" label={"Số điện thoại"} type="number" />
                         </Grid>
                         <Grid item xs={12}>
                             <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} />

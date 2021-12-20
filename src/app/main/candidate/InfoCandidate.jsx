@@ -45,8 +45,11 @@ const schema = yup.object().shape({
     Email: yup.string().email("Vui lòng nhập đúng định dạng").required("Vui lòng nhập tên ứng viên"),
     Phone: yup.string().required("Vui lòng nhập số điện thoại"),
 });
-const InfoCandidate = ({ item, open, handleClose }) => {
-    const profile = JSON.parse(item.Profile)
+const InfoCandidate = ({ open, handleClose }) => {
+    const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const position = useSelector(state => state.fuse.tickets.position)
+    const profile = JSON.parse(flagCandidate.Profile)
     const dispatch = useDispatch()
     const classes = useStyles()
     const form = useForm({
@@ -59,13 +62,12 @@ const InfoCandidate = ({ item, open, handleClose }) => {
         resolver: yupResolver(schema),
     });
     //STATE
-    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
-    const position = useSelector(state => state.fuse.tickets.position)
     const [tickets, setTickets] = useState([])
     const [ticket, setTicket] = useState({})
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [isCreating, setIsCreating] = useState(false)
-    const calendar = JSON.parse(item.LichPV)
+    const calendar = JSON.parse(flagCandidate.LichPV)
+    const disabledButton = calendar.VongPV ? calendar.VongPV[calendar.VongPV.length - 1].Trangthai == 0 : false
     //FUNCTIONS
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh
@@ -73,7 +75,7 @@ const InfoCandidate = ({ item, open, handleClose }) => {
     useEffect(async () => {
         //GET THE CURRENT TICKETS
         const tickets = dataTicket.filter(item => item.Trangthai == 2)
-        const flag = tickets.find(option => option.key === item.idTicket)
+        const flag = tickets.find(option => option.key === flagCandidate.idTicket)
         //set selected ticket
         setTicket(flag)
         setTickets(tickets)
@@ -170,12 +172,12 @@ const InfoCandidate = ({ item, open, handleClose }) => {
                             <Grid item xs={12}>
                                 <Typography variant="h4" className={classes.sub__title}>
                                     Lịch phỏng vấn
-                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} >
+                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={false}>
                                         <InsertInvitationIcon />
                                     </IconButton>
                                 </Typography>
                             </Grid>
-                            {calendar?.VongPV.map((option, index) => (
+                            {calendar.VongPV && calendar.VongPV.map((option, index) => (
                                 <Grid key={index} item xs={12} md={3}>
                                     <CardCalendar key={index} item={option} />
                                 </Grid>
@@ -192,7 +194,7 @@ const InfoCandidate = ({ item, open, handleClose }) => {
                     </DialogActions>
                 </form>
             </Dialog>
-            {isCreating && <CreateCalendar open={isCreating} candidate={item} handleClose={() => { setIsCreating(false) }} />}
+            {isCreating && <CreateCalendar open={isCreating} candidate={flagCandidate} handleClose={() => { setIsCreating(false) }} />}
         </Fragment>
     )
 }

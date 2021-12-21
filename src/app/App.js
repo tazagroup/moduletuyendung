@@ -16,9 +16,11 @@ import withAppProviders from './withAppProviders';
 
 const App = () => {
   React.useEffect(() => {
-    window.addEventListener('storage', () => {
-      localStorage.removeItem("profile")
-      window.location.reload();
+    window.addEventListener('storage', (e) => {
+      if (e.key == "profile") {
+        localStorage.removeItem("profile")
+        window.location.reload();
+      }
     })
   }, [])
   return (

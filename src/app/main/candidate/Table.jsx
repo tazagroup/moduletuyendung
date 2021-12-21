@@ -15,8 +15,9 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
-import { CustomStatus, CustomCV } from './CustomCell'
-import { CustomDateEdit, CustomSelectEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
+import { CustomCV, CustomStatus } from './CustomCell'
+import { CustomName } from '../CustomField/CustomId'
+import { CustomDateEdit, CustomAutocompleteNameEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
 //API
 import ticketsAPI from 'api/ticketsAPI';
 import candidatesAPI from 'api/candidatesAPI';
@@ -151,19 +152,18 @@ const Table = () => {
                 return profile ? <div>{profile?.Phone}</div> : <ClearIcon />
             }
         },
-        // {
-        //     title: "Duyệt CV", field: "DuyetCV",
-        //     render: rowData => (<CustomStatus item={rowData} field="DuyetCV" />),
-        //     filterComponent: props => {
-        //         const data = ["Đã duyệt", "Chưa duyệt", "Từ chối"]
-        //         return <CustomSelectNumber {...props} data={data} width={130} field="DuyetCV" collection="candidates" />
-        //     },
-        //     customFilterAndSearch: (term, rowData) => {
-        //         if (term.length === 0 || term.length === 3) return true;
-        //         const { DuyetCV } = rowData;
-        //         return term.includes("Đã duyệt")
-        //     }
-        // },
+        {
+            title: "Duyệt hồ sơ", field: "XacnhanHS",
+            render: rowData => {
+                const data = rowData['XacnhanHS']?.Duyet
+                console.log(data)
+                return <></>
+                // return <CustomStatus />
+            }
+        },
+        {
+            title: "Xác nhận phỏng vấn", field: "XacnhanHS",
+        },
         // {
         //     title: "Xác nhận phỏng vấn", field: "MoiPV",
         //     render: rowData => (<CustomStatus item={rowData} field="MoiPV" />),
@@ -195,6 +195,35 @@ const Table = () => {
                 const profile = JSON.parse(rowData.Profile)
                 const type = profile.CV.split('%2F')[1].split('?alt')[0].split('.')[1]
                 return term.includes(type)
+            }
+        },
+        {
+            title: "Ngày tạo",
+            field: "Ngaytao",
+            type: "date",
+            dateSetting: { locale: "en-GB" },
+            filterComponent: (props) => <CustomDateEdit {...props} />,
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true
+                const time = Date.parse(rowData.Ngaytao)
+                const beforeDate = Date.parse(term[0])
+                const afterDate = Date.parse(term[1])
+                return time >= beforeDate && time <= afterDate
+            }
+        },
+        {
+            title: "Người tạo",
+            field: "idTao",
+            render: rowData => (
+                <CustomName data={rowData.idTao} />
+            ),
+            filterComponent: props => {
+                return <CustomAutocompleteNameEdit {...props} width={175} field="name" main="ticket" />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length === 0) return true;
+                const { idTao } = rowData;
+                return term.map(item => parseInt(item.id)).includes(idTao);
             }
         }
     ]

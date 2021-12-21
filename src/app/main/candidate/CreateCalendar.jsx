@@ -1,15 +1,15 @@
 import React, { useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
+import { updateCandidate } from 'app/store/fuse/candidateSlice'
 import { showMessage } from 'app/store/fuse/messageSlice';
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
-import { InputLabel, Grid } from '@mui/material';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Flatpickr from "react-flatpickr";
 import AutocompleteObjField from "../CustomField/AutocompleteObj"
+import Tinymce from '../CustomField/Tinymce'
 //API
 import candidatesAPI from "api/candidatesAPI"
 const useStyles = makeStyles({
@@ -34,15 +34,10 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
     const [censor, setCensor] = useState(null)
     const [note, setNote] = useState('')
     const handleChangeDate = (newValue) => {
-        console.log(new Date(newValue[0]).toISOString())
-        setSelectedDate(newValue)
+        setSelectedDate(newValue[0])
     }
     const handleChangeCensor = (e, newValue) => {
         setCensor(newValue)
-    }
-    const handleChangeNote = (e) => {
-        const { target: { value } } = e;
-        setNote(value)
     }
     const handleCreateCalendar = async (e) => {
         const main = JSON.parse(candidate.LichPV)
@@ -54,18 +49,16 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
         const newRound = {
             id: emptyObject ? 0 : main.VongPV.length,
             Nguoiduyet: censor.id,
-            ThoigianPV: selectedDate.toISOString(),
+            ThoigianPV: new Date(selectedDate).toISOString(),
             Trangthai: 0,
             Danhgia: "",
             Ghichu: note,
         }
-        console.log(newRound)
         flag['VongPV'].push(newRound)
         const bodyData = {
             ...candidate,
             LichPV: JSON.stringify(flag)
         }
-        // const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(showMessage({
             message: 'Tạo lịch phỏng vấn thành công',
             autoHideDuration: 3000,
@@ -75,14 +68,15 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
             },
             variant: 'success'
         }))
-        dispatch(updateFlagCandidate(bodyData))
+        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        dispatch(updateCandidate(response.data))
         handleClose()
     }
     return (
         <Dialog
             open={open}
             fullWidth={true}
-            maxWidth={'xs'}
+            maxWidth={'md'}
         >
             <DialogTitle className={classes.title}>Tạo lịch phỏng vấn</DialogTitle>
             <CloseIcon className={classes.icon} onClick={handleClose} />
@@ -106,23 +100,16 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
                                 value={selectedDate}
                                 options={{
                                     enableTime: true,
+                                    allowInvalidPreload: true,
                                     dateFormat: "d-m-Y H:i",
+                                    static: true,
                                 }}
                                 onChange={(dateSelect) => handleChangeDate(dateSelect)}
                             />
                         </FormControl>
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField
-                            placeholder="Ghi chú"
-                            label="Ghi chú"
-                            onChange={handleChangeNote}
-                            multiline
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true
-                            }}
-                        />
+                        <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"ghi chú"} />
                     </Grid>
                 </Grid>
             </DialogContent>

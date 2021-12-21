@@ -1,29 +1,24 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import timeGridPlugin from '@fullcalendar/timegrid';
 import daygridPlugin from '@fullcalendar/daygrid'
 // import { Inject, ScheduleComponent, Day, Week, Month, Agenda, ViewsDirective, ViewDirective } from '@syncfusion/ej2-react-schedule'
 
-
-const CustomTemplate = ({ item }) => {
-    return (
-        <div>{item.Subject}</div>
-    )
-}
 const Main = () => {
     return (
         <FullCalendar
             plugins={[daygridPlugin, timeGridPlugin]}
+            allDayText="Cả ngày"
             buttonText={{
                 today: 'Hôm nay',
                 month: 'Tháng',
                 week: 'Tuần',
                 day: 'Ngày',
             }}
-            allDayText="Cả ngày"
+            events={[]}
             locale={'vi'}
             headerToolbar={{
-                start: 'prev,next', // will normally be on the left. if RTL, will be on the right
+                start: 'prev,next',
                 center: 'title',
                 end: 'dayGridMonth,timeGridWeek,timeGridDay today'
             }

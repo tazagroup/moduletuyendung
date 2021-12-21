@@ -1,7 +1,7 @@
 import React from 'react'
 import Table from './Table'
-
 import FusePageSimple from '@fuse/core/FusePageSimple';
+import DateField from '../CustomField/DateField'
 import "./index.css"
 const Candidates = () => {
 

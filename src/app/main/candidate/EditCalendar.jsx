@@ -1,9 +1,15 @@
 import React, { useState } from 'react'
+//REDUX
 import { useDispatch, useSelector } from 'react-redux';
+import { updateCandidate } from 'app/store/fuse/candidateSlice'
+//MUI
 import { Dialog, DialogTitle, DialogContent, DialogActions, FormControl, Grid, Button } from '@mui/material'
-import CloseIcon from '@mui/icons-material/Close';
 import { makeStyles, TextField } from '@material-ui/core';
+import CloseIcon from '@mui/icons-material/Close';
 import Flatpickr from "react-flatpickr";
+import Tinymce from '../CustomField/Tinymce'
+//API
+import candidatesAPI from "api/candidatesAPI"
 const useStyles = makeStyles({
     title: {
         width: "100%",
@@ -24,11 +30,11 @@ const EditCalendar = ({ open, item, handleClose }) => {
     const currentStage = useSelector(state => state.fuse.candidates.flagCandidate)
     const [selectedDate, setSelectedDate] = useState(item.ThoigianPV)
     const [note, setNote] = useState(item.Ghichu)
-    const [comment, setComment] = useState('')
+    const [comment, setComment] = useState(item.Danhgia)
     const handleChangeDate = (e) => {
         setSelectedDate(e[0])
     }
-    const handleEditCalendar = (e) => {
+    const handleEditCalendar = async (e) => {
         const calendar = JSON.parse(currentStage.LichPV)
         const index = calendar.VongPV.map(option => option.id).indexOf(item.id)
         const newItem = {
@@ -37,6 +43,14 @@ const EditCalendar = ({ open, item, handleClose }) => {
             Ghichu: note,
             ThoigianPV: new Date(selectedDate).toISOString()
         }
+        calendar.VongPV[index] = { ...newItem }
+        const bodyData = {
+            ...currentStage,
+            LichPV: JSON.stringify(calendar)
+        }
+        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        dispatch(updateCandidate(response.data))
+        handleClose()
     }
 
     return (
@@ -44,7 +58,7 @@ const EditCalendar = ({ open, item, handleClose }) => {
             open={open}
             onClose={handleClose}
             fullWidth={true}
-            maxWidth={'xs'}
+            maxWidth={'md'}
         >
             <DialogTitle className={classes.title}>Lịch phỏng vấn</DialogTitle>
             <CloseIcon className={classes.icon} onClick={handleClose} />
@@ -63,29 +77,11 @@ const EditCalendar = ({ open, item, handleClose }) => {
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            value={note}
-                            label="Ghi chú"
-                            multiline
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true
-                            }}
-                            onChange={(e) => { setNote(e.target.value) }}
-                        />
+                    <Grid item xs={12} md={6}>
+                        <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"Ghi chú"} />
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField
-                            value={comment}
-                            label="Đánh giá"
-                            multiline
-                            fullWidth
-                            InputLabelProps={{
-                                shrink: true
-                            }}
-                            onChange={(e) => { setComment(e.target.value) }}
-                        />
+                    <Grid item xs={12} md={6}>
+                        <Tinymce value={comment} onChange={(e) => { setComment(e) }} label={"Đánh giá"} />
                     </Grid>
                 </Grid>
             </DialogContent>

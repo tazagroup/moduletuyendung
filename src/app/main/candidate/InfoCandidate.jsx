@@ -4,13 +4,18 @@ import { useSelector, useDispatch } from "react-redux"
 import { updateCandidate } from "app/store/fuse/candidateSlice"
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl, Autocomplete } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl, Autocomplete, IconButton, InputLabel, Select, MenuItem } from '@mui/material';
 import { Grid, Typography } from '@mui/material';
-import IconButton from '@mui/material/IconButton';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
+import Box from '@mui/material/Box';
+import Input from '@mui/material/Input';
+import Rating from '@mui/material/Rating';
+import StarIcon from '@mui/icons-material/Star';
+
 //COMPONENTS
-import InputField from "app/main/CustomField/InputField"
+import InputField from "../CustomField/InputField"
 import DateField from '../CustomField/DateField';
+import Tinymce from '../CustomField/Tinymce'
 import NumberFormat from "react-number-format"
 import CardCalendar from "./CardCalendar"
 import CreateCalendar from "./CreateCalendar"
@@ -20,9 +25,13 @@ import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 //API
 import candidatesAPI from 'api/candidatesAPI'
+
 const useStyles = makeStyles({
     field: {
         marginTop: "15px !important"
+    },
+    field2: {
+        marginTop: "5px !important"
     },
     title: {
         width: "100%",
@@ -50,6 +59,7 @@ const InfoCandidate = ({ open, handleClose }) => {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const profile = JSON.parse(flagCandidate.Profile)
+    const profileRating = JSON.parse(flagCandidate.DanhgiaHS)
     const dispatch = useDispatch()
     const classes = useStyles()
     const form = useForm({
@@ -66,8 +76,16 @@ const InfoCandidate = ({ open, handleClose }) => {
     const [ticket, setTicket] = useState({})
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [isCreating, setIsCreating] = useState(false)
+    const [firstRate, setFirstRate] = useState(profileRating?.Kienthuc || '')
+    const [secondRate, setSecondRate] = useState(profileRating?.Kinang || '')
+    const [thirdRate, setThirdRate] = useState(profileRating?.Thaido || '')
+    const [point, setPoint] = useState(profileRating?.Diem || 0)
+    const [note, setNote] = useState(profileRating?.Ghichu || '')
+    const [status, setStatus] = useState(profileRating?.Trangthai || 0)
     const calendar = JSON.parse(flagCandidate.LichPV)
-    const disabledButton = calendar.VongPV ? calendar.VongPV[calendar.VongPV.length - 1].Trangthai == 0 : false
+    const disabledCreate = calendar.VongPV ? calendar.VongPV[calendar.VongPV.length - 1].Trangthai != 1 : false
+    const disabledField = flagCandidate.Trangthai == 1
+    const secondStep = calendar.VongPV ? calendar.VongPV[1]?.Trangthai == 1 : false
     //FUNCTIONS
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh
@@ -91,10 +109,21 @@ const InfoCandidate = ({ open, handleClose }) => {
             Email: e.Email,
             Phone: e.Phone,
         }
+        const DanhgiaHS = !secondStep ? flagCandidate.DanhgiaHS : {
+            Kienthuc: firstRate,
+            Kinang: secondRate,
+            Thaido: thirdRate,
+            Diem: point,
+            Ghichu: note,
+            Trangthai: status
+        }
+        const Trangthai = !secondStep ? flagCandidate.Trangthai : [2, 3].includes(status) ? 2 : 1
         const bodyData = {
-            ...item,
+            ...flagCandidate,
             idTicket: ticket.key,
-            Profile: JSON.stringify(newProfile)
+            Profile: JSON.stringify(newProfile),
+            DanhgiaHS: JSON.stringify(DanhgiaHS),
+            Trangthai: Trangthai
         }
         const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(updateCandidate(response.data))
@@ -117,13 +146,13 @@ const InfoCandidate = ({ open, handleClose }) => {
                                 <Typography variant="h4" className={classes.sub__title}>Thông tin cơ bản</Typography>
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <InputField form={form} name="Hoten" label="Họ tên ứng viên" type="text" />
+                                <InputField form={form} name="Hoten" label="Họ tên ứng viên" type="text" disabled={disabledField} />
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <InputField form={form} name="Email" label="Email" type="text" />
+                                <InputField form={form} name="Email" label="Email" type="text" disabled={disabledField} />
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <InputField form={form} name="Phone" label="Số điện thoại" type="number" />
+                                <InputField form={form} name="Phone" label="Số điện thoại" type="number" disabled={disabledField} />
                             </Grid>
                             <Grid item xs={12} md={4}>
                                 <Autocomplete
@@ -131,8 +160,8 @@ const InfoCandidate = ({ open, handleClose }) => {
                                     id="combo-box-demo"
                                     value={ticket}
                                     onChange={handleTicketChange}
-                                    // disabled={disabled}
                                     options={tickets}
+                                    disabled={disabledField}
                                     getOptionLabel={option => getPositionById(option[`Vitri`])}
                                     renderOption={(props, option) => {
                                         return (
@@ -146,7 +175,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} />
+                                <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} disabled={disabledField} />
                             </Grid>
                             <Grid item xs={12} md={3}>
                                 <NumberFormat
@@ -160,9 +189,9 @@ const InfoCandidate = ({ open, handleClose }) => {
                                 />
                             </Grid>
                             <Grid item xs={12} md>
-                                <FormControl fullWidth style={{ marginTop: "20px" }}>
+                                <FormControl fullWidth style={{ marginTop: "15px" }}>
                                     <Tooltip title="CV">
-                                        <Button variant="contained">Tải CV</Button>
+                                        <Button variant="contained" size="large">Tải CV</Button>
                                     </Tooltip>
                                 </FormControl>
                             </Grid>
@@ -172,7 +201,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                             <Grid item xs={12}>
                                 <Typography variant="h4" className={classes.sub__title}>
                                     Lịch phỏng vấn
-                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={false}>
+                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={disabledCreate || disabledField}>
                                         <InsertInvitationIcon />
                                     </IconButton>
                                 </Typography>
@@ -183,12 +212,80 @@ const InfoCandidate = ({ open, handleClose }) => {
                                 </Grid>
                             ))}
                         </Grid >
+                        {secondStep &&
+                            <>
+                                <Grid container spacing={2} className={classes.field}>
+                                    <Grid item xs={12} md={4}>
+                                        <Tinymce value={firstRate} onChange={(e) => { setFirstRate(e) }} label="đánh giá kiến thức" disabled={disabledField} />
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <Tinymce value={secondRate} onChange={(e) => { setSecondRate(e) }} label="đánh giá kĩ năng" disabled={disabledField} />
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <Tinymce value={thirdRate} onChange={(e) => { setThirdRate(e) }} label="đánh giá thái độ" disabled={disabledField} />
+                                    </Grid>
+                                </Grid>
+                                <Grid container spacing={2} className={classes.field2}>
+                                    <Grid item xs={12} md={8}>
+                                        <FormControl variant="standard" fullWidth style={{ marginTop: "18px" }}>
+                                            <InputLabel htmlFor="component-simple">Ghi chú</InputLabel>
+                                            <Input id="component-simple" value={note} onChange={(e) => { setNote(e.target.value) }} disabled={disabledField} />
+                                        </FormControl>
+                                    </Grid>
+                                    <Grid container item xs={4}>
+                                        <Grid item xs={12} md={8}>
+                                            <Box
+                                                sx={{
+                                                    width: "100%",
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    marginTop: "24px"
+                                                }}
+                                            >
+                                                <Rating
+                                                    name="text-feedback"
+                                                    value={point}
+                                                    max={10}
+                                                    precision={0.5}
+                                                    size="large"
+                                                    disabled={disabledField}
+                                                    emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                                                    onChange={(e) => { setPoint(Number(e.target.value)) }}
+                                                />
+                                                <Box sx={{ ml: 2 }}>{point}</Box>
+                                            </Box>
+                                        </Grid>
+                                        <Grid item xs={12} md={4}>
+                                            <FormControl fullWidth style={{ marginTop: "10px" }}>
+                                                <InputLabel id="demo-simple-select-label">Đánh giá hồ sơ</InputLabel>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    value={status}
+                                                    label="Đánh giá hồ sơ"
+                                                    style={{ fontSize: "15px" }}
+                                                    onChange={(e) => { setStatus(e.target.value) }}
+                                                    disabled={disabledField}
+                                                >
+                                                    <MenuItem value={0} disabled></MenuItem>
+                                                    <MenuItem value={1}>Đậu</MenuItem>
+                                                    <MenuItem value={2}>Loại</MenuItem>
+                                                    <MenuItem value={3}>Lưu hồ sơ</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </>
+
+
+                        }
                     </DialogContent>
-                    <DialogActions>
-                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose}>
+                    <DialogActions style={{ paddingRight: "25px" }}>
+                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose} size="large">
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" variant="contained">
+                        <Button color="primary" autoFocus type="submit" variant="contained" size="large" disabled={disabledField}>
                             Cập nhật hồ sơ
                         </Button>
                     </DialogActions>

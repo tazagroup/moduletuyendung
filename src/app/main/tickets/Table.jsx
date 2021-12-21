@@ -24,7 +24,7 @@ import ModalCopyItem from './ModalCopyItem'
 import TicketStatus from './TicketStatus'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
-import { CustomPosition, CustomName } from './CustomId'
+import { CustomPosition, CustomName } from '../CustomField/CustomId'
 import CustomNotice from './CustomNotice';
 import CustomRenderCell from './CustomRenderCell'
 import CustomFiltering from './CustomFiltering'

@@ -1,6 +1,7 @@
 import React from 'react'
 //REDUX
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
+import { updateCandidate } from 'app/store/fuse/candidateSlice'
 //MUI
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -17,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import EditCalendar from './EditCalendar';
+import candidatesAPI from "api/candidatesAPI"
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
   return <IconButton {...other} />;
@@ -29,23 +31,42 @@ const ExpandMore = styled((props) => {
 }));
 
 export default function CardCalendar({ item }) {
+  const dispatch = useDispatch()
   const users = useSelector(state => state.fuse.tickets.users)
+  const currentEdit = useSelector(state => state.fuse.candidates.flagCandidate)
   const [expanded, setExpanded] = React.useState(false);
   const [value, setValue] = React.useState(item.Trangthai)
   const [isEditing, setIsEditing] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const time = new Date(item[`ThoigianPV`])
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+  const handleOpen = (e) => {
+    if (item.Trangthai == 0) {
+      setAnchorEl(e.currentTarget)
+    }
+  }
   const handleEdit = () => {
     setAnchorEl(null)
     setIsEditing(true)
   }
+  const handleChangeStatus = async (event) => {
+    setValue(event.target.value);
+    const calendar = JSON.parse(currentEdit.LichPV)
+    const currentStep = {
+      ...calendar.VongPV.splice(-1)[0],
+      Trangthai: event.target.value
+    }
+    calendar.VongPV[currentStep.id] = { ...currentStep }
+    const bodyData = {
+      ...currentEdit,
+      LichPV: JSON.stringify(calendar)
+    }
+    const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+    dispatch(updateCandidate(response.data))
+  };
   const getNameById = (id) => {
     return users.find(item => item.id == id)?.name
   }
@@ -54,11 +75,11 @@ export default function CardCalendar({ item }) {
       <Card sx={{ maxWidth: 345 }}>
         <CardHeader
           action={
-            <IconButton aria-label="settings" onClick={(e) => { setAnchorEl(e.currentTarget) }}>
+            <IconButton aria-label="settings" onClick={handleOpen}>
               <MoreVertIcon />
             </IconButton>
           }
-          title="Phỏng vấn vòng 1"
+          title={`Phỏng vấn vòng ${item.id + 1}`}
           titleTypographyProps={{ variant: 'h5' }}
         />
         <CardContent>
@@ -81,14 +102,14 @@ export default function CardCalendar({ item }) {
         </CardActions>
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
-            <Typography variant="h5">Đánh giá:</Typography>
-            <Typography variant="body1" paragraph>
-              {item.Danhgia}
-            </Typography>
-            <Typography variant="h5">Ghi chú:</Typography>
-            <Typography variant="body1" paragraph>
-              {item.Ghichu}
-            </Typography>
+            <div className="content-item">
+              <Typography variant="h5">Đánh giá:</Typography>
+              <div dangerouslySetInnerHTML={{ __html: item.Danhgia }}></div>
+            </div>
+            <div className="content-item">
+              <Typography variant="h5">Ghi chú:</Typography>
+              <div dangerouslySetInnerHTML={{ __html: item.Ghichu }}></div>
+            </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Typography variant="h5">Tình trạng</Typography>
               <FormControl size="small" sx={{ width: 100 }}>
@@ -96,8 +117,9 @@ export default function CardCalendar({ item }) {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={value}
+                  disabled={item.Trangthai != 0}
                   displayEmpty
-                  onChange={handleChange}
+                  onChange={handleChangeStatus}
                 >
                   <MenuItem value={0} disabled>Đang xử lí</MenuItem>
                   <MenuItem value={1}>Đạt</MenuItem>

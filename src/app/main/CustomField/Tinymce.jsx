@@ -1,12 +1,13 @@
 import React from 'react'
 import { Editor } from '@tinymce/tinymce-react';
 const Tinymce = (props) => {
-    const { value, onChange, label } = props;
+    const { value, onChange, label, disabled = false } = props;
     return (
         <>
             <Editor
                 apiKey="1cdi3qs7qw7nogvpu6poxqc6z7bf4a4hurwyao0kdbd741dl"
                 value={value}
+                disabled={disabled}
                 init={{
                     placeholder: `Nhập ${label} `,
                     height: "480",

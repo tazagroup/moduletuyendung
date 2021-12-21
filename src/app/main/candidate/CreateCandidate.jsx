@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 //COMPONENTS
@@ -49,6 +49,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const classes = useStyles()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
+    const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")))
     const [ticket, setTicket] = useState(item)
     const [tickets, setTickets] = useState([])
     const [selectedDate, setSelectedDate] = useState(new Date())
@@ -87,6 +88,8 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             idTicket: ticket.key,
             Profile: JSON.stringify(profile),
             LichPV: JSON.stringify({}),
+            XacnhanHS: JSON.stringify({ Duyet: 0 }),
+            idTao: user.profile.id
         }
         const response = await candidatesAPI.postCandidate(bodyData)
         dispatch(addCandidate(response.data))
@@ -137,9 +140,6 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                             <TextField
                                 label={"Vị trí tuyển dụng"}
                                 fullWidth
-                                InputLabelProps={{
-                                    shrink: true
-                                }}
                                 value={getPositionById(ticket.Vitri) || ''}
                                 variant="standard"
                                 disabled={true}

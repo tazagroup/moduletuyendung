@@ -12,6 +12,8 @@ const TextTooltip = styled(({ className, ...props }) => (
       font-size: 1em;
   `);
 export const CustomStatus = ({ item, field }) => {
+    console.log(item)
+    console.log(field)
     const dispatch = useDispatch()
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);

@@ -65,7 +65,7 @@ const CustomRenderCell = ({ data }) => {
                         {typeBody.length >= 2 ?
                             <IconButton onClick={() => { setIsExpand(true) }}>
                                 <MoreHorizIcon />
-                            </IconButton> : sourceBody.map((item, index) => (
+                            </IconButton> : typeBody.map((item, index) => (
                                 <p key={index}>{item}</p>
                             ))}
                     </div>

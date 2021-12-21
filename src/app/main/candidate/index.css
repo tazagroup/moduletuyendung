@@ -33,9 +33,12 @@ svg.calendar__icon {
     height: 30px !important;
 }
 
-.MuiCardHeader-title{
+.MuiCardHeader-title {
     font-weight: bold !important;
 }
-.MuiTypography-body1{
+.MuiTypography-body1 {
     font-weight: 1.5rem !important;
+}
+.content-item {
+    margin: 10px 0;
 }

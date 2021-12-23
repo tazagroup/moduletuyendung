@@ -15,15 +15,18 @@ const NotificationButton = () => {
     const handleClick = (e) => {
         setAnchorEl(e.currentTarget);
     };
-    useEffect(async () => {
-        const [responseNotice, responseSetting] = await Promise.all([
-            noticesAPI.getNotices(),
-            noticesAPI.getSettings()
-        ])
-        const user = JSON.parse(localStorage.getItem("profile"))
-        const data = responseNotice.data.filter(item => item.attributes.idNhan == user.profile?.id)
-        dispatch(setDataNotice(data))
-        setSettings(JSON.parse(responseSetting.data.attributes.Dulieu))
+    useEffect(() => {
+        const fetchData = async () => {
+            const user = JSON.parse(localStorage.getItem("profile"))
+            const [responseNotice, responseSetting] = await Promise.all([
+                noticesAPI.getNotices(),
+                noticesAPI.getSettings()
+            ])
+            const data = responseNotice.data.filter(item => item.attributes.idNhan == user?.profile.id) || []
+            dispatch(setDataNotice(data))
+            setSettings(JSON.parse(responseSetting.data.attributes.Dulieu))
+        }
+        fetchData()
     }, [])
     const NoticeItem = ({ item }) => {
         const main = item.attributes

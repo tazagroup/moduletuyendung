@@ -46,7 +46,8 @@ function LoginForm(props) {
         const response = await axios.post(`https://tazagroup.vn/index.php?option=com_users&task=user.loginAjax&username=${e.username}&password=${e.password}&format=json`)
         //7 days
         const profile = response.data.User
-        const decentralization = JSON.parse(profile.Profile).PQTD
+        const decentralization = JSON.parse(profile.Profile)?.PQTD
+        console.log(decentralization)
         if (response.data.loggedIn == 0) {
             Swal.fire({
                 icon: 'error',

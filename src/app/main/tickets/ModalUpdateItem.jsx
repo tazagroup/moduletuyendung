@@ -22,10 +22,10 @@ import InputField from '../CustomField/InputField';
 import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
 import DateField from "../CustomField/DateField"
-
 // API
 import axios from 'axios';
 import ticketsAPI from "api/ticketsAPI"
+import noticesAPI from "api/noticesAPI"
 const useStyles = makeStyles({
     title: {
         width: "100%",
@@ -112,6 +112,16 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
         setDataStatus(rowData)
         dispatch(updateTicket(response.data))
         dispatch(closeDialog())
+        //SEND NOTICE
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": censor.id,
+            "idModule": 3,
+            "Loai": 1,
+            "Noidung": response.data.attributes.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
     }
     const handleCloseUpdateTickets = async (e) => {
         const item = dataTicket.find(item => item.key === data.key)

@@ -121,15 +121,6 @@ const ModalEditItem = ({ item, open, handleClose }) => {
             variant: 'success'
         }))
         handleClose()
-        const noticeData = {
-            "idGui": user.profile.id,
-            "idNhan": 231,
-            "idModule": 3,
-            "Loai": 1,
-            "Noidung": response.data.attributes.key,
-            "idTao": user.profile.id
-        }
-        noticesAPI.postNotice(noticeData)
     }
     const handleAddSource = (e) => {
         setValueCPTD([...valueCPTD, { Nguon: "", Chiphi: "", Hinhthuc: '', TGMua: new Date() }]);

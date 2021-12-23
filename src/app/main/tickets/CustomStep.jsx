@@ -102,7 +102,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         else if (item.id === 1) {
             //Choose a censor
             const newStep = { id: item.id + 1, status: 0, Nguoiduyet: [value.id], Ngaytao: new Date().toISOString() }
-
+            
             flagArray.push(newStep)
         }
         else if (item.id === 5) {

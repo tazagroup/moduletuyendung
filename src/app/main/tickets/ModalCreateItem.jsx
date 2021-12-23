@@ -120,15 +120,17 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             variant: 'success'
         }))
         handleClose()
-        const noticeData = {
-            "idGui": user.profile.id,
-            "idNhan": 231,
-            "idModule": 3,
-            "Loai": 1,
-            "Noidung": response.data.attributes.key,
-            "idTao": user.profile.id
-        }
-        noticesAPI.postNotice(noticeData)
+        valueCensor.map(item => {
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": item.id,
+                "idModule": 3,
+                "Loai": 1,
+                "Noidung": response.data.attributes.key,
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
+        })
     }
     return (
         <Dialog

@@ -23,6 +23,7 @@ import Tinymce from '../CustomField/Tinymce';
 import AutocompleteObjField from '../CustomField/AutocompleteObj';
 // API 
 import ticketsAPI from "api/ticketsAPI"
+import noticesAPI from 'api/noticesAPI'
 const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
     SLHT: yup.number().min(0, "Dữ liệu không đúng"),
@@ -110,7 +111,25 @@ const ModalEditItem = ({ item, open, handleClose }) => {
         }
         const response = await ticketsAPI.updateTicket(bodyData, item.key)
         dispatch(updateTicket(response.data))
+        dispatch(showMessage({
+            message: 'Cập nhật thành công',
+            autoHideDuration: 3000,
+            anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'right'
+            },
+            variant: 'success'
+        }))
         handleClose()
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": 231,
+            "idModule": 3,
+            "Loai": 1,
+            "Noidung": response.data.attributes.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
     }
     const handleAddSource = (e) => {
         setValueCPTD([...valueCPTD, { Nguon: "", Chiphi: "", Hinhthuc: '', TGMua: new Date() }]);

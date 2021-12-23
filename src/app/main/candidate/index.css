@@ -10,11 +10,19 @@ h6 {
     width: 25px;
     height: 25px;
     fill: #2ccb2c;
+    cursor: pointer;
 }
 .icon__table__candidate.warning {
     width: 25px;
     height: 25px;
     fill: #ed042b;
+    cursor: pointer;
+}
+.icon__table__candidate.pending {
+    width: 25px;
+    height: 25px;
+    fill: #efff09;
+    cursor: pointer;
 }
 .word__file {
     fill: #0078d7;

@@ -14,8 +14,7 @@ import { selectToolbarTheme } from 'app/store/fuse/settingsSlice';
 import AdjustFontSize from '../../shared-components/AdjustFontSize';
 import FullScreenToggle from '../../shared-components/FullScreenToggle';
 import LanguageSwitcher from '../../shared-components/LanguageSwitcher';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { IconButton } from '@mui/material';
+import NotificationButton from '../../shared-components/NotificationButton'
 const useStyles = makeStyles((theme) => ({
   root: {},
 }));
@@ -63,9 +62,7 @@ function ToolbarLayout1(props) {
 
             <FullScreenToggle />
 
-            <IconButton>
-              <NotificationsActiveIcon />
-            </IconButton>
+            <NotificationButton />
 
             <UserMenu />
           </div>

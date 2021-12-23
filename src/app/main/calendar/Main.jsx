@@ -1,49 +1,62 @@
 import React, { useState, useEffect } from 'react'
+//REDUX
+import { useDispatch, useSelector } from "react-redux"
+import { setDataCandidate } from "app/store/fuse/candidateSlice"
 import FullCalendar from '@fullcalendar/react'
-import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import daygridPlugin from '@fullcalendar/daygrid'
-// import { Inject, ScheduleComponent, Day, Week, Month, Agenda, ViewsDirective, ViewDirective } from '@syncfusion/ej2-react-schedule'
-
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+//COMPONENTS
+import FuseLoading from '@fuse/core/FuseLoading';
+//API
+import candidatesAPI from "api/candidatesAPI"
 const Main = () => {
-    return (
-        <FullCalendar
-            plugins={[daygridPlugin, timeGridPlugin]}
-            allDayText="Cả ngày"
-            buttonText={{
-                today: 'Hôm nay',
-                month: 'Tháng',
-                week: 'Tuần',
-                day: 'Ngày',
-            }}
-            events={[]}
-            locale={'vi'}
-            headerToolbar={{
-                start: 'prev,next',
-                center: 'title',
-                end: 'dayGridMonth,timeGridWeek,timeGridDay today'
-            }
-            }
-            initialDate={new Date()}
-            initialView="timeGridDay"
-        />
-    )
+    const dispatch = useDispatch()
+    const calendar = useSelector(state => state.fuse.candidates.dataCandidate)
+    const [isLoading, setIsLoading] = useState(true)
+    useEffect(async () => {
+        if (calendar.length == 0) {
+            const response = await candidatesAPI.getCandidate()
+            dispatch(setDataCandidate(response))
+        }
+        setIsLoading(false)
+    }, [])
+    const data = [].concat.apply([], calendar.map(item => JSON.parse(item?.LichPV).VongPV));
+    const result = data.filter(item => item != undefined).map(({ ThoigianPV, Title }) => {
+        return {
+            title: Title,
+            date: ThoigianPV
+        }
+    })
+    const handleClick = (e) => {
+        console.log(e)
+    }
+    return isLoading ? <FuseLoading /> :
+        (
+            <FullCalendar
+                plugins={[daygridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+                allDayText="Cả ngày"
+                buttonText={{
+                    today: 'Hôm nay',
+                    month: 'Tháng',
+                    week: 'Tuần',
+                    day: 'Ngày',
+                    list: "Tóm tắt tuần",
+                }}
+                dateClick={handleClick}
+                events={result}
+                locale={'vi'}
+                headerToolbar={{
+                    start: 'prev,next today',
+                    center: 'title',
+                    end: 'dayGridMonth,timeGridWeek,timeGridDay listWeek'
+                }
+                }
+                initialDate={new Date()}
+                initialView="timeGridDay"
+            />
+        )
 }
 
 export default Main
-
-
-// BACKUP
-// <ScheduleComponent
-// currentView='Month'
-// selectedDate={new Date()}
-// eventSettings={{ dataSource: FakeData, template: (item) => { return <CustomTemplate item={item} /> } }}
-// height='550px'
-// >
-// <ViewsDirective>
-//     <ViewDirective option='Day' displayName="Ngày" isSelected={true} />
-//     <ViewDirective option='Week' displayName="Tuần" />
-//     <ViewDirective option='Month' displayName="Tháng" />
-//     <ViewDirective option='Agenda' displayName="Tổng hợp" />
-// </ViewsDirective>
-// <Inject services={[Day, Week, Month, Agenda]} />
-// </ScheduleComponent>

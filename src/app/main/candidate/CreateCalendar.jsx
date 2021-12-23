@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCandidate } from 'app/store/fuse/candidateSlice'
+import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
 import { showMessage } from 'app/store/fuse/messageSlice';
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
@@ -26,7 +26,7 @@ const useStyles = makeStyles({
         cursor: "pointer"
     }
 })
-const CreateCalendar = ({ open, handleClose, candidate }) => {
+const CreateCalendar = ({ open, handleClose, candidate, position }) => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.fuse.tickets.users)
     const classes = useStyles()
@@ -41,18 +41,22 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
     }
     const handleCreateCalendar = async (e) => {
         const main = JSON.parse(candidate.LichPV)
+        const profile = JSON.parse(candidate.Profile)
         const emptyObject = Object.keys(main).length == 0
         const flag = {
             ThoigianPV: emptyObject ? new Date(selectedDate).toISOString() : main.ThoigianPV,
             VongPV: emptyObject ? [] : main.VongPV
         }
+        const id = emptyObject ? 0 : main.VongPV.length
+        const title = `Phỏng vấn vòng ${id + 1}-${profile.Hoten}-${position}`
         const newRound = {
-            id: emptyObject ? 0 : main.VongPV.length,
+            id: id,
             Nguoiduyet: censor.id,
             ThoigianPV: new Date(selectedDate).toISOString(),
             Trangthai: 0,
             Danhgia: "",
             Ghichu: note,
+            Title: title,
         }
         flag['VongPV'].push(newRound)
         const bodyData = {
@@ -67,9 +71,9 @@ const CreateCalendar = ({ open, handleClose, candidate }) => {
                 horizontal: 'right'
             },
             variant: 'success'
-        }))
-        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-        dispatch(updateCandidate(response.data))
+        })) 
+        // const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        dispatch(updateFlagCandidate(bodyData))
         handleClose()
     }
     return (

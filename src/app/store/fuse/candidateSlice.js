@@ -34,7 +34,9 @@ const candidatesSlice = createSlice({
             flag.id = state.dataCandidate[`${index}`].id
             state.dataCandidate[`${index}`] = {
                 ...flag,
-                Profile: attributes['Profile']
+                Profile: attributes['Profile'],
+                XacnhanHS: attributes['XacnhanHS'],
+                Trangthai: attributes['Trangthai']
             }
         },
         updateFlagCandidate: (state, action) => {

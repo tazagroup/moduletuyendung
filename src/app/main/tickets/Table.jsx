@@ -1,4 +1,5 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
+import { useLocation } from "react-router-dom"
 import MaterialTable, { MTableAction } from '@material-table/core';
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
@@ -67,6 +68,10 @@ const getPriceValue = (array) => {
     return { minPrice, maxPrice }
 }
 export default function Table() {
+    // get params 
+    // const search = useLocation().search;
+    // const name = new URLSearchParams(search).get("id")
+    // console.log(name)
     const dispatch = useDispatch()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
@@ -105,7 +110,7 @@ export default function Table() {
             )
         },
         {
-            title: "Vị trí tuyển dụng", field: "Vitri",
+            title: "Vị trí tuyển dụng", field: "Vitri", cellStyle: { whiteSpace: 'nowrap' },
             render: rowData => (<CustomPosition data={rowData} />),
             filterComponent: props => {
                 return <CustomAutocompleteEdit {...props} width={175} field="Thuoctinh" main="ticket" />
@@ -226,7 +231,7 @@ export default function Table() {
             )
         },
         {
-            title: "Chi phí tuyển dụng", field: "CPTD",
+            title: "Chi phí tuyển dụng", field: "CPTD", cellStyle: { whiteSpace: 'nowrap' },
             render: (rowData) => {
                 let flag = true;
                 if (JSON.parse(rowData['Pheduyet'])[4]) {
@@ -279,6 +284,7 @@ export default function Table() {
         // },
         {
             title: "Ban quản lí",
+            cellStyle: { whiteSpace: 'nowrap' },
             field: "BQL",
             render: (rowData) => {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BQL']
@@ -318,6 +324,7 @@ export default function Table() {
         },
         {
             title: "Ban kế toán ",
+            cellStyle: { whiteSpace: 'nowrap' },
             field: "BKT",
             render: (rowData) => {
                 const arraySteps = convertProperty(rowData['Pheduyet'])['BKT']
@@ -346,6 +353,7 @@ export default function Table() {
         {
             title: "Người tạo",
             field: "idTao",
+            cellStyle: { whiteSpace: 'nowrap' },
             render: rowData => (
                 <CustomName data={rowData.idTao} />
             ),
@@ -364,7 +372,7 @@ export default function Table() {
     if (isHiddenCols) {
         isResult = isHiddenCols.split(",")
     }
-    const flagColumns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
+    const flagColumns = headers.map(item => ({ ...item, align: "center", headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
     const [columns, setColumns] = useState(flagColumns)
     const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
     useEffect(async () => {

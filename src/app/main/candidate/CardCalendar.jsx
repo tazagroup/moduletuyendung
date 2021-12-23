@@ -1,7 +1,7 @@
 import React from 'react'
 //REDUX
 import { useSelector, useDispatch } from "react-redux"
-import { updateCandidate } from 'app/store/fuse/candidateSlice'
+import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
 //MUI
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -18,6 +18,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import EditCalendar from './EditCalendar';
+//API
 import candidatesAPI from "api/candidatesAPI"
 const ExpandMore = styled((props) => {
   const { expand, ...other } = props;
@@ -52,6 +53,22 @@ export default function CardCalendar({ item }) {
     setAnchorEl(null)
     setIsEditing(true)
   }
+  const handleDelete = async () => {
+    const calendar = JSON.parse(currentEdit.LichPV)
+    const index = calendar.VongPV.findIndex(item => item.id == currentEdit.id)
+    calendar.VongPV.splice(index, 1)
+    const newCalendar = {
+      ...calendar,
+      VongPV: JSON.stringify(calendar.VongPV)
+    }
+    const bodyData = {
+      ...currentEdit,
+      LichPV: JSON.stringify(calendar.VongPV.length == 0 ? {} : newCalendar)
+    }
+    const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+    dispatch(updateFlagCandidate(bodyData))
+    setAnchorEl(null)
+  }
   const handleChangeStatus = async (event) => {
     setValue(event.target.value);
     const calendar = JSON.parse(currentEdit.LichPV)
@@ -65,7 +82,8 @@ export default function CardCalendar({ item }) {
       LichPV: JSON.stringify(calendar)
     }
     const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-    dispatch(updateCandidate(response.data))
+
+    dispatch(updateFlagCandidate(bodyData))
   };
   const getNameById = (id) => {
     return users.find(item => item.id == id)?.name
@@ -148,6 +166,7 @@ export default function CardCalendar({ item }) {
         }}
       >
         <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
+        <MenuItem onClick={handleDelete}>Xóa</MenuItem>
       </Menu>
       {isEditing &&
         <EditCalendar

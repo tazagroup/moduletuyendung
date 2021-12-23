@@ -6,6 +6,7 @@ import navigation from './navigationSlice';
 import settings from './settingsSlice';
 import tickets from './ticketsSlice'
 import candidates from './candidateSlice'
+import notices from './noticesSlice'
 import user from './userSlice'
 const fuseReducers = combineReducers({
   navigation,
@@ -15,6 +16,7 @@ const fuseReducers = combineReducers({
   dialog,
   tickets,
   candidates,
+  notices,
   user
 });
 

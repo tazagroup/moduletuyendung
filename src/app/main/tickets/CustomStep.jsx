@@ -21,6 +21,7 @@ import ModalApproveCurrency from './ModalApproveCurrency'
 import { CustomTooltip } from "./TicketStatus"
 //API
 import ticketsAPI from "api/ticketsAPI"
+import noticesAPI from 'api/noticesAPI'
 const CustomStep = ({ item, data, setDataStatus }) => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.fuse.tickets.users)
@@ -195,7 +196,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     return (
         <>
             <div style={{ alignItems: "center", marginLeft: "12px" }}>
-                Bước {item.id + 1}-{checkStatus(item.status)}
+                Bước {item.id + 1} - {checkStatus(item.status)}
                 <Menu
                     id="basic-menu"
                     anchorEl={anchorEl}

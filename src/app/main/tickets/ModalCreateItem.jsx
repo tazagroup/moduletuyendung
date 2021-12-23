@@ -19,7 +19,7 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
 //API
 import ticketsAPI from "api/ticketsAPI"
-
+import noticesAPI from "api/noticesAPI"
 //TEST
 
 const schema = yup.object().shape({
@@ -120,6 +120,15 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             variant: 'success'
         }))
         handleClose()
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": 231,
+            "idModule": 3,
+            "Loai": 1,
+            "Noidung": response.data.attributes.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
     }
     return (
         <Dialog

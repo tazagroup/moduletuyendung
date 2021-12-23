@@ -89,6 +89,8 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             Profile: JSON.stringify(profile),
             LichPV: JSON.stringify({}),
             XacnhanHS: JSON.stringify({ Duyet: 0 }),
+            DuyetHS: JSON.stringify({}),
+            DanhgiaHS: JSON.stringify({}),
             idTao: user.profile.id
         }
         const response = await candidatesAPI.postCandidate(bodyData)

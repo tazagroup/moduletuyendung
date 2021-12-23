@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCandidate } from 'app/store/fuse/candidateSlice'
+import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice'
 //MUI
-import { Dialog, DialogTitle, DialogContent, DialogActions, FormControl, Grid, Button } from '@mui/material'
+import { Dialog, DialogTitle, DialogContent, DialogActions, FormControl, Grid, Button, Typography } from '@mui/material'
 import { makeStyles, TextField } from '@material-ui/core';
 import CloseIcon from '@mui/icons-material/Close';
 import Flatpickr from "react-flatpickr";
@@ -49,7 +49,7 @@ const EditCalendar = ({ open, item, handleClose }) => {
             LichPV: JSON.stringify(calendar)
         }
         const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-        dispatch(updateCandidate(response.data))
+        dispatch(updateFlagCandidate(bodyData))
         handleClose()
     }
 
@@ -65,7 +65,7 @@ const EditCalendar = ({ open, item, handleClose }) => {
             <DialogContent>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
-                        <p style={{ fontSize: "12.5px", color: "rgba(0, 0, 0, 0.6)" }}>Thời gian phỏng vấn</p>
+                        <p style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Thời gian phỏng vấn</p>
                         <FormControl fullWidth>
                             <Flatpickr
                                 value={selectedDate}
@@ -78,10 +78,12 @@ const EditCalendar = ({ open, item, handleClose }) => {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"Ghi chú"} />
+                        <Typography variant="h6">Ghi chú</Typography>
+                        <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"ghi chú"} />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <Tinymce value={comment} onChange={(e) => { setComment(e) }} label={"Đánh giá"} />
+                        <Typography variant="h6">Đánh giá</Typography>
+                        <Tinymce value={comment} onChange={(e) => { setComment(e) }} label={"đánh giá"} />
                     </Grid>
                 </Grid>
             </DialogContent>

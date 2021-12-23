@@ -21,13 +21,13 @@ const AutocompleteObjField = (props) => {
             renderOption={(props, option) => {
                 const pos = field == "name" && arrayPosition.find(item => item.id == option.position)?.Thuoctinh
                 return (
-                    <li {...props} key={option.id}>
+                    <li {...props} key={option.id} style={{ fontSize: "13px" }}>
                         {option[`${field}`]} {`${pos ? "- " + pos : ""}`}
                     </li>
                 )
             }}
             fullWidth={true}
-            renderInput={(params) => <TextField {...params} id="Haha" InputLabelProps={{ shrink: true }} label={label} variant="standard" />}
+            renderInput={(params) => <TextField {...params} InputLabelProps={{ shrink: true }} label={label} variant="standard" />}
         />
     )
 }

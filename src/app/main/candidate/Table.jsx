@@ -15,15 +15,17 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
-import { CustomCV, CustomStatus } from './CustomCell'
+import { CustomCV, CustomStatus, CustomExperts } from './CustomCell'
 import { CustomName } from '../CustomField/CustomId'
 import { CustomDateEdit, CustomAutocompleteNameEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
+
 //API
 import ticketsAPI from 'api/ticketsAPI';
 import candidatesAPI from 'api/candidatesAPI';
 const Table = () => {
     const dispatch = useDispatch();
     const data = useSelector(state => state.fuse.candidates.dataCandidate)
+    const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket).filter(item => item.Trangthai == 2)
     const position = useSelector(state => state.fuse.tickets.position)
     const [rowData, setRowData] = useState({})
@@ -66,6 +68,11 @@ const Table = () => {
         dispatch(setDataCandidate(responseCandidate))
         setIsLoading(false)
     }, [])
+    useEffect(() => {
+        if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
+            dispatch(updateFlagCandidate(rowData))
+        }
+    }, [rowData])
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
@@ -153,33 +160,21 @@ const Table = () => {
             }
         },
         {
-            title: "Duyệt hồ sơ", field: "XacnhanHS",
+            title: "Duyệt hồ sơ", field: "Duyet",
             render: rowData => {
-                const data = rowData['XacnhanHS']?.Duyet
-                console.log(data)
-                return <></>
-                // return <CustomStatus />
+                const item = JSON.parse(rowData['XacnhanHS'])?.Duyet
+                return <CustomStatus item={item} field="Duyet" />
             }
         },
         {
-            title: "Xác nhận phỏng vấn", field: "XacnhanHS",
+            title: "Xác nhận phỏng vấn", field: "XNPV",
+            render: rowData => {
+                const item = JSON.parse(rowData['XacnhanHS'])?.XNPV
+                const status = [2, 3].includes(JSON.parse(rowData['DanhgiaHS'])?.Trangthai)
+                const check = JSON.parse(rowData['XacnhanHS']).hasOwnProperty('XNPV') && !status
+                return check ? <CustomStatus item={item} field="XNPV" /> : <ClearIcon />
+            }
         },
-        // {
-        //     title: "Xác nhận phỏng vấn", field: "MoiPV",
-        //     render: rowData => (<CustomStatus item={rowData} field="MoiPV" />),
-        //     emptyValue: rowData => (<ClearIcon />),
-        //     filterComponent: props => {
-        //         const data = ["Đã duyệt", "Chưa duyệt", "Từ chối"]
-        //         return <CustomSelectNumber {...props} data={data} width={130} field="MoiPV" collection="candidates" />
-        //     },
-        //     customFilterAndSearch: (term, rowData) => {
-        //         if (term.length === 0 || term.length === 2) return true;
-        //         const { DuyetCV } = rowData;
-        //         if (term.length === 1) {
-        //             return term.includes("Đã duyệt") ? DuyetCV === true : DuyetCV === false
-        //         }
-        //     }
-        // },
         {
             title: "CV", field: "CV",
             render: rowData => {
@@ -196,6 +191,28 @@ const Table = () => {
                 const type = profile.CV.split('%2F')[1].split('?alt')[0].split('.')[1]
                 return term.includes(type)
             }
+        },
+        {
+            title: "Ban chuyên môn", field: "BCM",
+            render: rowData => {
+                const check = JSON.parse(rowData['DuyetHS'])
+                return Object.keys(check).length != 0 ? <CustomExperts item={rowData} /> : <></>
+            },
+            filterComponent: (rowData) => <></>
+        },
+        {
+            title: "Ban quản lí", field: "BQL",
+            render: rowData => {
+                return <></>
+            },
+            filterComponent: (rowData) => <></>
+        },
+        {
+            title: "Ban tuyển dụng", field: "BTD",
+            render: rowData => {
+                return <></>
+            },
+            filterComponent: (rowData) => <></>
         },
         {
             title: "Ngày tạo",
@@ -264,6 +281,7 @@ const Table = () => {
                 editable={{
                     isEditHidden: (rowData) => rowData,
                 }}
+                onRowClick={(event, rowData) => { setRowData(rowData) }}
                 localization={{
                     toolbar: { showColumnsTitle: "Hiển thị cột", addRemoveColumns: "" },
                     header: { actions: "" },
@@ -280,6 +298,14 @@ const Table = () => {
                     search: false,
                     paging: true,
                     filtering: isFiltering,
+                    toolbarButtonAlignment: "left",
+                    rowStyle: rowData => {
+                        let selected = flagCandidate && flagCandidate.tableData?.id === rowData.tableData.id;
+                        return {
+                            backgroundColor: selected ? "#3b5998" : "#FFF",
+                            color: selected ? "#fff" : "#000",
+                        };
+                    },
                 }}
                 icons={{ ViewColumn: ViewColumnIcon, }}
             >

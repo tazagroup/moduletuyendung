@@ -67,10 +67,16 @@ const Table = () => {
         const responseCandidate = await candidatesAPI.getCandidate()
         dispatch(setDataCandidate(responseCandidate))
         setIsLoading(false)
+        return () => {
+
+        }
     }, [])
     useEffect(() => {
         if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
             dispatch(updateFlagCandidate(rowData))
+        }
+        return () => {
+
         }
     }, [rowData])
     const headers = [

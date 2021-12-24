@@ -98,6 +98,9 @@ const InfoCandidate = ({ open, handleClose }) => {
         //set selected ticket
         setTicket(flag)
         setTickets(tickets)
+        return () => {
+
+        }
     }, [])
     const handleTicketChange = (e, newValue) => {
         setTicket(newValue)

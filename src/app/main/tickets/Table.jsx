@@ -68,12 +68,13 @@ const getPriceValue = (array) => {
     return { minPrice, maxPrice }
 }
 export default function Table() {
-    // get params 
-    // const search = useLocation().search;
-    // const name = new URLSearchParams(search).get("id")
-    // console.log(name)
+    const search = useLocation().search
+    const queryParams = new URLSearchParams(search)
+    const idParam = queryParams.get("id")
+    //////////////////////////////////////////////////////////
     const dispatch = useDispatch()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const flagTicket = useSelector(state => state.fuse.tickets.flagTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
     const user = JSON.parse(localStorage.getItem("profile"))
@@ -92,11 +93,9 @@ export default function Table() {
     const [isHidden, setIsHidden] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
-
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
-            filterComponent: props => { return <></> },
             render: rowData => (
                 <div style={{ display: "flex", alignItems: "center" }}>
                     <IconButton
@@ -107,7 +106,8 @@ export default function Table() {
                     </IconButton >
                     <p>{rowData.id + 1}</p>
                 </div>
-            )
+            ),
+            filterComponent: props => { return <></> },
         },
         {
             title: "Vị trí tuyển dụng", field: "Vitri", cellStyle: { whiteSpace: 'nowrap' },
@@ -119,7 +119,7 @@ export default function Table() {
                 if (term.length === 0) return true;
                 const { Vitri } = rowData;
                 return term.map(item => parseInt(item.id)).includes(Vitri);
-            }
+            },
         },
         { title: "Hiện có", field: "SLHT", type: 'numeric' },
         { title: "Cần tuyển", field: "SLCT", type: "numeric" },
@@ -268,20 +268,6 @@ export default function Table() {
                 return sourceCondition && CPDKCondition && CPTTCondition && CPCLCondition
             },
         },
-        // {
-        //     title: "Trạng thái", field: "Trang thai",
-        //     render: (rowData) => getStatusRendering(rowData),
-        //     editComponent: (rowData) => <></>,
-        //     filterComponent: props => {
-        //         const data = ["Chưa thanh toán", "Đã thanh toán"]
-        //         return <CustomSelectEdit {...props} data={data} width={150} field="Tinhtrang" />
-        //     },
-        //     customFilterAndSearch: (term, rowData) => {
-        //         if (term.length === 0 || term.length === 2) return true;
-        //         const { Tinhtrang } = rowData;
-        //         return term.includes(Tinhtrang);
-        //     }
-        // },
         {
             title: "Ban quản lí",
             cellStyle: { whiteSpace: 'nowrap' },
@@ -376,25 +362,42 @@ export default function Table() {
     const [columns, setColumns] = useState(flagColumns)
     const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
     useEffect(async () => {
-        if (dataTicket.length === 0) {
-            const [responseData, responsePosition, responseUser] = await Promise.all([
-                ticketsAPI.getTicket(),
-                ticketsAPI.getPosition(),
-                ticketsAPI.getUser()
-            ])
-            const { data: { attributes: { Dulieu } } } = responsePosition
-            const { data } = responseUser
-            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
-            dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
-            setIsLoading(false)
+        let isFetching = true;
+        if (isFetching) {
+            if (dataTicket.length === 0) {
+                const [responseData, responsePosition, responseUser] = await Promise.all([
+                    ticketsAPI.getTicket(),
+                    ticketsAPI.getPosition(),
+                    ticketsAPI.getUser()
+                ])
+                const { data: { attributes: { Dulieu } } } = responsePosition
+                const { data } = responseUser
+                const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+                dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+                setIsLoading(false)
+            }
+            else {
+                setIsLoading(false)
+            }
         }
-        else {
-            setIsLoading(false)
+        return () => {
+            isFetching = false;
         }
     }, [])
     useEffect(() => {
-        localStorage.setItem("hidden", hiddenColumns);
+        let isFetching = true
+        if (isFetching) {
+            localStorage.setItem("hidden", hiddenColumns);
+        }
+        return () => {
+            isFetching = false
+        }
     }, [hiddenColumns])
+    useEffect(() => {
+        const data = flagTicket.filter(item => item.key == idParam)
+        console.log(data)
+        dispatch(refreshTicket(data))
+    }, [idParam])
     const handleClick = (event, row) => {
         setRowData(row);
         setAnchorEl(event.currentTarget);
@@ -420,7 +423,7 @@ export default function Table() {
         setIsFiltering(false)
         dispatch(refreshTicket([]))
         setTimeout(() => {
-            dispatch(refreshTicket([...dataTicket]))
+            dispatch(refreshTicket([...flagTicket]))
         }, 0)
     }
     //FILTER RANGE NUMBER

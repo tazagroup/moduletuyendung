@@ -61,6 +61,9 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         //GET THE CURRENT TICKETS
         const tickets = dataTicket.filter(item => item.Trangthai == 2)
         setTickets(tickets)
+        return () => {
+
+        }
     }, [])
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh

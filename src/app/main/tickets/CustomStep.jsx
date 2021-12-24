@@ -64,12 +64,12 @@ const CustomStep = ({ item, data, setDataStatus }) => {
          - Ticket's step equal array steps
          - If the current step is in mode edit, only previous step can change mode
         */
-        const bqlCondition = user.profile.PQTD.includes("5") && currentPos == 1 && item?.Nguoiduyet.includes(user.profile.id)
-        const btdCondition = user.profile.PQTD.includes("2") && stepBTD.includes(currentPos - 1)
-        const bgdCondition = user.profile.PQTD.includes("3") && stepBGD.includes(currentPos - 1) && item?.Nguoiduyet.includes(user.profile.id)
-        const bktCondition = user.profile.PQTD.includes("4") && currentPos == 6
+        const bqlCondition = user.profile.PQTD.includes(5) && currentPos == 1
+        const btdCondition = user.profile.PQTD.includes(2) && stepBTD.includes(currentPos - 1)
+        const bgdCondition = user.profile.PQTD.includes(3) && stepBGD.includes(currentPos - 1)
+        const bktCondition = user.profile.PQTD.includes(4) && currentPos == 6
         const refuseTicket = data.Trangthai == 3 || data.Trangthai == 2
-        const stepCondition = (bqlCondition || btdCondition || bgdCondition || bktCondition)
+        const stepCondition = (bqlCondition || btdCondition || bgdCondition || bktCondition) && item?.Nguoiduyet.includes(user.profile.id)
         if (!refuseTicket && stepCondition) {
             if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
                 setAnchorEl(e.currentTarget)
@@ -102,7 +102,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         else if (item.id === 1) {
             //Choose a censor
             const newStep = { id: item.id + 1, status: 0, Nguoiduyet: [value.id], Ngaytao: new Date().toISOString() }
-            
             flagArray.push(newStep)
         }
         else if (item.id === 5) {
@@ -111,11 +110,11 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         //Add new steps ( - step 6th )
         else if (item.id !== 6) {
             //Current user check
-            const newStep = { id: item.id + 1, status: 0, Ngaytao: new Date().toISOString() }
+            const newStep = { id: item.id + 1, status: 0, Nguoiduyet: [value.id], Ngaytao: new Date().toISOString() }
             flagArray.push(newStep)
         }
         const bodyData = {
-            Trangthai: item.id === 6 ? 2 : 1,
+            Trangthai: item.id == 6 ? 2 : 1,
             Pheduyet: JSON.stringify([...flagArray]),
         }
         if (item.id === 1) {
@@ -131,6 +130,15 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         if (item.id !== 3 && item.id !== 5) {
             showNotify()
         }
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": value.id,
+            "idModule": 3,
+            "Loai": 1,
+            "Noidung": data.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
     }
     const handleRefuse = async (e) => {
         handleSubClose()
@@ -193,6 +201,15 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         return users.find(item => item.id == id).name
     }
     const stepSuccessName = item.id !== 6 ? (item.id === 5 ? "Đã thanh toán" : "Phê duyệt") : "Triển khai tuyển dụng"
+    const checkApprove = (option) => {
+        if ([0, 2, 5].includes(item.id)) {
+            return Array.isArray(option.PQTD) ? option.PQTD.includes(2) : option.PQTD == 2
+        }
+        else if ([1, 3, 6].includes(item.id)) {
+            return Array.isArray(option.PQTD) ? option.PQTD.includes(3) : option.PQTD == 3
+        }
+        return Array.isArray(option.PQTD) ? option.PQTD.includes(4) : option.PQTD == 4
+    }
     return (
         <>
             <div style={{ alignItems: "center", marginLeft: "12px" }}>
@@ -203,19 +220,15 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                     open={open}
                     onClose={handleClose}
                 >
-                    {(item.status !== 1) &&
-                        (item.id === 1 || item.id === 3) ?
-                        <NestedMenuItem
-                            label={"Phê duyệt"}
-                            parentMenuOpen={open}
-                        >
-                            {/* Người duyệt  */}
-                            {users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3).map(item => (
-                                <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
-                            ))}
-                        </NestedMenuItem> :
-                        <MenuItem onClick={handleApprove}>{stepSuccessName}</MenuItem>
-                    }
+                    <NestedMenuItem
+                        label={"Phê duyệt"}
+                        parentMenuOpen={open}
+                    >
+                        {/* Người duyệt  */}
+                        {users.filter(checkApprove).map(item => (
+                            <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
+                        ))}
+                    </NestedMenuItem>
                     {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
                     {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}
                 </Menu>
@@ -258,12 +271,9 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                     />
                 }
             </div >
-            {item.status == 0 && [0, 2, 4].includes(item.id)
-                &&
-                <CustomTooltip title={item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
-                    <AccountCircleIcon />
-                </CustomTooltip>
-            }
+            <CustomTooltip title={item?.Nguoiduyet && item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
+                <AccountCircleIcon />
+            </CustomTooltip>
         </>
     )
 }

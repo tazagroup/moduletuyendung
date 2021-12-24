@@ -4,6 +4,7 @@ const ticketsSlice = createSlice({
     name: 'tickets',
     initialState: {
         dataTicket: [],
+        flagTicket: [],
         position: [],
         users: [],
         isLoading: true,
@@ -26,6 +27,7 @@ const ticketsSlice = createSlice({
                 key,
                 ...item,
             }))
+            state.flagTicket = state.dataTicket
             state.position = JSON.parse(position);
             state.users = users;
         },

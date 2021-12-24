@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from "react-redux"
 import { setDataNotice } from "app/store/fuse/noticesSlice"
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { IconButton, Menu, MenuItem, List, Badge } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import noticesAPI from "api/noticesAPI"
-import { Link } from "react-router-dom"
+import { Link, Redirect } from "react-router-dom"
+
 const NotificationButton = () => {
     const dispatch = useDispatch()
     const dataNotice = useSelector(state => state.fuse.notices.dataNotice)
@@ -16,6 +19,7 @@ const NotificationButton = () => {
         setAnchorEl(e.currentTarget);
     };
     useEffect(() => {
+        let isFetching = true;
         const fetchData = async () => {
             const user = JSON.parse(localStorage.getItem("profile"))
             const [responseNotice, responseSetting] = await Promise.all([
@@ -23,23 +27,30 @@ const NotificationButton = () => {
                 noticesAPI.getSettings()
             ])
             const data = responseNotice.data.filter(item => item.attributes.idNhan == user?.profile.id) || []
-            dispatch(setDataNotice(data))
-            setSettings(JSON.parse(responseSetting.data.attributes.Dulieu))
+            if (isFetching) {
+                dispatch(setDataNotice(data))
+                setSettings(JSON.parse(responseSetting.data.attributes.Dulieu))
+            }
         }
         fetchData()
+        return () => {
+            isFetching = false
+        }
     }, [])
     const NoticeItem = ({ item }) => {
         const main = item.attributes
         return (<MenuItem>
             <List
-                sx={{ width: "350px" }}
+                sx={{ width: "400px" }}
                 component="div"
                 aria-labelledby="nested-list-subheader"
             >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Avatar>K</Avatar>
-                    <p>Tuyển dụng</p>
-                    <Link to={`/ve-tuyen-dung/${main.Noidung}`}>{`#${main.Noidung}`}</Link>
+                <div style={{ display: "flex", gap: "0 35px", alignItems: "center" }}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                        <Avatar>K</Avatar>
+                    </div>
+                    <p>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
+                    <Link to={`/ve-tuyen-dung/?id=${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>
             </List>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Redirect, useHistory } from "react-router-dom"
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,9 +45,7 @@ function LoginForm(props) {
     async function onSubmit(e) {
         const response = await axios.post(`https://tazagroup.vn/index.php?option=com_users&task=user.loginAjax&username=${e.username}&password=${e.password}&format=json`)
         //7 days
-        const profile = response.data.User
-        const decentralization = JSON.parse(profile.Profile)?.PQTD
-        console.log(decentralization)
+        const profile = response.data?.User
         if (response.data.loggedIn == 0) {
             Swal.fire({
                 icon: 'error',
@@ -55,7 +53,7 @@ function LoginForm(props) {
                 text: 'Tài khoản hoặc mật khẩu không đúng !',
             })
         }
-        else if (!decentralization.map(item => item >= 1).includes(true) || decentralization == undefined) {
+        else if (!JSON.parse(profile.Profile)?.PQTD.map(item => item >= 1).includes(true) || JSON.parse(profile.Profile)?.PQTD == undefined) {
             Swal.fire({
                 icon: 'error',
                 title: 'Đăng nhập thất bại',

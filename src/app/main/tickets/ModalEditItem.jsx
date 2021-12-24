@@ -275,14 +275,14 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                 </React.Fragment>
                             ))}
                             {/* Ngày cần thanh toán  */}
-                            <Grid item xs={12}>
+                            {valueCPTD && <Grid item xs={12}>
                                 <FormControl variant="standard" fullWidth>
                                     <DateField label="Ngày cần thanh toán"
                                         value={selectedDate4}
                                         handleChange={setSelectedDate4}
                                         disabled={steps.length === 7} />
                                 </FormControl>
-                            </Grid>
+                            </Grid>}
                         </Grid>
                     </DialogContent>
                     <DialogActions style={{ paddingRight: "22px" }}>

@@ -8,11 +8,12 @@ import Popover from '@material-ui/core/Popover';
 import Typography from '@material-ui/core/Typography';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { logoutUser } from 'app/auth/store/userSlice';
+import { Link, useHistory } from 'react-router-dom';
+
 
 function UserMenu(props) {
   const dispatch = useDispatch();
+  const history = useHistory()
   const user = JSON.parse(localStorage.getItem("profile"))
   const [userMenu, setUserMenu] = useState(null);
   const userMenuClick = (event) => {
@@ -23,7 +24,7 @@ function UserMenu(props) {
   };
   const handleLogout = () => {
     localStorage.removeItem("profile")
-    window.location.reload()
+    history.push('/dang-nhap')
   }
   return (
     <>

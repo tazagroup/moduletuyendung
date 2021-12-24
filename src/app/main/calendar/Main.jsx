@@ -90,6 +90,7 @@ const Main = () => {
                 <ModalCalendarItem
                     open={openModal}
                     item={calendarData}
+                    handleClose={() => { setOpenModal(false) }}
                 />
             }
         </>

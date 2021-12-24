@@ -168,6 +168,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                 handleChange={(e, newValue) => { setSource(newValue) }}
                                 arrayItem={arraySource}
                                 disabled={ticket == ""}
+                                style={{ color: "rgba(0, 0, 0, 0.38) !important" }}
                             />
                         </Grid>
                         <Grid item xs={12} md={4}>

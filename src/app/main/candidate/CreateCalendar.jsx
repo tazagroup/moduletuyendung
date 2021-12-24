@@ -1,15 +1,15 @@
 import React, { useState } from 'react'
 //REDUX
-import { useDispatch, useSelector } from 'react-redux';
-import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
 import { showMessage } from 'app/store/fuse/messageSlice';
+import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
+import { useDispatch, useSelector } from 'react-redux';
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Flatpickr from "react-flatpickr";
-import AutocompleteObjField from "../CustomField/AutocompleteObj"
 import Tinymce from '../CustomField/Tinymce'
+import AutocompleteObjField from "../CustomField/AutocompleteObj"
 //API
 import candidatesAPI from "api/candidatesAPI"
 import noticesAPI from "api/noticesAPI"

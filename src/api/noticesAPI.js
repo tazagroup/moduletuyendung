@@ -12,6 +12,10 @@ const noticesAPI = {
     postNotice(data) {
         const url = "/hrms/notifications";
         return axiosClient.post(url, data);
+    },
+    updateNotice(data) {
+        const url = `/hrms/notifications/${data.id}`;
+        return axiosClient.patch(url, data);
     }
 };
 

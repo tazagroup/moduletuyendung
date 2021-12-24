@@ -53,7 +53,7 @@ function LoginForm(props) {
                 text: 'Tài khoản hoặc mật khẩu không đúng !',
             })
         }
-        else if (!JSON.parse(profile.Profile)?.PQTD.map(item => item >= 1).includes(true) || JSON.parse(profile.Profile)?.PQTD == undefined) {
+        else if (JSON.parse(profile.Profile)?.PQTD == undefined || !JSON.parse(profile.Profile)?.PQTD.map(item => item >= 1).includes(true)) {
             Swal.fire({
                 icon: 'error',
                 title: 'Đăng nhập thất bại',

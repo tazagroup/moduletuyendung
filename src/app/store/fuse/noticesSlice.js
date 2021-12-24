@@ -9,9 +9,13 @@ const noticesSlice = createSlice({
         setDataNotice: (state, action) => {
             state.dataNotice = action.payload
         },
+        updateNotice: (state, action) => {
+            const index = state.dataNotice.findIndex(item => item.id == action.payload.attributes.id)
+            state.dataNotice[index] = action.payload
+        }
     },
 });
 
-export const { setDataNotice } = noticesSlice.actions;
+export const { setDataNotice, updateNotice } = noticesSlice.actions;
 
 export default noticesSlice.reducer;

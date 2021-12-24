@@ -1,0 +1,6 @@
+.fc-event-main,
+.fc-daygrid-event,
+.fc-event-main-frame {
+    overflow: hidden;
+    cursor: pointer;
+}

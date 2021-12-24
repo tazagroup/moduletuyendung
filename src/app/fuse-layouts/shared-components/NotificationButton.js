@@ -50,7 +50,7 @@ const NotificationButton = () => {
                         <Avatar>User</Avatar>
                     </div>
                     <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
-                    <Link to={`${settings.find(item => item.id == main.idModule)?.Link} /? id = ${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
+                    <Link to={`${settings.find(item => item.id == main.idModule)?.Link}/?id=${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>
             </List>

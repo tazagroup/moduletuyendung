@@ -3,7 +3,7 @@ import React, { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCandidate } from 'app/store/fuse/candidateSlice';
 //MUI
-import { Tooltip, FormControl, Menu, MenuItem } from '@mui/material';
+import { Tooltip, Menu, MenuItem } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';

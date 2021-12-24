@@ -10,13 +10,12 @@ import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CachedIcon from '@mui/icons-material/Cached';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { styled } from "@mui/material/styles"
 //COMPONENTS
 import FuseLoading from '@fuse/core/FuseLoading';
 import ModalEditItem from './ModalEditItem'
@@ -56,6 +55,11 @@ const style = {
 const MenuButton = {
     fontSize: "13px"
 }
+const TextTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
+))(`
+      font-size: 1em;
+  `);
 const getPriceValue = (array) => {
     const salary = [
         { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
@@ -202,13 +206,13 @@ export default function Table() {
             render: (rowData) => {
                 return (
                     <div className="renderHTML">
-                        <Tooltip title="Mô tả">
+                        <TextTooltip title="Mô tả">
                             <IconButton
                                 onClick={(event) => { setCustomNotice({ open: true, data: rowData.Mota, field: "Mô tả tuyển dụng" }) }}
                                 size="medium">
                                 <VisibilityIcon />
                             </IconButton>
-                        </Tooltip>
+                        </TextTooltip>
                         <div dangerouslySetInnerHTML={{ __html: rowData.Mota }}></div>
                     </div>
                 )
@@ -219,13 +223,13 @@ export default function Table() {
             field: "Yeucau",
             render: (rowData) => (
                 <div className="renderHTML">
-                    <Tooltip title="Yêu cầu">
+                    <TextTooltip title="Yêu cầu">
                         <IconButton
                             onClick={(event) => { setCustomNotice({ open: true, data: rowData.Yeucau, field: "Yêu cầu tuyển dụng" }) }}
                             size="medium">
                             <VisibilityIcon />
                         </IconButton>
-                    </Tooltip>
+                    </TextTooltip>
                     <div dangerouslySetInnerHTML={{ __html: rowData.Yeucau }}></div>
                 </div>
             )

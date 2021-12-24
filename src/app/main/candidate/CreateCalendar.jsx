@@ -12,6 +12,7 @@ import AutocompleteObjField from "../CustomField/AutocompleteObj"
 import Tinymce from '../CustomField/Tinymce'
 //API
 import candidatesAPI from "api/candidatesAPI"
+import noticesAPI from "api/noticesAPI"
 const useStyles = makeStyles({
     title: {
         width: "100%",
@@ -29,6 +30,7 @@ const useStyles = makeStyles({
 const CreateCalendar = ({ open, handleClose, candidate, position }) => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.fuse.tickets.users)
+    const user = JSON.parse(localStorage.getItem("profile"))
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [censor, setCensor] = useState(null)
@@ -71,9 +73,18 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
                 horizontal: 'right'
             },
             variant: 'success'
-        })) 
-        // const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        }))
+        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(updateFlagCandidate(bodyData))
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": censor.id,
+            "idModule": 4,
+            "Loai": 1,
+            "Noidung": bodyData.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
         handleClose()
     }
     return (
@@ -90,7 +101,7 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
                         <FormControl variant="standard" fullWidth>
                             <AutocompleteObjField
                                 value={censor}
-                                options={users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes("3") : item.PQTD == 3)}
+                                options={users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes(3) : item.PQTD == 3)}
                                 onChange={handleChangeCensor}
                                 field="name"
                                 label="Người kiểm duyệt"

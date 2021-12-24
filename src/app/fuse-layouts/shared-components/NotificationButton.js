@@ -47,10 +47,10 @@ const NotificationButton = () => {
             >
                 <div style={{ display: "flex", gap: "0 35px", alignItems: "center" }}>
                     <div style={{ display: "flex", alignItems: "center" }}>
-                        <Avatar>K</Avatar>
+                        <Avatar>User</Avatar>
                     </div>
                     <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
-                    <Link to={`/ve-tuyen-dung/?id=${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
+                    <Link to={`${settings.find(item => item.id == main.idModule)?.Link} /? id = ${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>
             </List>

@@ -41,7 +41,7 @@ const NotificationButton = () => {
         const main = item.attributes
         return (<MenuItem>
             <List
-                sx={{ width: "400px" }}
+                sx={{ width: "400px", overflow: "hidden" }}
                 component="div"
                 aria-labelledby="nested-list-subheader"
             >

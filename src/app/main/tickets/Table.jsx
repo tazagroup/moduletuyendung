@@ -394,8 +394,10 @@ export default function Table() {
         }
     }, [hiddenColumns])
     useEffect(() => {
-        const data = flagTicket.filter(item => item.key == idParam)
-        dispatch(refreshTicket(data))
+        if (idParam) {
+            const data = flagTicket.filter(item => item.key == idParam)
+            dispatch(refreshTicket(data))
+        }
     }, [idParam])
     const handleClick = (event, row) => {
         setRowData(row);

@@ -32,6 +32,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const [openRefuseDialog, setOpenRefuseDialog] = useState(false);
     const [openAccountantDialog, setOpenAccountantDialog] = useState(false);
     const [reason, setReason] = useState('')
+    const [idCensor, setIdCensor] = useState('')
     //STEPS
     const stepBTD = [1, 3, 6]
     const stepBGD = [2, 4]
@@ -106,6 +107,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         }
         else if (item.id === 5) {
             setOpenAccountantDialog(true)
+            setIdCensor(value.id)
         }
         //Add new steps ( - step 6th )
         else if (item.id !== 6) {
@@ -127,18 +129,19 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         }
         dispatch(updateTicket(response.data))
         setDataStatus(rowData)
-        if (item.id !== 3 && item.id !== 5) {
+        if (item.id !== 3 && item.id !== 5 && item.id != 6) {
             showNotify()
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": value.id,
+                "idModule": 3,
+                "Loai": 1,
+                "Noidung": data.key,
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
         }
-        const noticeData = {
-            "idGui": user.profile.id,
-            "idNhan": value.id,
-            "idModule": 3,
-            "Loai": 1,
-            "Noidung": data.key,
-            "idTao": user.profile.id
-        }
-        noticesAPI.postNotice(noticeData)
+
     }
     const handleRefuse = async (e) => {
         handleSubClose()
@@ -200,7 +203,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const findNameById = (id) => {
         return users.find(item => item.id == id).name
     }
-    const stepSuccessName = item.id !== 6 ? (item.id === 5 ? "Đã thanh toán" : "Phê duyệt") : "Triển khai tuyển dụng"
     const checkApprove = (option) => {
         if ([0, 2, 5].includes(item.id)) {
             return Array.isArray(option.PQTD) ? option.PQTD.includes(2) : option.PQTD == 2
@@ -220,7 +222,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                     open={open}
                     onClose={handleClose}
                 >
-                    <NestedMenuItem
+                    {item.id != 6 && <NestedMenuItem
                         label={"Phê duyệt"}
                         parentMenuOpen={open}
                     >
@@ -228,7 +230,8 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                         {users.filter(checkApprove).map(item => (
                             <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
                         ))}
-                    </NestedMenuItem>
+                    </NestedMenuItem>}
+                    {item.id == 6 && <MenuItem onClick={handleApprove}>Triển khai tuyển dụng</MenuItem>}
                     {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
                     {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}
                 </Menu>
@@ -268,12 +271,15 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                         data={data}
                         setDataStatus={setDataStatus}
                         handleClose={handleCloseADialog}
+                        censor={idCensor}
                     />
                 }
             </div >
-            <CustomTooltip title={item?.Nguoiduyet && item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
-                <AccountCircleIcon />
-            </CustomTooltip>
+            {item.status != 1 &&
+                <CustomTooltip title={item?.Nguoiduyet && item?.Nguoiduyet.map(item => (<div key={item}>{findNameById(item)}</div>))}>
+                    <AccountCircleIcon />
+                </CustomTooltip>
+            }
         </>
     )
 }

@@ -395,7 +395,6 @@ export default function Table() {
     }, [hiddenColumns])
     useEffect(() => {
         const data = flagTicket.filter(item => item.key == idParam)
-        console.log(data)
         dispatch(refreshTicket(data))
     }, [idParam])
     const handleClick = (event, row) => {
@@ -450,7 +449,7 @@ export default function Table() {
                                 onClick={() => setIsCreateTicket(true)}
                                 variant="contained"
                                 color="secondary"
-                                disabled={!user.profile.PQTD.includes("5")}
+                                disabled={!user.profile.PQTD.includes(5)}
                                 size="large">
                                 <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                             </IconButton>

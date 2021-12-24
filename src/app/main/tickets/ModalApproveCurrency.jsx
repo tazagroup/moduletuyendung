@@ -9,8 +9,9 @@ import NumberFormat from "react-number-format"
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 // API
 import ticketsAPI from 'api/ticketsAPI';
+import noticesAPI from 'api/noticesAPI'
 const ModalApproveCurrency = (props) => {
-    const { open, data, handleClose, setDataStatus } = props
+    const { open, data, handleClose, setDataStatus, censor } = props
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
     const step = JSON.parse(data.Pheduyet)[3].CPTD
@@ -27,8 +28,8 @@ const ModalApproveCurrency = (props) => {
         const step = JSON.parse(data.Pheduyet)
         const flag = [...step]
         flag[3].CPTD = value
-        flag[5] = { ...flag[5], status: 1, Nguoiduyet: user.profile.id, Ngayupdate: new Date().toISOString() }
-        const newStep = { id: 6, status: 0, ngayTao: new Date().toISOString() }
+        flag[5] = { ...flag[5], status: 1, Nguoiduyet: [user.profile.id], Ngayupdate: new Date().toISOString() }
+        const newStep = { id: 6, status: 0, Nguoiduyet: [props.censor], Ngaytao: new Date().toISOString() }
         flag.push(newStep)
         const bodyData = {
             Pheduyet: JSON.stringify(flag)
@@ -40,6 +41,16 @@ const ModalApproveCurrency = (props) => {
         }
         dispatch(updateTicket(response.data))
         setDataStatus(rowData)
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": censor,
+            "idModule": 3,
+            "Loai": 1,
+            "Noidung": data.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
+
     }
     const availableError = value.map(item => Number(item?.CPTT) > Number(item.Chiphi.split(',').join('')))
     const emptyError = value.map(item => item?.CPTT == '' ? Number(item?.CPTT) == 0 : item?.CPTT == undefined)

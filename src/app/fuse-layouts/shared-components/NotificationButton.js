@@ -49,7 +49,7 @@ const NotificationButton = () => {
                     <div style={{ display: "flex", alignItems: "center" }}>
                         <Avatar>K</Avatar>
                     </div>
-                    <p>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
+                    <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
                     <Link to={`/ve-tuyen-dung/?id=${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>

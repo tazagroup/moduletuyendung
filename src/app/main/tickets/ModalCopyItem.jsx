@@ -19,6 +19,7 @@ import Tinymce from '../CustomField/Tinymce';
 import AutocompleteObjField from '../CustomField/AutocompleteObj'
 //API
 import ticketsAPI from 'api/ticketsAPI';
+import noticesAPI from 'api/noticesAPI'
 const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập mức lương"),
     SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
@@ -51,6 +52,7 @@ const useStyles = makeStyles({
 })
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
 const ModalCopyItem = ({ item, data, open, handleClose }) => {
+    const user = JSON.parse(localStorage.getItem("profile"))
     const dispatch = useDispatch()
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
@@ -96,6 +98,17 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
         const response = await ticketsAPI.postTicket(bodyData)
         dispatch(addTicket(response.data))
         handleClose()
+        valueCensor.map(item => {
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": item.id,
+                "idModule": 3,
+                "Loai": 1,
+                "Noidung": bodyData.key,
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
+        })
     }
     const handleCensorChange = (event, newValue) => {
         setValueCensor(newValue)

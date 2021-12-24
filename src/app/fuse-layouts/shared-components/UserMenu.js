@@ -13,6 +13,7 @@ import { Link, useHistory } from 'react-router-dom';
 
 function UserMenu(props) {
   const dispatch = useDispatch();
+  const position = useSelector(state => state.fuse.tickets.position)
   const history = useHistory()
   const user = JSON.parse(localStorage.getItem("profile"))
   const [userMenu, setUserMenu] = useState(null);
@@ -33,8 +34,8 @@ function UserMenu(props) {
           <Typography component="span" className="font-semibold flex">
             {user?.profile.Hoten}
           </Typography>
-          <Typography className="text-11 font-medium capitalize" color="textSecondary">
-            Nhân viên
+          <Typography className="text-11 font-medium" color="textSecondary">
+            {position.find(item => item.id == user.profile.Vitri)?.Thuoctinh || "Nhân viên"}
           </Typography>
         </div>
         <Avatar className="md:mx-4">{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>

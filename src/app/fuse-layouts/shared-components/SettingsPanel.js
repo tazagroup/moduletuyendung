@@ -110,23 +110,6 @@ function SettingsPanel() {
   return (
     <>
       <div className={classes.buttonWrapper} id="fuse-settings-schemes">
-        <Button
-          className={clsx(classes.button, classes.settingsButton)}
-          onClick={() => handleOpen('settings')}
-          variant="text"
-          color="inherit"
-        >
-          <Icon className={classes.buttonIcon}>settings</Icon>
-        </Button>
-
-        <Button
-          className={clsx(classes.button, classes.schemesButton)}
-          onClick={() => handleOpen('schemes')}
-          variant="text"
-          color="inherit"
-        >
-          <Icon className={classes.buttonIcon}>palette</Icon>
-        </Button>
       </div>
 
       <Dialog

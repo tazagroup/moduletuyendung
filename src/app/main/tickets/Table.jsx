@@ -29,7 +29,6 @@ import CustomNotice from './CustomNotice';
 import CustomRenderCell from './CustomRenderCell'
 import CustomFiltering from './CustomFiltering'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit, CustomAutocompleteNameEdit } from '../CustomField/CustomEdit';
-import { getStatusRendering } from '../utils';
 //API
 import ticketsAPI from "api/ticketsAPI"
 const convertProperty = (item = []) => {
@@ -399,6 +398,7 @@ export default function Table() {
     }, [hiddenColumns])
     useEffect(() => {
         if (idParam) {
+            console.log(flagTicket)
             const data = flagTicket.filter(item => item.key == idParam)
             dispatch(refreshTicket(data))
         }

@@ -60,7 +60,7 @@ const NotificationButton = () => {
             dispatch(updateNotice(response.data))
             setAnchorEl(null)
         }
-        console.log(settings.find(item => item.id == main.idModule)?.Link)
+        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}/?id=${main.Noidung}`
         return (<MenuItem onClick={handleUpdate}>
             <List
                 sx={{ width: "400px", overflow: "hidden" }}
@@ -76,7 +76,7 @@ const NotificationButton = () => {
                         <Avatar>{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>
                     </StyledBadge> : <Avatar>{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>}
                     <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
-                    <Link to={`${settings.find(item => item.id == main.idModule)?.Link}/?id=${main.Noidung}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
+                    <Link to={{ pathname: linkURL }} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>
             </List>

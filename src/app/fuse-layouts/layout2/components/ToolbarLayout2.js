@@ -41,9 +41,6 @@ function ToolbarLayout2(props) {
           )}
 
           <div className="flex flex-1">
-            <Hidden mdDown>
-              <FuseShortcuts />
-            </Hidden>
           </div>
 
           <div className="flex items-center px-8 h-full overflow-x-auto">

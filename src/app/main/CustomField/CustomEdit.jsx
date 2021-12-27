@@ -39,6 +39,7 @@ const countNumber = (array, field, value) => {
 }
 const countFile = (array, field, value) => {
     const fileArray = array.map(item => JSON.parse(item.Profile).CV.split('%2F')[1].split('?alt')[0].split('.')[1])
+    console.log(array)
     const pdfFile = fileArray.filter(item => item === "pdf").length
     const docxFile = fileArray.filter(item => item === "docx").length
     const xlsxFile = fileArray.filter(item => item === "xlsx").length

@@ -1,8 +1,21 @@
 import React from 'react'
-import FuseLoading from '@fuse/core/FuseLoading';
+import Table from './Table'
+import FusePageSimple from '@fuse/core/FusePageSimple';
 const index = () => {
     return (
-        <FuseLoading />
+        <FusePageSimple
+            header={
+                <div className="p-24">
+                    <h4>Báo cáo</h4>
+                </div>
+            }
+            content={
+                <div className="p-24">
+                    <Table />
+                    <br />
+                </div>
+            }
+        />
     )
 }
 

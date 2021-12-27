@@ -241,7 +241,7 @@ const Table = () => {
                 <CustomName data={rowData.idTao} />
             ),
             filterComponent: props => {
-                return <CustomAutocompleteNameEdit {...props} width={175} field="name" main="ticket" />
+                return <CustomAutocompleteNameEdit {...props} width={175} field="name" main="candidate" />
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;

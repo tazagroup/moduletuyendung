@@ -135,11 +135,8 @@ const CustomAutocompleteNameEdit = (props) => {
     //Tickets
     const usersTicket = arrayTicket.map(item => item.idTao)
     //Candidates
-    // const flagCandidate = arrayCandidate.map(item => item.idTicket)
-    // const positionCandidate = arrayTicket.filter(item => flagCandidate.includes(item.key)).map(item => item.Vitri)
-    //RENDER DROPDOWN
-    // const compareArray = main == "candidate" ? positionCandidate : positionTicket
-    const compareArray = usersTicket
+    const usersCandidate = arrayCandidate.map(item => item.idTao)
+    const compareArray = main == "ticket" ? usersTicket : usersCandidate
     const result = sortCount(compareArray)
     const options = result.map(item => {
         if (usersId.find(option => option == Number(item))) {
@@ -351,7 +348,7 @@ const CustomFileEdit = (props) => {
     const value = props.columnDef.tableData.filterValue || []
     return (
         <>
-            <FormControl sx={{ m: 1, width: props.width, marginTop: "20.5px" }} variant="standard">
+            <FormControl sx={{ m: 1, width: props.width, marginTop: "14px" }} variant="standard">
                 <Select
                     labelId="demo-multiple-checkbox-label"
                     id="demo-multiple-checkbox"

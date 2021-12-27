@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux';
 //MUI
 import { Dialog, DialogTitle, DialogContent, DialogActions, Grid, FormControl } from '@mui/material'
 import { makeStyles, TextField } from '@material-ui/core';
@@ -22,7 +23,11 @@ const useStyles = makeStyles({
 const ModalCalendarItem = ({ open, item, handleClose }) => {
     const classes = useStyles()
     const main = item.Title.split("-")
+    const users = useSelector(state => state.fuse.tickets.users)
     const [selectedDate, setSelectedDate] = useState(item.ThoigianPV)
+    const convertIdUser = (id) => {
+        return users.find(option => option.id == item.Nguoiduyet).name
+    }
     return (
         <Dialog
             open={open}
@@ -53,7 +58,7 @@ const ModalCalendarItem = ({ open, item, handleClose }) => {
                         />
                     </Grid>
                     <Grid item xs={12}>
-                        <p style={{ fontSize: "1.5rem" }}>Thời gian phỏng vấn</p>
+                        <p style={{ fontSize: "1.3rem", color: "rgba(141, 140, 140, 0.8)" }}>Thời gian phỏng vấn</p>
                         <FormControl fullWidth>
                             <Flatpickr
                                 value={selectedDate}
@@ -61,7 +66,19 @@ const ModalCalendarItem = ({ open, item, handleClose }) => {
                                     enableTime: true,
                                     dateFormat: "d-m-Y H:i",
                                 }}
+                                disabled
                                 onChange={(dateSelect) => handleChangeDate(dateSelect)}
+                            />
+                        </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormControl fullWidth>
+                            <TextField
+                                value={convertIdUser(item.Nguoiduyet)}
+                                label={"Người phỏng vấn"}
+                                variant="standard"
+                                disabled={true}
+                                fullWidth
                             />
                         </FormControl>
                     </Grid>

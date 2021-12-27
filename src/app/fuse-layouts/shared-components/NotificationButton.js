@@ -60,6 +60,7 @@ const NotificationButton = () => {
             dispatch(updateNotice(response.data))
             setAnchorEl(null)
         }
+        console.log(settings.find(item => item.id == main.idModule)?.Link)
         return (<MenuItem onClick={handleUpdate}>
             <List
                 sx={{ width: "400px", overflow: "hidden" }}

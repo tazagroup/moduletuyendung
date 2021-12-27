@@ -4,3 +4,6 @@
     overflow: hidden;
     cursor: pointer;
 }
+input:disabled.flatpickr-input {
+    color: rgba(141, 140, 140, 0.8);
+}

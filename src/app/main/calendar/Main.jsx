@@ -51,12 +51,13 @@ const Main = () => {
             <FullCalendar
                 plugins={[daygridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
                 allDayText="Cả ngày"
+                noEventsContent="Không có lịch phỏng vấn"
                 buttonText={{
                     today: 'Hôm nay',
                     month: 'Tháng',
                     week: 'Tuần',
                     day: 'Ngày',
-                    list: "Tóm tắt tuần",
+                    list: "Tổng quát tuần",
                 }}
                 eventClick={handleClick}
                 events={result}

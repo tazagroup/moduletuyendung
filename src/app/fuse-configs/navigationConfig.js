@@ -13,7 +13,7 @@ const navigationConfig = [
     title: 'Dashboard',
     type: 'item',
     icon: 'home',
-    url: '/',
+    url: '/dashboard',
     exact: true,
   },
   {

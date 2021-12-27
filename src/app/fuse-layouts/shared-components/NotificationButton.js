@@ -60,7 +60,7 @@ const NotificationButton = () => {
             dispatch(updateNotice(response.data))
             setAnchorEl(null)
         }
-        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}/?id=${main.Noidung}`
+        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}?idhash=${main.Noidung}`
         return (<MenuItem onClick={handleUpdate}>
             <List
                 sx={{ width: "400px", overflow: "hidden" }}

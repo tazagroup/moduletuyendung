@@ -74,7 +74,7 @@ const getPriceValue = (array) => {
 export default function Table() {
     const search = useLocation().search
     const queryParams = new URLSearchParams(search)
-    const idParam = queryParams.get("id")
+    const idParam = queryParams.get("idhash")
     //////////////////////////////////////////////////////////
     const dispatch = useDispatch()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)

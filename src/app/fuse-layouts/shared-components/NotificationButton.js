@@ -76,7 +76,11 @@ const NotificationButton = () => {
                         <Avatar>{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>
                     </StyledBadge> : <Avatar>{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>}
                     <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
-                    <Link to={{ pathname: linkURL }} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
+                    {
+                        [3].includes(main.idModule) ?
+                            <Link to={`${linkURL.split("https://tuyendung.tazagroup.vn")[1]}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link> :
+                            <Link to={{ pathname: linkURL }} target="_blank" rel='noopener noreferrer' style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
+                    }
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>
             </List>

@@ -140,3 +140,12 @@ li.menu__item {
 /* hide scrollbar  */
 .scroll__status {
 }
+a:not([role="button"])[target="_blank"] {
+    color: #22d3ee;
+    border-bottom: unset;
+    background-color: unset;
+}
+a:not([role="button"])[target="_blank"]:hover {
+    text-decoration: underline;
+    background-color: unset;
+}

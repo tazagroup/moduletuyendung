@@ -11,7 +11,7 @@ import Select from "@mui/material/Select";
 import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from "@mui/material/Checkbox";
 import Flatpickr from "react-flatpickr";
-
+import { ConvertPermissionArray } from "../utils/index"
 const containerStyles = {
     width: 250,
     position: "relative"
@@ -39,7 +39,6 @@ const countNumber = (array, field, value) => {
 }
 const countFile = (array, field, value) => {
     const fileArray = array.map(item => JSON.parse(item.Profile).CV.split('%2F')[1].split('?alt')[0].split('.')[1])
-    console.log(array)
     const pdfFile = fileArray.filter(item => item === "pdf").length
     const docxFile = fileArray.filter(item => item === "docx").length
     const xlsxFile = fileArray.filter(item => item === "xlsx").length
@@ -56,7 +55,7 @@ const countPriceProperty = (array, field, value) => {
             }
         }).length
     }
-    return array.filter(item => item[`${field}`] >= minPrice && (maxPrice ? item[`${field}`] <= maxPrice : true)).length
+    return array.filter(item => item[`${field}`] >= minPrice && (maxPrice ? item[`${field}`] < maxPrice : true)).length
 }
 
 const sortCount = (array = []) => {
@@ -87,6 +86,7 @@ const CustomAutocompleteEdit = (props) => {
             return position.find(item2 => Number(item2.id) == Number(item))
         }
     })
+    //FILTER TO POSITION
     //Functions
     const countElement = (array, field, value) => {
         const index = position.find(item => item[`${field}`] == value).id

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react'
 //REDUX
 import { useSelector, useDispatch } from "react-redux"
-import { updateCandidate } from "app/store/fuse/candidateSlice"
+import { updateCandidate, updateFlagCandidate } from "app/store/fuse/candidateSlice"
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl, Autocomplete, IconButton, InputLabel, Select, MenuItem } from '@mui/material';
@@ -19,6 +19,7 @@ import Tinymce from '../CustomField/Tinymce'
 import NumberFormat from "react-number-format"
 import CardCalendar from "./CardCalendar"
 import CreateCalendar from "./CreateCalendar"
+
 //FORM
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
@@ -60,7 +61,6 @@ const InfoCandidate = ({ open, handleClose }) => {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const profile = JSON.parse(flagCandidate.Profile)
-    const profileRating = JSON.parse(flagCandidate.DanhgiaHS)
     const dispatch = useDispatch()
     const classes = useStyles()
     const form = useForm({
@@ -122,7 +122,7 @@ const InfoCandidate = ({ open, handleClose }) => {
             Ghichu: note,
             Trangthai: status
         }
-        const Trangthai = !secondStep ? flagCandidate.Trangthai : [2, 3].includes(status) ? 2 : 1
+        const Trangthai = !secondStep ? flagCandidate.Trangthai : [2, 3].includes(status) ? status : 1
         const bodyData = {
             ...flagCandidate,
             idTicket: ticket.key,
@@ -135,7 +135,6 @@ const InfoCandidate = ({ open, handleClose }) => {
         dispatch(updateCandidate(response.data))
         handleClose()
     }
-
     return (
         <Fragment>
             <Dialog
@@ -278,8 +277,6 @@ const InfoCandidate = ({ open, handleClose }) => {
                                     </Grid>
                                 </Grid>
                             </>
-
-
                         }
                     </DialogContent>
                     <DialogActions style={{ paddingRight: "25px" }}>
@@ -292,7 +289,13 @@ const InfoCandidate = ({ open, handleClose }) => {
                     </DialogActions>
                 </form>
             </Dialog>
-            {isCreating && <CreateCalendar open={isCreating} candidate={flagCandidate} position={getPositionById(ticket.Vitri)} handleClose={() => { setIsCreating(false) }} />}
+            {isCreating &&
+                <CreateCalendar
+                    open={isCreating}
+                    candidate={flagCandidate}
+                    position={getPositionById(ticket.Vitri)}
+                    handleClose={() => { setIsCreating(false) }} />
+            }
         </Fragment>
     )
 }

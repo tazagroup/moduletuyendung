@@ -82,7 +82,6 @@ export default function CardCalendar({ item }) {
       LichPV: JSON.stringify(calendar)
     }
     const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-
     dispatch(updateFlagCandidate(bodyData))
   };
   const getNameById = (id) => {
@@ -135,7 +134,7 @@ export default function CardCalendar({ item }) {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={value}
-                  disabled={item.Trangthai != 0}
+                  disabled={item.Trangthai != 0 || JSON.parse(currentEdit.XacnhanHS).XNPV == 0}
                   displayEmpty
                   onChange={handleChangeStatus}
                 >

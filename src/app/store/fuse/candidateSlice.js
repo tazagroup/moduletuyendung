@@ -40,6 +40,7 @@ const candidatesSlice = createSlice({
             }
         },
         updateFlagCandidate: (state, action) => {
+            console.log(action.payload)
             state.flagCandidate = {
                 ...action.payload,
             };

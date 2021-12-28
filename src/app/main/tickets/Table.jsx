@@ -9,8 +9,11 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import ClearIcon from '@mui/icons-material/Clear';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import SearchIcon from '@mui/icons-material/Search';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
@@ -29,6 +32,8 @@ import CustomNotice from './CustomNotice';
 import CustomRenderCell from './CustomRenderCell'
 import CustomFiltering from './CustomFiltering'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit, CustomAutocompleteNameEdit } from '../CustomField/CustomEdit';
+//UTILS
+import { ConvertPermissionArray } from '../utils/index';
 //API
 import ticketsAPI from "api/ticketsAPI"
 const convertProperty = (item = []) => {
@@ -57,7 +62,7 @@ const MenuButton = {
 const TextTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
 ))(`
-      font-size: 1em;
+      font-size: .8em;
   `);
 const getPriceValue = (array) => {
     const salary = [
@@ -96,6 +101,7 @@ export default function Table() {
     const [isHidden, setIsHidden] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
+
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
@@ -398,7 +404,6 @@ export default function Table() {
     }, [hiddenColumns])
     useEffect(() => {
         if (idParam) {
-            console.log(flagTicket)
             const data = flagTicket.filter(item => item.key == idParam)
             dispatch(refreshTicket(data))
         }
@@ -449,7 +454,7 @@ export default function Table() {
                 data={dataTicket}
                 tableRef={tableRef}
                 title={<>
-                    <Tooltip title="Tạo hồ sơ tuyển dụng">
+                    <TextTooltip title="Tạo hồ sơ tuyển dụng">
                         <div>
                             <IconButton
                                 onClick={() => setIsCreateTicket(true)}
@@ -460,7 +465,7 @@ export default function Table() {
                                 <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                             </IconButton>
                         </div>
-                    </Tooltip>
+                    </TextTooltip>
                 </>
                 }
                 initialFormData={initialData}
@@ -492,20 +497,29 @@ export default function Table() {
                 actions={
                     [
                         {
-                            icon: 'search',
-                            tooltip: 'Lọc',
+                            icon: () => (
+                                <TextTooltip title="Lọc">
+                                    <SearchIcon />
+                                </TextTooltip>
+                            ),
                             isFreeAction: true,
                             onClick: (event) => setIsFiltering(state => !state)
                         },
                         {
-                            icon: !isHidden ? 'visibility_off' : 'visibility',
-                            tooltip: 'Trạng thái',
+                            icon: () => (
+                                <TextTooltip title="Trạng thái">
+                                    {!isHidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                                </TextTooltip>
+                            ),
                             isFreeAction: true,
                             onClick: (event) => setIsHidden(state => !state)
                         },
                         {
-                            icon: 'refresh',
-                            tooltip: "Đặt lại",
+                            icon: () => (
+                                <TextTooltip title="Đặt lại">
+                                    <RefreshIcon />
+                                </TextTooltip>
+                            ),
                             isFreeAction: true,
                             onClick: (event) => { handleRefresh() }
                         }

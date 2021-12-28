@@ -62,28 +62,24 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
         mode: 'onBlur',
         resolver: yupResolver(schema),
     });
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const profile = JSON.parse(item.Profile)
     const dispatch = useDispatch()
     const classes = useStyles()
     //STATE
-    const [ticket, setTicket] = useState({})
+    const [ticket, setTicket] = useState(dataTicket.find(opt => opt.key == item.idTicket))
     const [selectedDate, setSelectedDate] = useState(new Date())
     const calendar = JSON.parse(item.LichPV)
-    const [firstRate, setFirstRate] = useState(calendar?.Danhgia || '')
-    const [secondRate, setSecondRate] = useState('')
-    const [point, setPoint] = useState(calendar?.Diem || 0)
-    const [note, setNote] = useState(calendar?.Ghichu || '')
-    const [status, setStatus] = useState(calendar?.Trangthai || 0)
     const roundsIntern = calendar.VongPV
     const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
     //FUNCTIONS
     const getPositionById = (id) => {
-        return position.find(item => item.id == id)?.Thuoctinh
+        const index = dataTicket.find(opt => opt.key == id).Vitri
+        return position.find(item => item.id == index)?.Thuoctinh
     }
 
     const handleUpdateInfo = async (e) => {
-        console.log(e)
         handleClose()
     }
     const CustomInput = ({ type, label, variant = "standard", disabled = true, value }) => {
@@ -105,6 +101,7 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
         <Fragment>
             <Dialog
                 open={open}
+                onClose={handleClose}
                 fullWidth={true}
                 maxWidth={'xl'}
             >
@@ -131,7 +128,7 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
                             <Grid item xs={12} md={4}>
                                 <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} disabled={true} />
                             </Grid>
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={4}>
                                 <NumberFormat
                                     label={"Mức lương dự kiến"}
                                     customInput={TextField}
@@ -142,96 +139,8 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
                                     disabled={true}
                                 />
                             </Grid>
-                            <Grid item xs={12} md>
-                                <FormControl fullWidth style={{ marginTop: "15px" }}>
-                                    <Tooltip title="CV">
-                                        <Button variant="contained" size="large">Tải CV</Button>
-                                    </Tooltip>
-                                </FormControl>
-                            </Grid>
                         </Grid>
-                        {/* Calendar */}
-                        {/* <Grid container spacing={2} className={classes.field}>
-                            <Grid item xs={12}>
-                                <Typography variant="h4" className={classes.sub__title}>
-                                    Lịch phỏng vấn
-                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={true}>
-                                        <InsertInvitationIcon />
-                                    </IconButton>
-                                </Typography>
-                            </Grid>
-                            {roundsIntern && roundsIntern.map((option, index) => (
-                                <Grid key={index} item xs={12} md={3}>
-                                    <CardCalendar key={index} item={option} />
-                                </Grid>
-                            ))}
-                        </Grid >
-                        {secondStep &&
-                            <>
-                                <Grid container spacing={2} className={classes.field}>
-                                    <Grid item xs={12}>
-                                        <Typography variant="h4" className={classes.sub__title} style={{ marginBottom: "16px" }} >Nhận xét phỏng vấn</Typography>
-                                        <Tinymce value={firstRate} onChange={(e) => { setFirstRate(e) }} label="đánh giá kiến thức" disabled={true} />
-                                    </Grid>
-                                </Grid>
-                                <Grid container spacing={2} className={classes.field2}>
-                                    <Grid item xs={12} md={8}>
-                                        <FormControl variant="standard" fullWidth style={{ marginTop: "18px" }}>
-                                            <InputLabel htmlFor="component-simple">Ghi chú</InputLabel>
-                                            <Input id="component-simple" value={note} onChange={(e) => { setNote(e.target.value) }} disabled={true} />
-                                        </FormControl>
-                                    </Grid>
-                                    <Grid container item xs={4}>
-                                        <Grid item xs={12} md={8}>
-                                            <Box
-                                                sx={{
-                                                    width: "100%",
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    marginTop: "24px"
-                                                }}
-                                            >
-                                                <Rating
-                                                    name="text-feedback"
-                                                    value={point}
-                                                    max={10}
-                                                    precision={0.5}
-                                                    size="large"
-                                                    disabled={true}
-                                                    emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
-                                                    onChange={(e) => { setPoint(Number(e.target.value)) }}
-                                                />
-                                                <Box sx={{ ml: 2 }}>{point}</Box>
-                                            </Box>
-                                        </Grid>
-                                        <Grid item xs={12} md={4}>
-                                            <FormControl fullWidth style={{ marginTop: "10px" }}>
-                                                <InputLabel id="demo-simple-select-label">Đánh giá hồ sơ</InputLabel>
-                                                <Select
-                                                    labelId="demo-simple-select-label"
-                                                    id="demo-simple-select"
-                                                    value={status}
-                                                    label="Đánh giá hồ sơ"
-                                                    style={{ fontSize: "15px" }}
-                                                    onChange={(e) => { setStatus(e.target.value) }}
-                                                    disabled={true}
-                                                >
-                                                    <MenuItem value={0} disabled></MenuItem>
-                                                    <MenuItem value={1}>Đậu</MenuItem>
-                                                    <MenuItem value={2}>Loại</MenuItem>
-                                                    <MenuItem value={3}>Lưu hồ sơ</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
-                            </>
-                        } */}
                         <Grid container spacing={2} className={classes.field2}>
-                            <Grid item xs={12}>
-                                <Typography variant="h4" className={classes.sub__title} style={{ marginBottom: "16px" }} >Nhận xét chung</Typography>
-                                <Tinymce value={secondRate} onChange={(e) => { setSecondRate(e) }} label="nhận xét chung" />
-                            </Grid>
                             <Grid item xs={4}>
                                 <NumberField form={form} name="LuongHV" label="Mức lương học việc" error="Vui lòng nhập mức lương học việc" />
                             </Grid>
@@ -247,10 +156,10 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
                         </Grid>
                     </DialogContent>
                     <DialogActions style={{ paddingRight: "25px" }}>
-                        <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose} size="large">
+                        <Button color="error" autoFocus type="submit" variant="contained" size="large">
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" variant="contained" size="large">
+                        <Button color="primary" autoFocus type="submit" variant="contained" onClick={handleUpdateInfo} size="large">
                             Xác nhận
                         </Button>
                     </DialogActions>

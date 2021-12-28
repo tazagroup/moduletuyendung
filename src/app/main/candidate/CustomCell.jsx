@@ -11,6 +11,7 @@ import { AiOutlineFileWord, AiOutlineFileExcel, AiOutlineFilePdf } from "react-i
 import { styled } from "@mui/material/styles"
 //COMPONENTS
 import ModalBeforeSubmitting from './ModalBeforeSubmiting';
+import ViewFile from './ViewFile';
 //API
 import candidatesAPI from 'api/candidatesAPI';
 const TextTooltip = styled(({ className, ...props }) => (
@@ -76,19 +77,20 @@ export const CustomStatus = ({ item, field }) => {
 export const CustomCV = ({ item }) => {
     var arrStr = item.split('%2F')[1].split('?alt')[0]
     const type = arrStr.split('.')[1]
+    const [isOpen, setIsOpen] = React.useState(false)
     return (
         <Fragment>
             <TextTooltip title="Tải cv">
-                <a href={item}>
+                <div onClick={() => { setIsOpen(true) }}>
                     {type !== "docx" ? (type === "xlsx" ? <AiOutlineFileExcel className="excel__file" /> : <AiOutlineFilePdf className="ppt__file" />) : <AiOutlineFileWord className="word__file" />}
-                </a>
+                </div>
             </TextTooltip>
+            {isOpen && <ViewFile open={isOpen} item={item} type={type} handleClose={() => { setIsOpen(false) }} />}
         </Fragment>
     )
 }
 
 //CUSTOM STEP
-
 
 export const CustomExperts = ({ item }) => {
     const valueStep = JSON.parse(item.DuyetHS).DuyetSPV
@@ -120,14 +122,6 @@ export const CustomExperts = ({ item }) => {
     return (
         <Fragment>
             {checkStatus(valueStep)}
-            {
-                isEditing &&
-                <ModalBeforeSubmitting
-                    open={isEditing}
-                    handleClose={handleClose}
-                    item={item}
-                />
-            }
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -137,6 +131,14 @@ export const CustomExperts = ({ item }) => {
                 <MenuItem onClick={handleApprove}>Duyệt</MenuItem>
                 <MenuItem>Từ chối</MenuItem>
             </Menu>
+            {
+                isEditing &&
+                <ModalBeforeSubmitting
+                    open={isEditing}
+                    handleClose={() => { setIsEditing(false) }}
+                    item={item}
+                />
+            }
         </Fragment>
     )
 }

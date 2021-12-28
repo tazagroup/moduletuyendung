@@ -10,7 +10,6 @@ import {
     Typography, Select
 } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
-import CloseIcon from '@mui/icons-material/Close';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
@@ -102,6 +101,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]
+        console.log(file.type)
         const uploadFile = storage.ref(`files/${file.name}`).put(file);
         uploadFile.on("state_changed", (snapshot) => {
         },

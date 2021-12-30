@@ -15,7 +15,7 @@ import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
-import { CustomCV, CustomStatus, CustomExperts } from './CustomCell'
+import { CustomCV, CustomStatus, CustomExperts, CustomTimeline } from './CustomCell'
 import { CustomName } from '../CustomField/CustomId'
 import { CustomDateEdit, CustomAutocompleteNameEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
 
@@ -28,6 +28,7 @@ const Table = () => {
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket).filter(item => item.Trangthai == 2)
     const position = useSelector(state => state.fuse.tickets.position)
+    const source = useSelector(state => state.fuse.tickets.source)
     const [rowData, setRowData] = useState({})
     const [isFiltering, setIsFiltering] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
@@ -36,49 +37,6 @@ const Table = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl)
     const tableRef = useRef();
-    const getPositionById = (id) => {
-        return position.find(item => item.id == id)?.Thuoctinh
-    }
-    const handleClick = (event, row) => {
-        setRowData(row);
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    const handleEdit = (e) => {
-        handleClose()
-        dispatch(updateFlagCandidate(rowData))
-        setIsEditing(true)
-    }
-    useEffect(async () => {
-        if (dataTicket.length === 0) {
-            const [responseData, responsePosition, responseUser] = await Promise.all([
-                ticketsAPI.getTicket(),
-                ticketsAPI.getPosition(),
-                ticketsAPI.getUser(),
-            ])
-            const { data: { attributes: { Dulieu } } } = responsePosition
-            const { data } = responseUser
-            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
-            dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
-            setIsLoading(false)
-        }
-        const responseCandidate = await candidatesAPI.getCandidate()
-        dispatch(setDataCandidate(responseCandidate))
-        setIsLoading(false)
-        return () => {
-
-        }
-    }, [])
-    useEffect(() => {
-        if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
-            dispatch(updateFlagCandidate(rowData))
-        }
-        return () => {
-
-        }
-    }, [rowData])
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
@@ -115,7 +73,7 @@ const Table = () => {
             title: "Nguồn tuyển dụng", field: "Nguon",
             render: rowData => {
                 const profile = JSON.parse(rowData.Profile)
-                return (<div>{profile?.Nguon}</div>)
+                return (<div>{source.find(opt => opt.id == profile?.Nguon)?.name}</div>)
             }
             // filterComponent: props => {
             //     const data = ["Facebook", "ITViec", "TopCV"]
@@ -188,7 +146,7 @@ const Table = () => {
                 return <CustomCV item={profile.CV} />
             },
             filterComponent: props => {
-                const data = ["xlsx", "docx", "pdf"]
+                const data = ["pdf"]
                 return <CustomFileEdit {...props} data={data} width={130} field="CV" />
             },
             customFilterAndSearch: (term, rowData) => {
@@ -202,21 +160,23 @@ const Table = () => {
             title: "Ban chuyên môn", field: "BCM",
             render: rowData => {
                 const check = JSON.parse(rowData['DuyetHS'])
-                return Object.keys(check).length != 0 ? <CustomExperts item={rowData} /> : <></>
+                return (Object.keys(check).length != 0 && typeof (check) != "string") && <CustomExperts item={rowData} field="DuyetSPV" />
             },
             filterComponent: (rowData) => <></>
         },
         {
             title: "Ban quản lí", field: "BQL",
             render: rowData => {
-                return <></>
+                const check = JSON.parse(rowData['DuyetHS'])
+                return Object.keys(check).length >= 2 && typeof (check) != "string" ? <CustomExperts item={rowData} field="DuyetQL" /> : <></>
             },
             filterComponent: (rowData) => <></>
         },
         {
             title: "Ban tuyển dụng", field: "BTD",
             render: rowData => {
-                return <></>
+                const check = JSON.parse(rowData['DuyetHS'])
+                return Object.keys(check).length >= 3 ? <CustomTimeline item={rowData} /> : <></>
             },
             filterComponent: (rowData) => <></>
         },
@@ -250,7 +210,65 @@ const Table = () => {
             }
         }
     ]
-    const columns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' } }))
+    const isHiddenCols = localStorage.getItem("hidden2")
+    let isResult = []
+    if (isHiddenCols) {
+        isResult = isHiddenCols.split(",")
+    }
+    const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
+    const columns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
+    useEffect(async () => {
+        if (dataTicket.length === 0) {
+            const [responseData, responsePosition, responseUser] = await Promise.all([
+                ticketsAPI.getTicket(),
+                ticketsAPI.getPosition(),
+                ticketsAPI.getUser(),
+            ])
+            const { data: { attributes: { Dulieu } } } = responsePosition
+            const { data } = responseUser
+            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+            dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+            setIsLoading(false)
+        }
+        const responseCandidate = await candidatesAPI.getCandidate()
+        dispatch(setDataCandidate(responseCandidate))
+        setIsLoading(false)
+        return () => {
+
+        }
+    }, [])
+    useEffect(() => {
+        if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
+            dispatch(updateFlagCandidate(rowData))
+        }
+        return () => {
+        }
+    }, [rowData])
+    useEffect(() => {
+        let isFetching = true
+        if (isFetching) {
+            localStorage.setItem("hidden2", hiddenColumns);
+        }
+        return () => {
+            isFetching = false
+        }
+    }, [hiddenColumns])
+    //FUNCTIONS
+    const getPositionById = (id) => {
+        return position.find(item => item.id == id)?.Thuoctinh
+    }
+    const handleClick = (event, row) => {
+        setRowData(row);
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleEdit = (e) => {
+        handleClose()
+        dispatch(updateFlagCandidate(rowData))
+        setIsEditing(true)
+    }
     return isLoading ? <FuseLoading /> :
         <Fragment>
             <MaterialTable
@@ -288,6 +306,16 @@ const Table = () => {
                     isEditHidden: (rowData) => rowData,
                 }}
                 onRowClick={(event, rowData) => { setRowData(rowData) }}
+                onChangeColumnHidden={(r) => {
+                    const index = hiddenColumns.findIndex(item => item === r.field)
+                    if (index !== -1) {
+                        const flag = hiddenColumns.filter(item => item !== r.field)
+                        setHiddenColumns([...flag])
+                    }
+                    else {
+                        setHiddenColumns(prev => [...prev, r.field])
+                    }
+                }}
                 localization={{
                     toolbar: { showColumnsTitle: "Hiển thị cột", addRemoveColumns: "" },
                     header: { actions: "" },

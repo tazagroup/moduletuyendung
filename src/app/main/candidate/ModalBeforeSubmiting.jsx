@@ -52,17 +52,19 @@ const useStyles = makeStyles({
     }
 })
 
-const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
+const ModalBeforeSubmitting = ({ open, handleClose, item, censor }) => {
     const form = useForm({
         defaultValues: {
-            LuongHV: " ",
-            LuongTV: " ",
-            LuongCT: " ",
+            LuongHV: "",
+            LuongTV: "",
+            LuongCT: "",
         },
-        mode: 'onBlur',
+        mode: 'all',
         resolver: yupResolver(schema),
     });
+    const user = JSON.parse(localStorage.getItem("profile"))
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const currentEdit = useSelector(state => state.fuse.candidates.flagCandidate)
     const position = useSelector(state => state.fuse.tickets.position)
     const profile = JSON.parse(item.Profile)
     const dispatch = useDispatch()
@@ -71,15 +73,25 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
     const [ticket, setTicket] = useState(dataTicket.find(opt => opt.key == item.idTicket))
     const [selectedDate, setSelectedDate] = useState(new Date())
     const calendar = JSON.parse(item.LichPV)
-    const roundsIntern = calendar.VongPV
-    const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
     //FUNCTIONS
     const getPositionById = (id) => {
         const index = dataTicket.find(opt => opt.key == id).Vitri
         return position.find(item => item.id == index)?.Thuoctinh
     }
-
     const handleUpdateInfo = async (e) => {
+        const DanhgiaHS = {
+            LuongHV: e.LuongHV.split(",").join(''),
+            LuongTV: e.LuongHV.split(",").join(''),
+            LuongCT: e.LuongHV.split(",").join(''),
+            GTM: new Date(selectedDate).toISOString(),
+        }
+        const bodyData = {
+            ...currentEdit,
+            DanhgiaHS: JSON.stringify(DanhgiaHS),
+            DuyetHS: JSON.stringify({ DuyetSPV: { Trangthai: 1, Nguoiduyet: user.profile.id }, DuyetQL: { Trangthai: 0, Nguoiduyet: censor.id } })
+        }
+        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        dispatch(updateCandidate(response.data))
         handleClose()
     }
     const CustomInput = ({ type, label, variant = "standard", disabled = true, value }) => {
@@ -156,10 +168,10 @@ const ModalBeforeSubmitting = ({ open, handleClose, item }) => {
                         </Grid>
                     </DialogContent>
                     <DialogActions style={{ paddingRight: "25px" }}>
-                        <Button color="error" autoFocus type="submit" variant="contained" size="large">
+                        <Button color="error" autoFocus type="submit" variant="contained" size="large" onClick={handleClose}>
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" variant="contained" onClick={handleUpdateInfo} size="large">
+                        <Button color="primary" autoFocus type="submit" variant="contained" size="large" disabled={!form.formState.isValid}>
                             Xác nhận
                         </Button>
                     </DialogActions>

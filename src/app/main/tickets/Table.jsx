@@ -2,7 +2,7 @@ import React, { Fragment, useRef, useState, useEffect } from 'react'
 import { useLocation } from "react-router-dom"
 import MaterialTable, { MTableAction } from '@material-table/core';
 //REDUX
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, batch } from 'react-redux';
 import { setDataTicket, refreshTicket } from 'app/store/fuse/ticketsSlice';
 //ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -253,6 +253,7 @@ export default function Table() {
             },
             customFilterAndSearch: (term, rowData) => {
                 const { Nguon, CPDK, CPTT, CPCL } = term
+                console.log(Nguon)
                 //Chi phí dự kiến
                 const priceCPDK = CPDK.length !== 0 ? getPriceValue(CPDK) : []
                 //Chi phí thực tế
@@ -367,9 +368,9 @@ export default function Table() {
     if (isHiddenCols) {
         isResult = isHiddenCols.split(",")
     }
-    const flagColumns = headers.map(item => ({ ...item, align: "center", headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
-    const [columns, setColumns] = useState(flagColumns)
+    const columns = headers.map(item => ({ ...item, align: "center", headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
     const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
+    //FETCH DATA
     useEffect(async () => {
         let isFetching = true;
         if (isFetching) {

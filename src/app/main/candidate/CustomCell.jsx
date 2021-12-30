@@ -1,11 +1,14 @@
 import React, { Fragment, useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
-import { updateCandidate } from 'app/store/fuse/candidateSlice';
+import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
 //MUI
 import { Tooltip, Menu, MenuItem } from '@mui/material';
+import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import CircleIcon from '@mui/icons-material/Circle';
+import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
 import { AiOutlineFileWord, AiOutlineFileExcel, AiOutlineFilePdf } from "react-icons/ai"
 import { styled } from "@mui/material/styles"
@@ -14,6 +17,7 @@ import ModalBeforeSubmitting from './ModalBeforeSubmiting';
 import ViewFile from './ViewFile';
 //API
 import candidatesAPI from 'api/candidatesAPI';
+import noticesAPI from 'api/noticesAPI'
 const TextTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
 ))(`
@@ -58,6 +62,9 @@ export const CustomStatus = ({ item, field }) => {
         dispatch(updateCandidate(response.data))
         handleClose();
     }
+    const handleDeny = async () => {
+        console.log("OK")
+    }
     return (
         <Fragment>
             {checkStatus(item)}
@@ -68,7 +75,7 @@ export const CustomStatus = ({ item, field }) => {
                 onClose={handleClose}
             >
                 <MenuItem onClick={handleApprove}>Duyệt</MenuItem>
-                <MenuItem>Từ chối</MenuItem>
+                <MenuItem onClick={handleDeny}>Từ chối</MenuItem>
             </Menu>
         </Fragment>
     )
@@ -80,7 +87,7 @@ export const CustomCV = ({ item }) => {
     const [isOpen, setIsOpen] = React.useState(false)
     return (
         <Fragment>
-            <TextTooltip title="Tải cv">
+            <TextTooltip title="XEM CV">
                 <div onClick={() => { setIsOpen(true) }}>
                     {type !== "docx" ? (type === "xlsx" ? <AiOutlineFileExcel className="excel__file" /> : <AiOutlineFilePdf className="ppt__file" />) : <AiOutlineFileWord className="word__file" />}
                 </div>
@@ -91,17 +98,25 @@ export const CustomCV = ({ item }) => {
 }
 
 //CUSTOM STEP
-
-export const CustomExperts = ({ item }) => {
-    const valueStep = JSON.parse(item.DuyetHS).DuyetSPV
+export const CustomExperts = ({ item, field }) => {
+    const dispatch = useDispatch()
+    const user = JSON.parse(localStorage.getItem("profile"))
+    const valueStep = JSON.parse(item.DuyetHS)[`${field}`]?.Trangthai
+    const users = useSelector(state => state.fuse.tickets.users)
+    const position = useSelector(state => state.fuse.tickets.position)
+    const currentEdit = useSelector(state => state.fuse.candidates.flagCandidate)
     const [anchorEl, setAnchorEl] = useState(null);
-    const [isEditing, setIsEditing] = useState(false)
     const open = Boolean(anchorEl);
+    const [isEditing, setIsEditing] = useState(false)
+    const [censor, setCensor] = useState(null)
     const handleOpen = (e) => {
         setAnchorEl(e.currentTarget)
     }
     const handleClose = (e) => {
         setAnchorEl(null)
+    }
+    const getPositionById = (id) => {
+        return position.find(opt => opt.id == id)?.Thuoctinh || "TEST"
     }
     //RENDER STATUS
     const checkStatus = (status) => {
@@ -115,10 +130,75 @@ export const CustomExperts = ({ item }) => {
             </TextTooltip>
         )
     }
-    const handleApprove = () => {
-        setIsEditing(true)
+    const handleApprove = async (e) => {
+        const name = e.target.innerText.split(/[()]/)[0].slice(0, -1)
+        const censor = users.find(opt => opt.name == name)
+        setCensor(censor)
+        if (field != "DuyetQL") {
+            setIsEditing(true)
+        }
+        else {
+            const DuyetHS = JSON.parse(currentEdit.DuyetHS)
+            DuyetHS.DuyetQL.Trangthai = 1
+            const newValue = {
+                ...DuyetHS,
+                DuyetTD: { Trangthai: 0, Nguoiduyet: censor.id, step: 0 }
+            }
+            const bodyData = {
+                ...currentEdit,
+                DuyetHS: JSON.stringify(newValue)
+            }
+            const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+            dispatch(updateCandidate(response.data))
+        }
         handleClose();
     }
+    const checkApprove = (option) => {
+        const flag = Object.keys(JSON.parse(item.DuyetHS))
+        if (flag.length == 1) {
+            return Array.isArray(option.PQTD) ? option.PQTD.includes(5) : option.PQTD == 5
+        }
+        else {
+            return Array.isArray(option.PQTD) ? option.PQTD.includes(2) : option.PQTD == 2
+        }
+
+    }
+    const handleDeny = async (e) => {
+        handleClose()
+        let DuyetHS = JSON.parse(currentEdit.DuyetHS)
+        let DanhgiaHS = JSON.parse(currentEdit.DanhgiaHS)
+        let censor = null;
+        if (field == "DuyetSPV") {
+            DuyetHS = {}
+            DanhgiaHS = {}
+        }
+        else if (field == "DuyetQL") {
+            censor = DuyetHS.Nguoiduyet
+            DuyetHS = {
+                DuyetSPV: { ...DuyetHS.DuyetSPV, Trangthai: 0 },
+            }
+            delete DuyetHS.DuyetQL
+        }
+        const bodyData = {
+            ...currentEdit,
+            DuyetHS: JSON.stringify(DuyetHS),
+            DanhgiaHS: JSON.stringify(DanhgiaHS)
+        }
+        const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+        dispatch(updateCandidate(response.data))
+        if (censor) {
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": censor,
+                "idModule": 4,
+                "Loai": 1,
+                "Noidung": response.data.attributes.key,
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
+        }
+    }
+    //RETURN JSX
     return (
         <Fragment>
             {checkStatus(valueStep)}
@@ -128,8 +208,15 @@ export const CustomExperts = ({ item }) => {
                 open={open}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleApprove}>Duyệt</MenuItem>
-                <MenuItem>Từ chối</MenuItem>
+                <NestedMenuItem
+                    label={"Phê duyệt"}
+                    parentMenuOpen={open}
+                >
+                    {users.filter(checkApprove).map(item => (
+                        <MenuItem key={item.id} onClick={handleApprove}>{`${item.name} ( ${getPositionById(item.position)} )`}</MenuItem>
+                    ))}
+                </NestedMenuItem>
+                <MenuItem onClick={handleDeny}>Từ chối</MenuItem>
             </Menu>
             {
                 isEditing &&
@@ -137,8 +224,53 @@ export const CustomExperts = ({ item }) => {
                     open={isEditing}
                     handleClose={() => { setIsEditing(false) }}
                     item={item}
+                    censor={censor}
                 />
             }
         </Fragment>
+    )
+}
+
+export const CustomTimeline = ({ item }) => {
+    const dispatch = useDispatch()
+    const currentStep = JSON.parse(item.DuyetHS).DuyetTD.step
+    const currentStatus = JSON.parse(item.DuyetHS).DuyetTD.Trangthai
+    const steps = [
+        "Nhận kết quả.Gửi thư mời làm việc / thư cảm ơn quản lí cấp cao",
+        "Gửi mail duyệt thư mời làm việc",
+        "Gửi thư mời ứng viên",
+        "Xác nhận ngày làm việc chính thức, báo bộ phận yêu cầu tuyển dụng"
+    ]
+    const handleUpdateStep = async (step) => {
+        if (currentStatus != 1) {
+            const newDuyetTD = {
+                ...JSON.parse(item.DuyetHS).DuyetTD,
+                Trangthai: step == 3 ? 1 : 0,
+                step: (step) + 1
+            }
+            const newDuyetHS = {
+                ...JSON.parse(item.DuyetHS),
+                DuyetTD: newDuyetTD
+            }
+            const bodyData = {
+                ...item,
+                DuyetHS: JSON.stringify(newDuyetHS)
+            }
+            const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+            dispatch(updateCandidate(response.data))
+        }
+    }
+    return (
+        <>
+            <div style={{ display: "flex", gap: "0 10px" }}>
+                {steps.map((item, index) => (
+                    <TextTooltip title={item} key={index}>
+                        <div onClick={() => { handleUpdateStep(index) }}>
+                            {currentStep == index ? <CircleTwoToneIcon className="custom__timeline process" /> : currentStep > index ? <CheckCircleIcon className="custom__timeline success" /> : <CircleIcon className="custom__timeline pending" />}
+                        </div>
+                    </TextTooltip>
+                ))}
+            </div>
+        </>
     )
 }

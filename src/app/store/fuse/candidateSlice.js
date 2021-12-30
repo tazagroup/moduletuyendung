@@ -11,6 +11,7 @@ const candidatesSlice = createSlice({
         setDataCandidate: (state, action) => {
             const { data } = action.payload
             const flagArray = data.map(item => item.attributes)
+            console.log(flagArray)
             state.dataCandidate = flagArray.map(({ id: key, ...item }, index) => ({
                 id: index,
                 key,

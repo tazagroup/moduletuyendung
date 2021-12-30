@@ -2,17 +2,24 @@ import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setDataTicket } from 'app/store/fuse/ticketsSlice';
 import { setDataCandidate } from 'app/store/fuse/candidateSlice';
-import { Grid, Typography } from '@mui/material'
-import ReactApexChart from "react-apexcharts";
+//COMPONENTS
+import "chartjs-plugin-datalabels";
+import Report2 from './Report2/index'
+import Report3 from './Report3/index'
 //API
 import candidatesAPI from 'api/candidatesAPI'
 import ticketsAPI from 'api/ticketsAPI';
+
 const Table = () => {
     const dispatch = useDispatch();
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const dataCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
+    /* STATES */
+    const [labelsReport3, setLabelsReport3] = useState([])
+    const [dataReport3, setDataReport3] = useState([])
+    const [selectReport3, setSelectReport3] = useState(null)
     useEffect(async () => {
         const fetchData = []
         if (true) {
@@ -23,25 +30,13 @@ const Table = () => {
                 fetchData.push(candidatesAPI.getCandidate())
             }
         }
-        Promise.all(fetchData).then(value => console.log(value))
-
+        const response = await Promise.all(fetchData)
     }, [])
     return (
-        <div>
-            <Grid container spacing={2}>
-                <Grid item xs={12}>
-                    <Typography variant="h4" component="div" gutterBottom>
-                        Báo cáo nguồn
-                    </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                    a
-                </Grid>
-                <Grid item xs={6}>
-                    b
-                </Grid>
-            </Grid>
-        </div>
+        <>
+            <Report2 />
+            <Report3 />
+        </>
     )
 }
 

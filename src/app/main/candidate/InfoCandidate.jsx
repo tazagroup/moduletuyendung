@@ -84,7 +84,7 @@ const InfoCandidate = ({ open, handleClose }) => {
     const [status, setStatus] = useState(calendar?.Trangthai || 0)
     const roundsIntern = calendar?.VongPV
     const disabledCreate = roundsIntern ? roundsIntern[roundsIntern.length - 1]?.Trangthai != 1 : false
-    const disabledField = flagCandidate.Trangthai != 0
+    const disabledField = Object.keys(JSON.parse(flagCandidate.DuyetHS)).length != 0
     const isApproved = JSON.parse(flagCandidate.XacnhanHS).Duyet == 1
     const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
     //FUNCTIONS 
@@ -114,7 +114,7 @@ const InfoCandidate = ({ open, handleClose }) => {
             Phone: e.Phone,
         }
         //If edit  the ticket's status
-        const DuyetHS = !status ? JSON.parse(flagCandidate.DuyetHS) : ([2, 3].includes(status) ? flagCandidate.DuyetHS : { DuyetSPV: 0 })
+        const DuyetHS = !status ? JSON.parse(flagCandidate.DuyetHS) : ([2, 3].includes(status) ? flagCandidate.DuyetHS : { DuyetSPV: { Trangthai: 0 } })
         const LichPV = !secondStep ? JSON.parse(flagCandidate.LichPV) : {
             ...JSON.parse(flagCandidate.LichPV),
             Danhgia: firstRate,
@@ -122,7 +122,7 @@ const InfoCandidate = ({ open, handleClose }) => {
             Ghichu: note,
             Trangthai: status
         }
-        const Trangthai = !secondStep ? flagCandidate.Trangthai : [2, 3].includes(status) ? status : 1
+        const Trangthai = !secondStep ? flagCandidate.Trangthai : [2, 3].includes(status) ? status : 0
         const bodyData = {
             ...flagCandidate,
             idTicket: ticket.key,

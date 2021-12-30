@@ -1,7 +1,9 @@
 import React from 'react'
 import Table from './Table'
 import FusePageSimple from '@fuse/core/FusePageSimple';
+
 const index = () => {
+
     return (
         <FusePageSimple
             header={

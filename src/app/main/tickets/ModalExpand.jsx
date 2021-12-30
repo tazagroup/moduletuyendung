@@ -1,4 +1,5 @@
 import React from 'react'
+import { useSelector } from 'react-redux'
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material'
 import { Column, Table } from 'react-virtualized';
 import 'react-virtualized/styles.css';
@@ -6,8 +7,10 @@ import 'react-virtualized/styles.css';
 
 
 const ModalExpand = ({ open, data, handleClose }) => {
+    const sources = useSelector(state => state.fuse.tickets.source)
     const dataTable = data.map(({ Chiphi, CPTT, CPCL, ...item }) => ({
         ...item,
+        Nguon: sources.find(opt => opt.id == item.Nguon).name,
         Chiphi: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Chiphi || 0),
         CPTT: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(CPTT || 0),
         CPCL: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Chiphi - CPTT || 0)

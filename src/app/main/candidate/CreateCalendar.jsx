@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 //REDUX
 import { showMessage } from 'app/store/fuse/messageSlice';
-import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
-import { useDispatch, useSelector } from 'react-redux';
+import { updateFlagCandidate, updateCandidate } from 'app/store/fuse/candidateSlice'
+import { useDispatch, useSelector, batch } from 'react-redux';
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, Grid } from '@mui/material';
@@ -75,7 +75,10 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
             variant: 'success'
         }))
         const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-        dispatch(updateFlagCandidate(bodyData))
+        batch(() => {
+            dispatch(updateFlagCandidate(bodyData))
+            dispatch(updateCandidate(response.data))
+        })
         const noticeData = {
             "idGui": user.profile.id,
             "idNhan": censor.id,
@@ -101,7 +104,7 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
                         <FormControl variant="standard" fullWidth>
                             <AutocompleteObjField
                                 value={censor}
-                                options={users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes(3) : item.PQTD == 3)}
+                                options={users.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes(5) : item.PQTD == 5)}
                                 onChange={handleChangeCensor}
                                 field="name"
                                 label="Người kiểm duyệt"

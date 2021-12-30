@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux';
 import { Grid, Autocomplete, TextField, Checkbox, FormControl, Select, ListItemText, MenuItem, InputLabel } from '@mui/material';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -6,8 +7,11 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 const CustomFiltering = (props) => {
+    const tickets = useSelector(state => state.fuse.tickets.dataTicket)
+    const source = useSelector(state => state.fuse.tickets.source)
+    const mainSource = Array.prototype.concat.apply([], tickets.map(item => JSON.parse(item.Pheduyet)[3].CPTD))
+    const arraySource = [...new Set(mainSource.map(opt => opt.Nguon))]
     const [filterValue, setFilterValue] = useState({ Nguon: "", CPDK: [], CPTT: [], CPCL: [] })
-    const arraySource = ["Facebook", "ITViec", "TopCV"]
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
     const MenuProps = {
@@ -29,6 +33,9 @@ const CustomFiltering = (props) => {
         setFilterValue(value)
         props.onFilterChanged(props.columnDef.tableData.id, value);
     }
+    const convertIdToName = (id) => {
+        return source.find(opt => opt.id == id)?.name
+    }
     return (
         <Grid container spacing={2} style={{ width: "500px", paddingTop: "2.5px" }}>
             <Grid item xs={12} md={6}>
@@ -47,6 +54,7 @@ const CustomFiltering = (props) => {
                             label="Nguồn"
                         />
                     )}
+                    getOptionLabel={(option) => convertIdToName(option)}
                     renderOption={(props, option, { selected }) => {
                         return (
                             <li {...props}>
@@ -56,12 +64,12 @@ const CustomFiltering = (props) => {
                                     style={{ marginRight: 8 }}
                                     checked={selected}
                                 />
-                                {option}
+                                {source.find(opt => opt.id == option)?.name}
                             </li>
                         )
                     }}
                     renderTags={(selected) => {
-                        return selected.map(item => item).join(',')
+                        return selected.map(item => convertIdToName(item)).join(',')
                     }}
                     style={{ marginTop: "5.5px" }}
                 />

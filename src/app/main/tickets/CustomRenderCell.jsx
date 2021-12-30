@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useSelector } from 'react-redux';
 import { IconButton } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
@@ -9,7 +10,11 @@ const convertCurrency = (value) => {
 const convertRenderCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)
 }
+const convertIdToSource = (arr, id) => {
+    return arr.find(opt => opt.id == id).name
+}
 const CustomRenderCell = ({ data }) => {
+    const sources = useSelector(state => state.fuse.tickets.source)
     const step = JSON.parse(data['Pheduyet'])[3]
     const [isExpand, setIsExpand] = useState(false)
     const main = step?.CPTD
@@ -29,7 +34,7 @@ const CustomRenderCell = ({ data }) => {
                             <IconButton onClick={() => { setIsExpand(true) }}>
                                 <MoreHorizIcon />
                             </IconButton> : sourceBody.map((item, index) => (
-                                <p key={index}>{item}</p>
+                                <p key={index}>{convertIdToSource(sources, item)}</p>
                             ))}
                     </div>
                 </div>

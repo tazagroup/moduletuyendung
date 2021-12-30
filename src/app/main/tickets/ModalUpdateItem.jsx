@@ -74,22 +74,27 @@ const TextInputCustom = (props) => {
 const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     const dispatch = useDispatch();
     const classes = useStyles()
+    const user = JSON.parse(localStorage.getItem("profile"))
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
-    const user = JSON.parse(localStorage.getItem("profile"))
-    const [value, setValue] = useState('')
-    const sourceArray = ["Facebook", "TopCV", "ITViec"]
-    const [sourceList, setSourceList] = useState([{ Nguon: "", Chiphi: "", TGMua: new Date(), Hinhthuc: '' }]);
-    const [selectedDate2, setSelectedDate2] = useState(new Date())
+    const sources = useSelector(state => state.fuse.tickets.source)
+    const [sourceArray, setSourceArray] = useState(sources.map(item => item.name))
+    const [subSourceArray, setSubSourceArray] = useState([])
     const typeArray = ["Chuyển khoản", "Thanh toán tiền mặt"]
     const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
+    const [value, setValue] = useState('')
+    const [sourceList, setSourceList] = useState([{ Nguon: "", Chiphi: "", TGMua: new Date(), Hinhthuc: '' }]);
+    const [selectedDate2, setSelectedDate2] = useState(new Date())
     const isValid = sourceList.map(item => Object.values(item).every(x => x !== ''))
     //UPDATE TICKETS
+    const convertSourceToId = (name) => {
+        return sources.find(opt => opt.name == name).id
+    }
     const handleUpdateTickets = async (e) => {
         const item = dataTicket.find(item => item.key === data.key)
         const step = JSON.parse(item['Pheduyet'])
         const CPTD = sourceList.map(item => {
-            return { ...item, TGMua: new Date(item.TGMua).toISOString() }
+            return { ...item, Nguon: convertSourceToId(item.Nguon), TGMua: new Date(item.TGMua).toISOString() }
         })
         step[3] = {
             ...step[3],
@@ -118,7 +123,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
             "idNhan": censor.id,
             "idModule": 3,
             "Loai": 1,
-            "Noidung": response.data.attributes.key,
+            "Noidung": item.key,
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)
@@ -138,7 +143,10 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     }
     const handleRemoveSource = (index) => {
         const list = [...sourceList];
+        const subArray = [...subSourceArray]
         list.splice(index, 1);
+        subArray.splice(index, 1)
+        setSubSourceArray(subArray)
         setSourceList(list);
     }
     const handleChangeCurrency = (e, index) => {
@@ -151,6 +159,8 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
         const { value } = e.target;
         const list = [...sourceList]
         list[index]['Nguon'] = value
+        const subArray = list.map(item => item.Nguon)
+        setSubSourceArray(subArray)
         setSourceList(list)
     }
     const handleChangeType = (e, index) => {
@@ -226,6 +236,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                                 <SelectField
                                     label="Nguồn mua" value={item.Nguon} arrayItem={sourceArray}
                                     handleChange={(e) => handleChangeSource(e, index)}
+                                    arraySubItem={subSourceArray}
                                 />
                             </Grid>
                             {/* Chi phí mua  */}

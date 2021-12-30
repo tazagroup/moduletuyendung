@@ -18,7 +18,7 @@ const ViewFile = ({ open, handleClose, item }) => {
             open={open}
             onClose={handleClose}
             fullWidth={true}
-            maxWidth={'lg'}
+            maxWidth={'md'}
             scroll="paper"
         >
             <CloseIcon style={styleButton} onClick={handleClose} />

@@ -6,6 +6,12 @@ h5,
 h6 {
     font-weight: bold !important;
 }
+.flatpickr-input {
+    background-color: transparent;
+}
+.react-pdf__Page__canvas {
+    margin: 0 auto;
+}
 .icon__table__candidate.success {
     width: 25px;
     height: 25px;
@@ -49,4 +55,33 @@ svg.calendar__icon {
 }
 .content-item {
     margin: 10px 0;
+}
+/*  */
+.MuiTooltip-tooltip.MuiTooltip-tooltipPlacementBottom.css-hsnykj-MuiTooltip-tooltip {
+    max-width: 150px;
+}
+.MuiFormLabel-root-520.MuiFormLabel-disabled-523 {
+    color: rgba(0, 0, 0, 0.38);
+}
+.custom__timeline.success {
+    width: 25px;
+    height: 25px;
+    fill: #2ccb2c;
+    background-color: unset;
+    cursor: pointer;
+}
+.custom__timeline.process circle {
+    color: #fff;
+    opacity: 1;
+}
+.custom__timeline.process path {
+    fill: #61dbfb;
+    opacity: 1;
+}
+.custom__timeline.pending {
+    width: 25px;
+    height: 25px;
+    fill: #8f8f8f;
+    background-color: unset;
+    cursor: pointer;
 }

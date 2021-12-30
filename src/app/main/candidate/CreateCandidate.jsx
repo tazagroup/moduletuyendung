@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from "react-redux"
 import { addCandidate } from 'app/store/fuse/candidateSlice';
 import { showMessage } from "app/store/fuse/messageSlice"
+
 //MUI
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
@@ -18,6 +19,7 @@ import InputField from "../CustomField/InputField"
 import DateField from "../CustomField/DateField"
 import NumberFormat from 'react-number-format';
 import AutocompleteField from './../CustomField/Autocomplete'
+
 // API
 import { storage } from "../../services/firebaseService/fireBase"
 import candidatesAPI from 'api/candidatesAPI';
@@ -47,6 +49,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const dispatch = useDispatch()
     const classes = useStyles()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const mainSource = useSelector(state => state.fuse.tickets.source)
     const position = useSelector(state => state.fuse.tickets.position)
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")))
     const [ticket, setTicket] = useState(item)
@@ -55,7 +58,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const [fileName, setFileName] = useState("")
     const [isFileEmpty, setIsFileEmpty] = useState(false)
     const [source, setSource] = useState(null)
-    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => item.Nguon) : []
+    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => mainSource.find(opt => opt.id == item.Nguon).name) : []
     useEffect(async () => {
         //GET THE CURRENT TICKETS
         const tickets = dataTicket.filter(item => item.Trangthai == 2)
@@ -73,7 +76,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             Email: "",
             SDT: "",
         },
-        mode: 'onBlur',
+        mode: 'all',
         resolver: yupResolver(schema),
     });
     const isValid = form.formState.isValid && fileName !== "" && source != null
@@ -83,7 +86,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             Email: e.Email,
             Phone: e.SDT,
             CV: fileName,
-            Nguon: source,
+            Nguon: mainSource.find(opt => opt.name == source).id,
             NgayUT: new Date(selectedDate).toISOString(),
         }
         const bodyData = {
@@ -101,16 +104,28 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]
-        console.log(file.type)
-        const uploadFile = storage.ref(`files/${file.name}`).put(file);
-        uploadFile.on("state_changed", (snapshot) => {
-        },
-            (error) => console.log(error),
-            () => {
-                storage.ref("files").child(file.name).getDownloadURL().then((url) => {
-                    setFileName(url)
+        if (file?.type != "application/pdf") {
+            dispatch(showMessage({
+                message: 'Lỗi...Vui lòng nhập file định dạng .pdf',
+                autoHideDuration: 3000,
+                anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center'
+                },
+                variant: 'error'
+            }))
+        }
+        else {
+            const uploadFile = storage.ref(`files/${file.name}`).put(file);
+            uploadFile.on("state_changed", (snapshot) => {
+            },
+                (error) => console.log(error),
+                () => {
+                    storage.ref("files").child(file.name).getDownloadURL().then((url) => {
+                        setFileName(url)
+                    })
                 })
-            })
+        }
     }
     return (
         <Dialog

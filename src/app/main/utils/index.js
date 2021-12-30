@@ -35,7 +35,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 const user = JSON.parse(localStorage.getItem("profile"))
 export const ConvertPermissionArray = (array, field) => {
     let mainData = []
-    if (user.profile.PQTD.includes(2) || user.profile.PQTD.includes(3) || user.profile.PQTD.includes(4)) {
+    if ([2, 3, 4].some(item => user.profile.PQTD.includes(item))) {
         mainData = [...array]
     }
     else {

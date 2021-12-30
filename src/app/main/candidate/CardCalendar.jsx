@@ -1,7 +1,7 @@
 import React from 'react'
 //REDUX
-import { useSelector, useDispatch } from "react-redux"
-import { updateFlagCandidate } from 'app/store/fuse/candidateSlice'
+import { useSelector, useDispatch, batch } from "react-redux"
+import { updateFlagCandidate, updateCandidate } from 'app/store/fuse/candidateSlice'
 //MUI
 import { styled } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -82,7 +82,10 @@ export default function CardCalendar({ item }) {
       LichPV: JSON.stringify(calendar)
     }
     const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-    dispatch(updateFlagCandidate(bodyData))
+    batch(() => {
+      dispatch(updateFlagCandidate(bodyData))
+      dispatch(updateCandidate(response.data))
+    })
   };
   const getNameById = (id) => {
     return users.find(item => item.id == id)?.name

@@ -3,9 +3,11 @@ import { ConvertPermissionArray } from './../../main/utils/index'
 const ticketsSlice = createSlice({
     name: 'tickets',
     initialState: {
+        dashboardTicket: [],
         dataTicket: [],
         flagTicket: [],
         position: [],
+        source: [{ id: 1, name: "Facebook" }, { id: 2, name: "TopCV" }, { id: 3, name: "ITViec" }, { id: 4, name: "TEST" }],
         users: [],
         isLoading: true,
     },
@@ -17,7 +19,6 @@ const ticketsSlice = createSlice({
             state.dataTicket.push(attributes)
         },
         refreshTicket: (state, action) => {
-            console.log(action.payload)
             state.dataTicket = action.payload
         },
         setDataTicket: (state, action) => {
@@ -29,6 +30,7 @@ const ticketsSlice = createSlice({
                 key,
                 ...item,
             }))
+            state.dashboardTicket = state.dataTicket
             state.position = JSON.parse(position);
             state.users = users;
             //Hidden to need approve
@@ -40,10 +42,7 @@ const ticketsSlice = createSlice({
             //Hidden to position
             const secondConditionArray = ConvertPermissionArray(state.dataTicket, 'Vitri')
             const flag = [].concat.apply(firstConditionArray, secondConditionArray)
-            const result = [...new Map(flag.map((item, key) => [item['key'], item])).values()].map(({ id, ...item }, index) => ({
-                ...item,
-                id: index
-            }))
+            const result = [...new Map(flag.map((item, key) => [item['key'], item])).values()].sort((a, b) => a['id'] - b['id'])
             state.dataTicket = [...result]
             state.flagTicket = [...state.dataTicket]
         },

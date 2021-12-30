@@ -6,7 +6,7 @@ import { forwardRef, useImperativeHandle, memo, useRef } from 'react';
 import FusePageSimpleHeader from './FusePageSimpleHeader';
 import FusePageSimpleSidebar from './FusePageSimpleSidebar';
 
-const headerHeight = 120;
+const headerHeight = 60;
 const toolbarHeight = 64;
 const drawerWidth = 240;
 

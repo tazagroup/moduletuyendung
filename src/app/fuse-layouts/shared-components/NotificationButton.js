@@ -3,6 +3,7 @@ import { Link } from "react-router-dom"
 //REDUX
 import { useDispatch, useSelector } from "react-redux"
 import { setDataNotice, updateNotice } from "app/store/fuse/noticesSlice"
+import { setDataSetting } from "app/store/fuse/guideSlice"
 //MUI
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { IconButton, Menu, MenuItem, List, Badge, styled } from '@mui/material';
@@ -20,10 +21,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 const NotificationButton = () => {
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
+    const settings = useSelector(state => state.fuse.guides.dataSetting)
     const dataNotice = useSelector(state => state.fuse.notices.dataNotice)
     const renderNotice = dataNotice.filter(item => item.attributes.Dadoc == 0)
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [settings, setSettings] = React.useState([])
     const open = Boolean(anchorEl);
     const handleClick = (e) => {
         if (dataNotice.length != 0) {
@@ -41,7 +42,7 @@ const NotificationButton = () => {
             const data = responseNotice.data.filter(item => item.attributes.idNhan == user?.profile.id) || []
             if (isFetching) {
                 dispatch(setDataNotice(data))
-                setSettings(JSON.parse(responseSetting.data.attributes.Dulieu))
+                dispatch(setDataSetting(JSON.parse(responseSetting.data.attributes.Dulieu)))
             }
         }
         fetchData()

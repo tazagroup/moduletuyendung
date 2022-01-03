@@ -18,8 +18,6 @@ import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 // import { yupResolver } from "@hookform/resolvers/yup"
 // import * as yup from "yup"
 //COMPONENT
-import InputField from '../CustomField/InputField';
-import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
 import DateField from "../CustomField/DateField"
 // API
@@ -78,7 +76,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const sources = useSelector(state => state.fuse.tickets.source)
-    const [sourceArray, setSourceArray] = useState(sources.map(item => item.name))
+    const [sourceArray, setSourceArray] = useState(sources.map(item => item.Thuoctinh))
     const [subSourceArray, setSubSourceArray] = useState([])
     const typeArray = ["Chuyển khoản", "Thanh toán tiền mặt"]
     const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
@@ -88,7 +86,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     const isValid = sourceList.map(item => Object.values(item).every(x => x !== ''))
     //UPDATE TICKETS
     const convertSourceToId = (name) => {
-        return sources.find(opt => opt.name == name).id
+        return sources.find(opt => opt.Thuoctinh == name).id
     }
     const handleUpdateTickets = async (e) => {
         const item = dataTicket.find(item => item.key === data.key)

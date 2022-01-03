@@ -11,7 +11,7 @@ const convertRenderCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value || 0)
 }
 const convertIdToSource = (arr, id) => {
-    return arr.find(opt => opt.id == id).name
+    return arr.find(opt => opt.id == id).Thuoctinh
 }
 const CustomRenderCell = ({ data }) => {
     const sources = useSelector(state => state.fuse.tickets.source)

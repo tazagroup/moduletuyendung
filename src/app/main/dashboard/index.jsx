@@ -1,7 +1,7 @@
 import React from 'react'
 import Table from './Table'
 import FusePageSimple from '@fuse/core/FusePageSimple';
-
+import './index.css'
 const index = () => {
 
     return (

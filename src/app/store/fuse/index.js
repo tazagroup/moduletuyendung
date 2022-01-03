@@ -8,6 +8,7 @@ import tickets from './ticketsSlice'
 import candidates from './candidateSlice'
 import notices from './noticesSlice'
 import user from './userSlice'
+import guides from './guideSlice'
 const fuseReducers = combineReducers({
   navigation,
   settings,
@@ -17,7 +18,8 @@ const fuseReducers = combineReducers({
   tickets,
   candidates,
   notices,
-  user
+  user,
+  guides
 });
 
 export default fuseReducers;

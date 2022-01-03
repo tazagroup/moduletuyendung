@@ -23,6 +23,7 @@ import CardCalendar from "./CardCalendar"
 import CreateCalendar from "./CreateCalendar"
 //API
 import candidatesAPI from 'api/candidatesAPI'
+import noticesAPI from 'api/noticesAPI'
 const schema = yup.object().shape({
     LuongHV: yup.string().required("Vui lòng nhập mức lương học việc"),
     LuongTV: yup.string().required("Vui lòng nhập mức lương thử việc"),
@@ -92,6 +93,15 @@ const ModalBeforeSubmitting = ({ open, handleClose, item, censor }) => {
         }
         const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(updateCandidate(response.data))
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": censor.id,
+            "idModule": 4,
+            "Loai": 1,
+            "Noidung": bodyData.key,
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
         handleClose()
     }
     const CustomInput = ({ type, label, variant = "standard", disabled = true, value }) => {

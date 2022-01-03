@@ -11,8 +11,9 @@ function FuseDialog(props) {
     <Dialog
       open={state}
       aria-labelledby="fuse-dialog-title"
-      maxWidth='lg'
+      maxWidth='sm'
       fullWidth={true}
+      scroll={'paper'}
       classes={{
         paper: 'rounded-8',
       }}

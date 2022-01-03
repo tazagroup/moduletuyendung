@@ -9,6 +9,9 @@ h6 {
 .flatpickr-input {
     background-color: transparent;
 }
+.flatpickr-input.active:focus {
+    outline-color: #000;
+}
 .react-pdf__Page__canvas {
     margin: 0 auto;
 }

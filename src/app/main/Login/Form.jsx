@@ -44,7 +44,6 @@ function LoginForm(props) {
     });
     async function onSubmit(e) {
         const response = await axios.post(`https://tazagroup.vn/index.php?option=com_users&task=user.loginAjax&username=${e.username}&password=${e.password}&format=json`)
-        //7 days
         const profile = response.data?.User
         if (response.data.loggedIn == 0) {
             Swal.fire({
@@ -63,7 +62,7 @@ function LoginForm(props) {
         else {
             const info = JSON.parse(profile.Profile)
             // 3 days
-            const user = { isLogin: response.data.loggedIn === 1 ? true : false, profile: { ...info, id: profile.id }, expire: new Date().getTime() + 3 * 24 * 3600 * 1000, version: process.env.REACT_APP_VERSION }
+            const user = { isLogin: response.data.loggedIn === 1 ? true : false, profile: { ...info, id: profile.id }, expire: new Date().getTime() + 3 * 24 * 3600 * 1000, version: process.env.REACT_APP_VERSION, groups: profile.groups }
             localStorage.setItem("profile", JSON.stringify(user))
             document.location.reload(true)
         }

@@ -34,7 +34,7 @@ const CustomFiltering = (props) => {
         props.onFilterChanged(props.columnDef.tableData.id, value);
     }
     const convertIdToName = (id) => {
-        return source.find(opt => opt.id == id)?.name
+        return source.find(opt => opt.id == id)?.Thuoctinh
     }
     return (
         <Grid container spacing={2} style={{ width: "500px", paddingTop: "2.5px" }}>
@@ -64,7 +64,7 @@ const CustomFiltering = (props) => {
                                     style={{ marginRight: 8 }}
                                     checked={selected}
                                 />
-                                {source.find(opt => opt.id == option)?.name}
+                                {source.find(opt => opt.id == option)?.Thuoctinh}
                             </li>
                         )
                     }}

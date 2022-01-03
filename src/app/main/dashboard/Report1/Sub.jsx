@@ -1,8 +1,7 @@
 import React from 'react'
-import { Doughnut } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
-const Sub = ({ labels, data }) => {
-    const total = data.reduce((partial_sum, a) => partial_sum + a, 0);
+const Sub = ({ labels, data, total }) => {
     const flag = [...data]
     let customLabels = labels.map((label, index) => `${label}`)
     const chartdata = {
@@ -25,20 +24,12 @@ const Sub = ({ labels, data }) => {
             },
         ],
     };
-
     return (
-        <Doughnut
+        <Bar
             data={chartdata}
             options={{
                 responsive: true,
-                legend: { display: true, position: "right" },
-                datalabels: {
-                    display: true,
-                    formatter: (val, ctx) => {
-                        return ctx.chart.data.labels[ctx.dataIndex];
-                    },
-                    color: '#fff',
-                },
+                legend: { display: false, position: "right" },
                 tooltips: {
                     callbacks: {
                         title: function (tooltipItem, data) {
@@ -47,8 +38,7 @@ const Sub = ({ labels, data }) => {
                         label: function (tooltipItem, data) {
                             var dataset = data['datasets'];
                             const value = flag[tooltipItem['index']]
-                            const sum = dataset[0].data.reduce((partial_sum, a) => partial_sum + a, 0)
-                            var percent = Math.round((value / sum) * 100)
+                            var percent = Math.round((value / total) * 100)
                             const afterLabel = ' (' + percent + '%)';
                             return value + afterLabel;
                         },
@@ -60,8 +50,23 @@ const Sub = ({ labels, data }) => {
                     bodyFontSize: 14,
                     displayColors: false
                 },
+                scales: {
+                    yAxes: [{
+                        gridLines: { display: false },
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Hồ sơ ứng viên',
+                        },
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: total,
+                            beginAtZero: true,   // minimum value will be 0.
+                            callback: function (value) { if (value % 1 === 0) { return value; } }
+                        }
+                    }]
+                },
             }}
-
         />
     )
 }

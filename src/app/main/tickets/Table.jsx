@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom"
 import MaterialTable, { MTableAction } from '@material-table/core';
 //REDUX
 import { useDispatch, useSelector, batch } from 'react-redux';
-import { setDataTicket, refreshTicket } from 'app/store/fuse/ticketsSlice';
+import { setDataTicket, refreshTicket, setSource } from 'app/store/fuse/ticketsSlice';
 //ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
@@ -253,7 +253,6 @@ export default function Table() {
             },
             customFilterAndSearch: (term, rowData) => {
                 const { Nguon, CPDK, CPTT, CPCL } = term
-                console.log(Nguon)
                 //Chi phí dự kiến
                 const priceCPDK = CPDK.length !== 0 ? getPriceValue(CPDK) : []
                 //Chi phí thực tế
@@ -375,15 +374,19 @@ export default function Table() {
         let isFetching = true;
         if (isFetching) {
             if (dataTicket.length === 0) {
-                const [responseData, responsePosition, responseUser] = await Promise.all([
+                const [responseData, responsePosition, responseUser, responseSource] = await Promise.all([
                     ticketsAPI.getTicket(),
                     ticketsAPI.getPosition(),
-                    ticketsAPI.getUser()
+                    ticketsAPI.getUser(),
+                    ticketsAPI.getSource()
                 ])
                 const { data: { attributes: { Dulieu } } } = responsePosition
                 const { data } = responseUser
                 const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
-                dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+                batch(() => {
+                    dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+                    dispatch(setSource(responseSource.data))
+                })
                 setIsLoading(false)
             }
             else {

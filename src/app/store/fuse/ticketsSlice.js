@@ -7,7 +7,7 @@ const ticketsSlice = createSlice({
         dataTicket: [],
         flagTicket: [],
         position: [],
-        source: [{ id: 1, name: "Facebook" }, { id: 2, name: "TopCV" }, { id: 3, name: "ITViec" }, { id: 4, name: "TEST" }],
+        source: [],
         users: [],
         isLoading: true,
     },
@@ -59,10 +59,14 @@ const ticketsSlice = createSlice({
                 ...flag,
                 Pheduyet: attributes['Pheduyet']
             }
+        },
+        setSource: (state, action) => {
+            const { attributes } = action.payload
+            state.source = JSON.parse(attributes.Dulieu)
         }
     },
 });
 
-export const { addTicket, refreshTicket, setDataTicket, updateTicket } = ticketsSlice.actions;
+export const { addTicket, refreshTicket, setDataTicket, updateTicket, setSource } = ticketsSlice.actions;
 
 export default ticketsSlice.reducer;

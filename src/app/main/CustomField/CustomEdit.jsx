@@ -326,54 +326,6 @@ const CustomSelectNumber = (props) => {
     )
 }
 //NAME - TYPE - FILE
-const convertFileName = (value) => {
-    const arrayObj = [
-        { name: "Docx", type: "docx" },
-        { name: "Excel", type: "xlsx" },
-        { name: "PDF", type: "pdf" },
-    ]
-    return arrayObj.filter(item => item.type === value)[0]['name']
-}
-const CustomFileEdit = (props) => {
-    const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
-    const ITEM_HEIGHT = 48;
-    const ITEM_PADDING_TOP = 8;
-    const MenuProps = {
-        PaperProps: {
-            style: {
-                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-                width: props.width
-            }
-        }
-    };
-    const value = props.columnDef.tableData.filterValue || []
-    return (
-        <>
-            <FormControl sx={{ m: 1, width: props.width, marginTop: "14px" }} variant="standard">
-                <Select
-                    labelId="demo-multiple-checkbox-label"
-                    id="demo-multiple-checkbox"
-                    multiple
-                    value={value}
-                    onChange={(event) => {
-                        const { target: { value } } = event;
-                        props.onFilterChanged(props.columnDef.tableData.id, value);
-                    }}
-                    renderValue={(selected) => selected.map(item => convertFileName(item)).join(", ")}
-                    MenuProps={MenuProps}
-                >
-                    {props.data.map((name) => (
-                        <MenuItem key={name} value={name}>
-                            <Checkbox checked={value.indexOf(name) > -1} />
-                            <ListItemText primary={`${convertFileName(name)} (${countFile(arrayCandidate, props.field, name)})`} />
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-        </>
-    )
-}
-
 
 export {
     CustomDateEdit,
@@ -381,6 +333,6 @@ export {
     CustomAutocompleteNameEdit,
     CustomSelectPriceEdit,
     CustomSelectNumber,
-    CustomFileEdit,
+    // CustomFileEdit,
     CustomSelectEdit
 }

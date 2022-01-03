@@ -79,7 +79,8 @@ export default function CardCalendar({ item }) {
     calendar.VongPV[currentStep.id] = { ...currentStep }
     const bodyData = {
       ...currentEdit,
-      LichPV: JSON.stringify(calendar)
+      LichPV: JSON.stringify(calendar),
+      Trangthai: event.target.value == 2 ? 2 : currentEdit.Trangthai
     }
     const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
     batch(() => {

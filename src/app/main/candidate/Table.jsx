@@ -1,31 +1,43 @@
 import React, { Fragment, useRef, useState, useEffect } from 'react'
+import { useLocation } from "react-router-dom"
 //REDUX
-import { useDispatch, useSelector } from 'react-redux';
-import { setDataTicket } from 'app/store/fuse/ticketsSlice';
-import { setDataCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
+import { useDispatch, useSelector, batch } from 'react-redux';
+import { setDataTicket, setSource } from 'app/store/fuse/ticketsSlice';
+import { setDataCandidate, updateFlagCandidate, refreshDataCandidate } from 'app/store/fuse/candidateSlice';
 //MUI
-import MaterialTable, { MTableAction, MTableEditField } from '@material-table/core';
+import MaterialTable, { MTableAction } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
+import { styled } from '@mui/material/styles'
 import ClearIcon from '@mui/icons-material/Clear';
 import IconButton from '@mui/material/IconButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import RefreshIcon from '@mui/icons-material/Refresh'
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 //COMPONENTS
 import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
-import { CustomCV, CustomStatus, CustomExperts, CustomTimeline } from './CustomCell'
+import { CustomCV, CustomStatus, CustomExperts, CustomTimeline, CustomSelect } from './CustomCell'
 import { CustomName } from '../CustomField/CustomId'
 import { CustomDateEdit, CustomAutocompleteNameEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
-
 //API
 import ticketsAPI from 'api/ticketsAPI';
 import candidatesAPI from 'api/candidatesAPI';
+
+const TextTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
+))(`
+      font-size: .8em;
+  `);
 const Table = () => {
+    const search = useLocation().search
+    const queryParams = new URLSearchParams(search)
+    const idParam = queryParams.get("idhash")
     const dispatch = useDispatch();
     const data = useSelector(state => state.fuse.candidates.dataCandidate)
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
+    const flagDataCandidate = useSelector(state => state.fuse.candidates.flagDataCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket).filter(item => item.Trangthai == 2)
     const position = useSelector(state => state.fuse.tickets.position)
     const source = useSelector(state => state.fuse.tickets.source)
@@ -73,17 +85,16 @@ const Table = () => {
             title: "Nguồn tuyển dụng", field: "Nguon",
             render: rowData => {
                 const profile = JSON.parse(rowData.Profile)
-                return (<div>{source.find(opt => opt.id == profile?.Nguon)?.name}</div>)
+                return (<div>{source.find(opt => opt.id == profile?.Nguon)?.Thuoctinh}</div>)
+            },
+            filterComponent: props => {
+                return <CustomSelect {...props} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length == 0) return true
+                const main = JSON.parse(rowData.Profile).Nguon
+                return term.includes(main)
             }
-            // filterComponent: props => {
-            //     const data = ["Facebook", "ITViec", "TopCV"]
-            //     return <CustomSelectEdit {...props} data={data} width={125} field="Nguon" collection="candidates" />
-            // },
-            // customFilterAndSearch: (term, rowData) => {
-            //     if (term.length === 0) return true;
-            //     const { Nguon } = rowData;
-            //     return term.includes(Nguon);
-            // }
         },
         {
             title: "Ngày ứng tuyển", field: "NgayUT",
@@ -140,21 +151,23 @@ const Table = () => {
             }
         },
         {
+            title: "Trạng thái", field: "Trangthai", lookup: { 0: "Đang xử lí", 1: "Đạt", 2: "Loại" }
+        },
+        {
             title: "CV", field: "CV",
             render: rowData => {
                 const profile = JSON.parse(rowData.Profile)
                 return <CustomCV item={profile.CV} />
             },
             filterComponent: props => {
-                const data = ["pdf"]
-                return <CustomFileEdit {...props} data={data} width={130} field="CV" />
+                return <></>
             },
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true;
-                const profile = JSON.parse(rowData.Profile)
-                const type = profile.CV.split('%2F')[1].split('?alt')[0].split('.')[1]
-                return term.includes(type)
-            }
+            // customFilterAndSearch: (term, rowData) => {
+            //     if (term.length === 0) return true;
+            //     const profile = JSON.parse(rowData.Profile)
+            //     const type = profile.CV.split('%2F')[1].split('?alt')[0].split('.')[1]
+            //     return term.includes(type)
+            // }
         },
         {
             title: "Ban chuyên môn", field: "BCM",
@@ -217,26 +230,48 @@ const Table = () => {
     }
     const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
     const columns = headers.map(item => ({ ...item, align: "center", cellStyle: { whiteSpace: 'nowrap' }, headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
+    //FETCH DATA
     useEffect(async () => {
+        let [responseData, responsePosition, responseUser, responseSource] = [[], [], [], []]
         if (dataTicket.length === 0) {
-            const [responseData, responsePosition, responseUser] = await Promise.all([
+            [responseData, responsePosition, responseUser, responseSource] = await Promise.all([
                 ticketsAPI.getTicket(),
                 ticketsAPI.getPosition(),
                 ticketsAPI.getUser(),
+                ticketsAPI.getSource()
             ])
             const { data: { attributes: { Dulieu } } } = responsePosition
             const { data } = responseUser
             const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
-            dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+            batch(() => {
+                dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
+                dispatch(setSource(responseSource.data))
+            })
             setIsLoading(false)
         }
         const responseCandidate = await candidatesAPI.getCandidate()
-        dispatch(setDataCandidate(responseCandidate))
+        const mainCandidate = responseCandidate.data.map(item => item.attributes)
+        let idTicket = []
+        if (responseData.data) {
+            idTicket = responseData.data.map(item => item.attributes).filter(item2 => item2.Trangthai == 2).map(opt => opt.id)
+        }
+        else {
+            idTicket = dataTicket.map(item => item.key)
+        }
+        const mainData = mainCandidate.filter(item2 => idTicket.includes(item2.idTicket))
+        dispatch(setDataCandidate({ main: mainData, dashboard: mainCandidate }))
         setIsLoading(false)
         return () => {
 
         }
     }, [])
+    //FILTER TO ID
+    useEffect(() => {
+        if (idParam) {
+            const data = flagDataCandidate.filter(item => item.key == idParam)
+            dispatch(refreshDataCandidate(data))
+        }
+    }, [idParam])
     useEffect(() => {
         if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
             dispatch(updateFlagCandidate(rowData))
@@ -244,6 +279,7 @@ const Table = () => {
         return () => {
         }
     }, [rowData])
+    //HIDDEN COLUMNS
     useEffect(() => {
         let isFetching = true
         if (isFetching) {
@@ -269,12 +305,19 @@ const Table = () => {
         dispatch(updateFlagCandidate(rowData))
         setIsEditing(true)
     }
+    const handleRefresh = () => {
+        setIsFiltering(false)
+        dispatch(refreshDataCandidate([]))
+        setTimeout(() => {
+            dispatch(refreshDataCandidate([...flagDataCandidate]))
+        }, 0)
+    }
     return isLoading ? <FuseLoading /> :
         <Fragment>
             <MaterialTable
                 tableRef={tableRef}
                 title={<>
-                    <Tooltip title="Tạo hồ sơ ứng viên">
+                    <TextTooltip title="Tạo hồ sơ ứng viên">
                         <IconButton
                             onClick={() => { setIsCreating(true) }}
                             variant="contained"
@@ -282,7 +325,7 @@ const Table = () => {
                             size="large">
                             <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                         </IconButton>
-                    </Tooltip>
+                    </TextTooltip>
                 </>}
                 actions={[
                     {
@@ -291,6 +334,15 @@ const Table = () => {
                         isFreeAction: true,
                         onClick: (event) => setIsFiltering(state => !state)
                     },
+                    {
+                        icon: () => (
+                            <TextTooltip title="Đặt lại">
+                                <RefreshIcon />
+                            </TextTooltip>
+                        ),
+                        isFreeAction: true,
+                        onClick: (event) => { handleRefresh() }
+                    }
                 ]}
                 components={{
                     Action: props => {
@@ -353,7 +405,7 @@ const Table = () => {
                     'aria-labelledby': 'basic-button',
                 }}
             >
-                <MenuItem onClick={handleEdit}>Chỉnh sửa</MenuItem>
+                <MenuItem onClick={handleEdit}>Thông tin</MenuItem>
             </Menu>
             {isCreating &&
                 <CreateCandidate

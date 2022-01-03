@@ -1,8 +1,7 @@
 import React from 'react'
-import { Doughnut } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 
-const Main = ({ labels, data, handleClick }) => {
-    const total = data.reduce((partial_sum, a) => partial_sum + a, 0);
+const Main = ({ labels, data, total }) => {
     const flag = [...data]
     let customLabels = labels.map((label, index) => `${label}`)
     const chartdata = {
@@ -13,40 +12,24 @@ const Main = ({ labels, data, handleClick }) => {
                     "#4285f4",
                     "#db4437",
                     "#f4b400",
+                    "#6ba547",
+                    "#9cf168",
+                    "#e48f1b",
+                    "#fbc543",
+                    "#b77ea3",
+                    "#ffc9ed",
+                    "#6ba547",
                 ],
                 data: data,
             },
         ],
     };
-    const plugins = [{
-        beforeDraw: function (chart) {
-            var width = chart.width - 145,
-                height = chart.height+10,
-                ctx = chart.ctx;
-            ctx.restore();
-            var fontSize = (height / 140).toFixed(2);
-            ctx.font = fontSize + "em sans-serif";
-            ctx.textBaseline = "middle";
-            var text = `${total}`,
-                textX = Math.round((width - ctx.measureText(text).width) / 2),
-                textY = height / 2;
-            ctx.fillText(text, textX, textY);
-            ctx.save();
-        }
-    }]
     return (
-        <Doughnut
+        <Bar
             data={chartdata}
             options={{
                 responsive: true,
-                legend: { display: true, position: "right" },
-                datalabels: {
-                    display: true,
-                    formatter: (val, ctx) => {
-                        return ctx.chart.data.labels[ctx.dataIndex];
-                    },
-                    color: '#fff',
-                },
+                legend: { display: false, position: "right" },
                 tooltips: {
                     callbacks: {
                         title: function (tooltipItem, data) {
@@ -55,8 +38,7 @@ const Main = ({ labels, data, handleClick }) => {
                         label: function (tooltipItem, data) {
                             var dataset = data['datasets'];
                             const value = flag[tooltipItem['index']]
-                            const sum = dataset[0].data.reduce((partial_sum, a) => partial_sum + a, 0)
-                            var percent = Math.round((value / sum) * 100)
+                            var percent = Math.round((value / total) * 100)
                             const afterLabel = ' (' + percent + '%)';
                             return value + afterLabel;
                         },
@@ -68,15 +50,23 @@ const Main = ({ labels, data, handleClick }) => {
                     bodyFontSize: 14,
                     displayColors: false
                 },
-                onClick: function (evt, element) {
-                    if (element.length > 0) {
-                        //index of element
-                        var index = element[0]._index;
-                        handleClick(labels[index])
-                    }
+                scales: {
+                    yAxes: [{
+                        gridLines: { display: false },
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Hồ sơ ứng viên',
+                        },
+                        ticks: {
+                            suggestedMin: 0,
+                            suggestedMax: total,
+                            beginAtZero: true,   // minimum value will be 0.
+                            callback: function (value) { if (value % 1 === 0) { return value; } }
+                        }
+                    }]
                 },
             }}
-            plugins={plugins}
         />
     )
 }

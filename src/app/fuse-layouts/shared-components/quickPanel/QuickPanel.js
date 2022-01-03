@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { memo } from 'react';
 import { toggleQuickPanel } from './store/stateSlice';
 import reducer from './store';
-
+import UserGuide from 'app/main/userguide/index'
 const useStyles = makeStyles((theme) => ({
   root: {
     width: 280,
@@ -25,12 +25,12 @@ function QuickPanel(props) {
       classes={{ paper: classes.root }}
       open={state}
       anchor="right"
-      onOpen={(ev) => {}}
+      onOpen={(ev) => { }}
       onClose={(ev) => dispatch(toggleQuickPanel())}
       disableSwipeToOpen
     >
       <FuseScrollbars>
-        <Typography>Quick Panel</Typography>
+        <UserGuide />
       </FuseScrollbars>
     </SwipeableDrawer>
   );

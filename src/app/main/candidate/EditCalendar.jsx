@@ -78,11 +78,11 @@ const EditCalendar = ({ open, item, handleClose }) => {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <Typography variant="h6">Ghi chú</Typography>
+                        <Typography variant="h5">Ghi chú</Typography>
                         <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"ghi chú"} />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <Typography variant="h6">Đánh giá</Typography>
+                        <Typography variant="h5">Đánh giá</Typography>
                         <Tinymce value={comment} onChange={(e) => { setComment(e) }} label={"đánh giá"} />
                     </Grid>
                 </Grid>

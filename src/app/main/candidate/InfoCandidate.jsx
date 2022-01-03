@@ -19,7 +19,7 @@ import Tinymce from '../CustomField/Tinymce'
 import NumberFormat from "react-number-format"
 import CardCalendar from "./CardCalendar"
 import CreateCalendar from "./CreateCalendar"
-
+import ViewFile from './ViewFile'
 //FORM
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
@@ -87,6 +87,8 @@ const InfoCandidate = ({ open, handleClose }) => {
     const disabledField = Object.keys(JSON.parse(flagCandidate.DuyetHS)).length != 0
     const isApproved = JSON.parse(flagCandidate.XacnhanHS).Duyet == 1
     const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
+    const judgement = JSON.parse(flagCandidate.DanhgiaHS)
+    const checkJudgement = Object.keys(JSON.parse(flagCandidate.DanhgiaHS)).length != 0
     //FUNCTIONS 
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh
@@ -195,9 +197,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                             </Grid>
                             <Grid item xs={12} md>
                                 <FormControl fullWidth style={{ marginTop: "15px" }}>
-                                    <Tooltip title="CV">
-                                        <Button variant="contained" size="large">Tải CV</Button>
-                                    </Tooltip>
+                                    <Button variant="contained" size="large">CV</Button>
                                 </FormControl>
                             </Grid>
                         </Grid>
@@ -270,10 +270,55 @@ const InfoCandidate = ({ open, handleClose }) => {
                                                     <MenuItem value={0} disabled></MenuItem>
                                                     <MenuItem value={1}>Đậu</MenuItem>
                                                     <MenuItem value={2}>Loại</MenuItem>
-                                                    <MenuItem value={3}>Lưu hồ sơ</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Grid>
+                                    </Grid>
+                                </Grid>
+                            </>
+                        }
+                        {
+                            checkJudgement &&
+                            <>
+                                <Grid container spacing={2} className={classes.field}>
+                                    <Grid item xs={12}>
+                                        <Typography variant="h4" className={classes.sub__title} style={{ marginBottom: "16px" }} >Thông tin khác</Typography>
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <NumberFormat
+                                            label={"Mức lương học việc"}
+                                            customInput={TextField}
+                                            thousandSeparator
+                                            value={judgement?.LuongHV || ''}
+                                            allowLeadingZeros={false}
+                                            fullWidth
+                                            disabled={true}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <NumberFormat
+                                            label={"Mức lương thử việc"}
+                                            customInput={TextField}
+                                            thousandSeparator
+                                            value={judgement?.LuongTV || ''}
+                                            allowLeadingZeros={false}
+                                            fullWidth
+                                            disabled={true}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} md={4}>
+                                        <NumberFormat
+                                            label={"Mức lương chính thức"}
+                                            customInput={TextField}
+                                            thousandSeparator
+                                            value={judgement?.LuongCT || ''}
+                                            allowLeadingZeros={false}
+                                            fullWidth
+                                            disabled={true}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <DateField label="Ngày gửi thư mời" value={judgement?.GTM} handleChange={setSelectedDate} disabled={disabledField} />
                                     </Grid>
                                 </Grid>
                             </>

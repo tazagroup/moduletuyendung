@@ -10,7 +10,7 @@ const ModalExpand = ({ open, data, handleClose }) => {
     const sources = useSelector(state => state.fuse.tickets.source)
     const dataTable = data.map(({ Chiphi, CPTT, CPCL, ...item }) => ({
         ...item,
-        Nguon: sources.find(opt => opt.id == item.Nguon).name,
+        Nguon: sources.find(opt => opt.id == item.Nguon).Thuoctinh,
         Chiphi: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Chiphi || 0),
         CPTT: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(CPTT || 0),
         CPCL: new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(Chiphi - CPTT || 0)

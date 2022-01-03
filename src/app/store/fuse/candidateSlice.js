@@ -1,22 +1,32 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-
 const candidatesSlice = createSlice({
     name: 'candidates',
     initialState: {
         dataCandidate: [],
+        flagDataCandidate: [],
+        dashboardCandidate: [],
         flagCandidate: {},
+        reason: [
+            { id: 1, Thuoctinh: "Kĩ năng không tốt" },
+            { id: 2, Thuoctinh: "Thái độ không tốt" },
+            { id: 3, Thuoctinh: "Hình thức không tốt" }
+        ],
     },
     reducers: {
         setDataCandidate: (state, action) => {
-            const { data } = action.payload
-            const flagArray = data.map(item => item.attributes)
-            console.log(flagArray)
-            state.dataCandidate = flagArray.map(({ id: key, ...item }, index) => ({
+            const { main, dashboard } = action.payload
+            state.dataCandidate = main.map(({ id: key, ...item }, index) => ({
                 id: index,
                 key,
                 ...item,
             }))
+            state.dashboardCandidate = dashboard.map(({ id: key, ...item }, index) => ({
+                id: index,
+                key,
+                ...item,
+            }))
+            state.flagDataCandidate = state.dataCandidate
         },
         addCandidate: (state, action) => {
             const { attributes } = action.payload
@@ -41,14 +51,16 @@ const candidatesSlice = createSlice({
             }
         },
         updateFlagCandidate: (state, action) => {
-            console.log(action.payload)
             state.flagCandidate = {
                 ...action.payload,
             };
+        },
+        refreshDataCandidate: (state, action) => {
+            state.dataCandidate = action.payload
         }
     },
 });
 
-export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate } = candidatesSlice.actions;
+export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate, refreshDataCandidate } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

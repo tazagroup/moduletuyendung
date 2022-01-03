@@ -58,7 +58,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const [fileName, setFileName] = useState("")
     const [isFileEmpty, setIsFileEmpty] = useState(false)
     const [source, setSource] = useState(null)
-    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => mainSource.find(opt => opt.id == item.Nguon).name) : []
+    const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => mainSource.find(opt => opt.id == item.Nguon).Thuoctinh) : []
     useEffect(async () => {
         //GET THE CURRENT TICKETS
         const tickets = dataTicket.filter(item => item.Trangthai == 2)
@@ -86,7 +86,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             Email: e.Email,
             Phone: e.SDT,
             CV: fileName,
-            Nguon: mainSource.find(opt => opt.name == source).id,
+            Nguon: mainSource.find(opt => opt.Thuoctinh == source).id,
             NgayUT: new Date(selectedDate).toISOString(),
         }
         const bodyData = {

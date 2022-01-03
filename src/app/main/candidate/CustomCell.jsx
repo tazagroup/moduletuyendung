@@ -3,7 +3,7 @@ import React, { Fragment, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
 //MUI
-import { Tooltip, Menu, MenuItem } from '@mui/material';
+import { Tooltip, Menu, MenuItem, FormControl, Select } from '@mui/material';
 import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -173,7 +173,7 @@ export const CustomExperts = ({ item, field }) => {
             DanhgiaHS = {}
         }
         else if (field == "DuyetQL") {
-            censor = DuyetHS.Nguoiduyet
+            censor = DuyetHS.DuyetSPV.Nguoiduyet
             DuyetHS = {
                 DuyetSPV: { ...DuyetHS.DuyetSPV, Trangthai: 0 },
             }
@@ -234,6 +234,7 @@ export const CustomExperts = ({ item, field }) => {
 export const CustomTimeline = ({ item }) => {
     const dispatch = useDispatch()
     const currentStep = JSON.parse(item.DuyetHS).DuyetTD.step
+    console.log(currentStep)
     const currentStatus = JSON.parse(item.DuyetHS).DuyetTD.Trangthai
     const steps = [
         "Nhận kết quả.Gửi thư mời làm việc / thư cảm ơn quản lí cấp cao",
@@ -242,11 +243,16 @@ export const CustomTimeline = ({ item }) => {
         "Xác nhận ngày làm việc chính thức, báo bộ phận yêu cầu tuyển dụng"
     ]
     const handleUpdateStep = async (step) => {
+        console.log(currentStep)
+        let flag = step + 1
+        if (step < currentStep && step == 0) {
+            flag = 0
+        }
         if (currentStatus != 1) {
             const newDuyetTD = {
                 ...JSON.parse(item.DuyetHS).DuyetTD,
                 Trangthai: step == 3 ? 1 : 0,
-                step: (step) + 1
+                step: flag
             }
             const newDuyetHS = {
                 ...JSON.parse(item.DuyetHS),
@@ -271,6 +277,50 @@ export const CustomTimeline = ({ item }) => {
                     </TextTooltip>
                 ))}
             </div>
+        </>
+    )
+}
+
+export const CustomSelect = (props) => {
+    const source = useSelector(state => state.fuse.tickets.source)
+    const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
+    const mainSource = arrayCandidate.map(item => source.find(opt => opt.id == JSON.parse(item.Profile).Nguon)?.Thuoctinh)
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+                width: props.width
+            }
+        }
+    };
+    const value = props.columnDef.tableData.filterValue || []
+    const countProperty = (item) => {
+        return mainSource.filter(opt => opt == item).length
+    }
+    return (
+        <>
+            <FormControl sx={{ m: 1, width: 150, marginTop: "15.5px" }} variant="standard">
+                <Select
+                    labelId="demo-multiple-checkbox-label"
+                    id="demo-multiple-checkbox"
+                    multiple
+                    value={value}
+                    onChange={(event) => {
+                        const { target: { value } } = event;
+                        props.onFilterChanged(props.columnDef.tableData.id, value);
+                    }}
+                    renderValue={(selected) => {
+                        return selected.map(item => source.find(opt => opt.id == item).Thuoctinh).join(', ')
+                    }}
+                    MenuProps={MenuProps}
+                >
+                    {mainSource.map((item, index) => (
+                        <MenuItem key={index} value={source.find(opt => opt.Thuoctinh == item).id} style={{ fontSize: "15px" }}>{`${item} (${countProperty(item)}) `}</MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
         </>
     )
 }

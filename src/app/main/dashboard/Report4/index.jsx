@@ -3,21 +3,13 @@ import { useSelector } from "react-redux"
 import { Grid, Typography, FormControl } from '@mui/material'
 import Flatpickr from "react-flatpickr";
 import Main from './Main'
-const convertData = (data) => {
 
-}
 const Report2 = () => {
     const flagData = useSelector(state => state.fuse.candidates.dashboardCandidate)
-    const [mainData, setMainData] = useState([...flagData])
-    const users = useSelector(state => state.fuse.tickets.users)
-    const approveCandidate = mainData.filter(item => JSON.parse(item.XacnhanHS)?.Duyet == 1).length
-    const approveIntern = mainData.filter(item => JSON.parse(item.XacnhanHS)?.XNPV == 1).length
-    const passIntern = mainData.filter(item => item.Trangthai == 1).length
     const [minDate, setMinDate] = useState(null)
     const [maxDate, setMaxDate] = useState(null)
-    const labels = ["Hồ sơ đạt", "Đến phỏng vấn", "Đậu", "Nhận việc", "Nghỉ việc"]
-    const total = mainData.length
-    const data = [approveCandidate, approveIntern, passIntern, 0, 0]
+    const labels = ["IT", "SEO", "Kế toán", "Quản lí", "Giảng viên"]
+    const data = [10, 3, 5, 8, 7]
     const handleChangeMin = (e) => {
         setMinDate(e)
     }
@@ -26,18 +18,12 @@ const Report2 = () => {
     }
     useEffect(() => {
         if (minDate || maxDate) {
-            const flag = [...flagData]
-            const minValue = minDate ? new Date(minDate).getTime() : null
-            const maxValue = maxDate ? new Date(maxDate).getTime() : null
-            const result = flag.filter(item => new Date(item.Ngaytao) < maxValue && new Date(item.Ngaytao) > minValue)
-            setMainData([...result])
         }
-
     }, [minDate, maxDate])
     return (
         <Grid container spacing={2} style={{ justifyContent: "center" }}>
             <Grid item xs={12}>
-                <Typography variant="h3" gutterBottom component="div">Báo cáo tuyển dụng</Typography>
+                <Typography variant="h3" gutterBottom component="div">Báo cáo tình trạng ứng viên</Typography>
             </Grid>
             <Grid item container xs={12} style={{ justifyContent: "center" }}>
                 <Grid item xs={2}>
@@ -73,7 +59,7 @@ const Report2 = () => {
                 </Grid>
             </Grid>
             <Grid item xs={12} md={8}>
-                <Main labels={labels} data={data} total={total} />
+                <Main labels={labels} data={data} />
             </Grid>
         </Grid>
     )

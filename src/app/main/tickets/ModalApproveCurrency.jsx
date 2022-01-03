@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 //REDUX
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { updateTicket } from 'app/store/fuse/ticketsSlice';
 //MUI
 import { TextField } from '@material-ui/core';
@@ -13,6 +13,7 @@ import noticesAPI from 'api/noticesAPI'
 const ModalApproveCurrency = (props) => {
     const { open, data, handleClose, setDataStatus, censor } = props
     const dispatch = useDispatch()
+    const sources = useSelector(state => state.fuse.tickets.source)
     const user = JSON.parse(localStorage.getItem("profile"))
     const step = JSON.parse(data.Pheduyet)[3].CPTD
     const sourceArray = step.map(item => item.Nguon)
@@ -52,6 +53,9 @@ const ModalApproveCurrency = (props) => {
         noticesAPI.postNotice(noticeData)
 
     }
+    const convertIdToSource = (id) => {
+        return source.find(opt => opt.id == id).Thuoctinh
+    }
     const availableError = value.map(item => Number(item?.CPTT) > Number(item.Chiphi.split(',').join('')))
     const emptyError = value.map(item => item?.CPTT == '' ? Number(item?.CPTT) == 0 : item?.CPTT == undefined)
     const disabledButton = emptyError.includes(true) || availableError.includes(true)
@@ -67,7 +71,7 @@ const ModalApproveCurrency = (props) => {
                     <Grid item xs={12} md={4}>
                         <Typography variant="h5" style={{ textAlign: "center", marginBottom: "5px" }}>Nguồn</Typography>
                         {sourceArray.map((item, index) => (
-                            <TextField key={index} id="standard-basic" variant="standard" value={item} fullWidth disabled={true} style={{ marginBottom: "15px" }} />
+                            <TextField key={index} id="standard-basic" variant="standard" value={convertIdToSource(item)} fullWidth disabled={true} style={{ marginBottom: "15px" }} />
                         ))}
                     </Grid>
                     <Grid item xs={6} md={4}>

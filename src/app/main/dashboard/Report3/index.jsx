@@ -1,29 +1,33 @@
 import React, { useState, useEffect } from 'react'
+import { useSelector } from "react-redux"
 import { Grid, Typography } from '@mui/material'
 import Main from './Main'
 import Sub from './Sub'
+
+const convertIdToName = (arr, id) => {
+    return arr.find(opt => opt.id == id).Thuoctinh
+}
+
 const Report3 = () => {
     const [labels, setLabels] = useState([])
     const [data, setData] = useState([])
     const [subLabels, setSubLabels] = useState([])
     const [subData, setSubData] = useState([])
     const [select, setSelect] = useState(null)
-
+    const source = useSelector(state => state.fuse.tickets.source)
+    const position = useSelector(state => state.fuse.tickets.position)
+    const mainDataTicket = useSelector(state => state.fuse.tickets.dashboardTicket)
+    const mainDataCandidate = useSelector(state => state.fuse.candidates.dashboardCandidate)
     //FAKE DATA
-    const sourceArray = [{ id: 1, title: "Facebook" }, { id: 2, title: "TopCV" }, { id: 3, title: "ITViec" }, { id: 4, title: "Others" }]
-    const fakeData = [
-        { id: 1, idSource: 1, Vitri: "Sale" },
-        { id: 2, idSource: 2, Vitri: "Marketing" },
-        { id: 3, idSource: 1, Vitri: "Sale" },
-        { id: 4, idSource: 4, Vitri: "IT" },
-        { id: 5, idSource: 3, Vitri: "Lead" },
-        { id: 6, idSource: 2, Vitri: "Manager" },
-        { id: 7, idSource: 3, Vitri: "Sale" },
-        { id: 8, idSource: 2, Vitri: "IT" },
-        { id: 9, idSource: 2, Vitri: "Sale" },
-    ]
+    const renderData = mainDataCandidate.map((item, index) => ({
+        id: index,
+        idSource: JSON.parse(item.Profile).Nguon,
+        Vitri: convertIdToName(position, mainDataTicket.find(opt => opt.key == item.idTicket).Vitri),
+    }))
+
     useEffect(() => {
-        const sourceData = fakeData.map(item => sourceArray.find(opt => opt.id == item.idSource).title)
+        const sourceData = renderData.map(item => source.find(opt => opt.id == item.idSource)?.Thuoctinh)
+        console.log(sourceData)
         const counts = {};
         sourceData.forEach(function (x) {
             counts[x] = (counts[x] || 0) + 1;
@@ -33,8 +37,8 @@ const Report3 = () => {
     }, [])
     useEffect(() => {
         if (select) {
-            const index = sourceArray.find(item => item.title == select).id
-            const sourceToPosition = fakeData.filter(item => item.idSource == index)
+            const index = source.find(item => item.Thuoctinh == select).id
+            const sourceToPosition = renderData.filter(item => item.idSource == index)
             const counts = {};
             sourceToPosition.map(item => item.Vitri).forEach(x => counts[x] = (counts[x] || 0) + 1)
             setSubLabels(Object.keys(counts))

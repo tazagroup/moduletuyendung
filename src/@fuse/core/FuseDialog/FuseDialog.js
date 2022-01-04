@@ -14,6 +14,7 @@ function FuseDialog(props) {
       maxWidth='sm'
       fullWidth={true}
       scroll={'paper'}
+      disableEnforceFocus
       classes={{
         paper: 'rounded-8',
       }}

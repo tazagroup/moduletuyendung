@@ -2,21 +2,23 @@ import React from 'react'
 //REDUX
 import { useSelector, useDispatch, batch } from "react-redux"
 import { updateFlagCandidate, updateCandidate } from 'app/store/fuse/candidateSlice'
+import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
 import { styled } from '@mui/material/styles';
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
+import {
+  Card, CardHeader, CardContent, CardActions,
+  Collapse,
+  IconButton,
+  Typography,
+  Menu,
+  MenuItem,
+  FormControl,
+  Select
+} from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
+//COMPONENTS
+import ModalDeny from './ModalDeny'
 import EditCalendar from './EditCalendar';
 //API
 import candidatesAPI from "api/candidatesAPI"
@@ -71,6 +73,11 @@ export default function CardCalendar({ item }) {
   }
   const handleChangeStatus = async (event) => {
     setValue(event.target.value);
+    if (event.target.value == 2) {
+      dispatch(openDialog({
+        children: <ModalDeny item={currentEdit} field="LichPV" />
+      }))
+    }
     const calendar = JSON.parse(currentEdit.LichPV)
     const currentStep = {
       ...calendar.VongPV.splice(-1)[0],

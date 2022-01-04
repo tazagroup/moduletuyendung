@@ -101,7 +101,6 @@ export default function Table() {
     const [isHidden, setIsHidden] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
-
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
@@ -368,7 +367,9 @@ export default function Table() {
         isResult = isHiddenCols.split(",")
     }
     const columns = headers.map(item => ({ ...item, align: "center", headerStyle: { whiteSpace: 'nowrap' }, hidden: !isResult.includes(item.field) }))
-    const [hiddenColumns, setHiddenColumns] = useState(headers.map(item => item.field))
+    const flag = isResult.length != 0 ? isResult : headers.map(item => item.field)
+    const [hiddenColumns, setHiddenColumns] = useState([...flag])
+    const [reset, setReset] = useState(false)
     //FETCH DATA
     useEffect(async () => {
         let isFetching = true;
@@ -398,13 +399,8 @@ export default function Table() {
         }
     }, [])
     useEffect(() => {
-        let isFetching = true
-        if (isFetching) {
-            localStorage.setItem("hidden", hiddenColumns);
-        }
-        return () => {
-            isFetching = false
-        }
+        localStorage.setItem("hidden", hiddenColumns);
+        setReset(state => !state)
     }, [hiddenColumns])
     useEffect(() => {
         if (idParam) {
@@ -547,10 +543,10 @@ export default function Table() {
                     const index = hiddenColumns.findIndex(item => item === r.field)
                     if (index !== -1) {
                         const flag = hiddenColumns.filter(item => item !== r.field)
-                        setHiddenColumns([...flag])
+                        setHiddenColumns(flag)
                     }
                     else {
-                        setHiddenColumns(prev => [...prev, r.field])
+                        setHiddenColumns([...hiddenColumns, r.field])
                     }
                 }}
             />

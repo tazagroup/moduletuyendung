@@ -1,6 +1,6 @@
 import React from 'react'
 import { Doughnut } from "react-chartjs-2";
-
+import "chartjs-plugin-doughnutlabel";
 const Main = ({ labels, data, handleClick }) => {
     const total = data.reduce((partial_sum, a) => partial_sum + a, 0);
     const flag = [...data]
@@ -32,13 +32,6 @@ const Main = ({ labels, data, handleClick }) => {
             options={{
                 responsive: true,
                 legend: { display: true, position: "right" },
-                datalabels: {
-                    display: true,
-                    formatter: (val, ctx) => {
-                        return ctx.chart.data.labels[ctx.dataIndex];
-                    },
-                    color: '#fff',
-                },
                 tooltips: {
                     callbacks: {
                         title: function (tooltipItem, data) {
@@ -59,6 +52,26 @@ const Main = ({ labels, data, handleClick }) => {
                     bodyFontColor: '#000',
                     bodyFontSize: 14,
                     displayColors: false
+                },
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        color: "#000",
+                        font: {
+                            size: 14,
+                            weight: "bold"
+                        }
+                    },
+                    doughnutlabel: {
+                        labels: [{
+                            text: `Tổng : ${total}`,
+                            color: "#000",
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        }]
+                    }
                 },
                 onClick: function (evt, element) {
                     if (element.length > 0) {

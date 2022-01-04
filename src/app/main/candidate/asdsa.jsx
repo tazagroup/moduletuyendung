@@ -34,7 +34,6 @@ const Table = () => {
     const search = useLocation().search
     const queryParams = new URLSearchParams(search)
     const idParam = queryParams.get("idhash")
-    ///////////////////////////////////////////////
     const dispatch = useDispatch();
     const data = useSelector(state => state.fuse.candidates.dataCandidate)
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
@@ -112,11 +111,6 @@ const Table = () => {
                 const beforeDate = Date.parse(term[0])
                 const afterDate = Date.parse(term[1])
                 return time >= beforeDate && time <= afterDate
-            },
-            customSort: (a, b) => {
-                const prevDate = new Date(JSON.parse(a.Profile)?.NgayUT).getTime()
-                const nextDate = new Date(JSON.parse(b.Profile)?.NgayUT).getTime()
-                return nextDate - prevDate
             }
         },
         {
@@ -180,6 +174,12 @@ const Table = () => {
             filterComponent: props => {
                 return <></>
             },
+            // customFilterAndSearch: (term, rowData) => {
+            //     if (term.length === 0) return true;
+            //     const profile = JSON.parse(rowData.Profile)
+            //     const type = profile.CV.split('%2F')[1].split('?alt')[0].split('.')[1]
+            //     return term.includes(type)
+            // }
         },
         {
             title: "Ban chuyên môn", field: "BCM",

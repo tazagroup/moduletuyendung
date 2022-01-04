@@ -40,7 +40,7 @@ const Table = () => {
         }
         const response = await Promise.all(fetchData)
         let idTicket = []
-        if (response.length == 1) {
+        if (response.length == 1) { // ONLY FETCH CANDIDATES
             idTicket = dataTicket.map(item => item.key)
             dispatchCandidate(response[0], idTicket)
         }
@@ -48,11 +48,12 @@ const Table = () => {
             const { data: { attributes: { Dulieu } } } = response[1]
             const { data } = response[2]
             const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+            //get the approved tickets
             idTicket = response[0].data.map(item => item.attributes).filter(item2 => item2.Trangthai == 2).map(opt => opt.id)
             batch(() => {
                 dispatch(setDataTicket({ data: response[0].data, position: Dulieu, users: dataUser }))
                 dispatch(setSource(response[3].data))
-                dispatchCandidate(response[4], idTicket)
+                response[4] && dispatchCandidate(response[4], idTicket)
             })
         }
         setIsLoading(false)

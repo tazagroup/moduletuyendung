@@ -10,7 +10,8 @@ const candidatesSlice = createSlice({
         reason: [
             { id: 1, Thuoctinh: "Kĩ năng không tốt" },
             { id: 2, Thuoctinh: "Thái độ không tốt" },
-            { id: 3, Thuoctinh: "Hình thức không tốt" }
+            { id: 3, Thuoctinh: "Hình thức không tốt" },
+            { id: 4, Thuoctinh: "Không liên lạc được" },
         ],
     },
     reducers: {

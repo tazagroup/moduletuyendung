@@ -2,6 +2,7 @@ import React, { Fragment, useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
+import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
 import { Tooltip, Menu, MenuItem, FormControl, Select } from '@mui/material';
 import { NestedMenuItem } from 'mui-nested-menu'
@@ -14,6 +15,7 @@ import { AiOutlineFileWord, AiOutlineFileExcel, AiOutlineFilePdf } from "react-i
 import { styled } from "@mui/material/styles"
 //COMPONENTS
 import ModalBeforeSubmitting from './ModalBeforeSubmiting';
+import ModalDeny from './ModalDeny'
 import ViewFile from './ViewFile';
 //API
 import candidatesAPI from 'api/candidatesAPI';
@@ -60,10 +62,13 @@ export const CustomStatus = ({ item, field }) => {
         }
         const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(updateCandidate(response.data))
-        handleClose();
+        handleClose()
     }
     const handleDeny = async () => {
-        console.log("OK")
+        handleClose()
+        dispatch(openDialog({
+            children: <ModalDeny item={flagCandidate} field={field} />
+        }))
     }
     return (
         <Fragment>
@@ -234,7 +239,6 @@ export const CustomExperts = ({ item, field }) => {
 export const CustomTimeline = ({ item }) => {
     const dispatch = useDispatch()
     const currentStep = JSON.parse(item.DuyetHS).DuyetTD.step
-    console.log(currentStep)
     const currentStatus = JSON.parse(item.DuyetHS).DuyetTD.Trangthai
     const steps = [
         "Nhận kết quả.Gửi thư mời làm việc / thư cảm ơn quản lí cấp cao",
@@ -243,7 +247,6 @@ export const CustomTimeline = ({ item }) => {
         "Xác nhận ngày làm việc chính thức, báo bộ phận yêu cầu tuyển dụng"
     ]
     const handleUpdateStep = async (step) => {
-        console.log(currentStep)
         let flag = step + 1
         if (step < currentStep && step == 0) {
             flag = 0
@@ -260,7 +263,8 @@ export const CustomTimeline = ({ item }) => {
             }
             const bodyData = {
                 ...item,
-                DuyetHS: JSON.stringify(newDuyetHS)
+                DuyetHS: JSON.stringify(newDuyetHS),
+                Trangthai: step == 3 ? 1 : 0,
             }
             const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
             dispatch(updateCandidate(response.data))
@@ -284,7 +288,7 @@ export const CustomTimeline = ({ item }) => {
 export const CustomSelect = (props) => {
     const source = useSelector(state => state.fuse.tickets.source)
     const arrayCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
-    const mainSource = arrayCandidate.map(item => source.find(opt => opt.id == JSON.parse(item.Profile).Nguon)?.Thuoctinh)
+    const mainSource = [...new Set(arrayCandidate.map(item => source.find(opt => opt.id == JSON.parse(item.Profile).Nguon)?.Thuoctinh))]
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
     const MenuProps = {
@@ -297,7 +301,8 @@ export const CustomSelect = (props) => {
     };
     const value = props.columnDef.tableData.filterValue || []
     const countProperty = (item) => {
-        return mainSource.filter(opt => opt == item).length
+        const flag = arrayCandidate.map(item => source.find(opt => opt.id == JSON.parse(item.Profile).Nguon)?.Thuoctinh)
+        return flag.filter(opt => opt == item).length
     }
     return (
         <>

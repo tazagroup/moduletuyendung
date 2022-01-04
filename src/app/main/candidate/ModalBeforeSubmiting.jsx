@@ -5,11 +5,6 @@ import { updateCandidate } from "app/store/fuse/candidateSlice"
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl, Typography, IconButton, InputLabel, Select, MenuItem, Grid } from '@mui/material';
-import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
-import Box from '@mui/material/Box';
-import Input from '@mui/material/Input';
-import Rating from '@mui/material/Rating';
-import StarIcon from '@mui/icons-material/Star';
 //FORM
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"

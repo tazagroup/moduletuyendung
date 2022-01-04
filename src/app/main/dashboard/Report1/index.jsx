@@ -9,8 +9,8 @@ const convertIdToName = (arr, id) => {
 }
 
 const Report1 = () => {
-    const [labels, setLabels] = useState([])
-    const [data, setData] = useState([])
+    const [labels, setLabels] = useState(["IT", "IT2", "IT3"])
+    const [data, setData] = useState([5, 7, 8])
     const [select, setSelect] = useState(null)
     //DATA
     useEffect(() => {

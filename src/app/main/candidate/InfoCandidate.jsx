@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from 'react'
 //REDUX
 import { useSelector, useDispatch } from "react-redux"
 import { updateCandidate, updateFlagCandidate } from "app/store/fuse/candidateSlice"
+import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl, Autocomplete, IconButton, InputLabel, Select, MenuItem } from '@mui/material';
@@ -11,7 +12,6 @@ import Box from '@mui/material/Box';
 import Input from '@mui/material/Input';
 import Rating from '@mui/material/Rating';
 import StarIcon from '@mui/icons-material/Star';
-
 //COMPONENTS
 import InputField from "../CustomField/InputField"
 import DateField from '../CustomField/DateField';
@@ -20,6 +20,7 @@ import NumberFormat from "react-number-format"
 import CardCalendar from "./CardCalendar"
 import CreateCalendar from "./CreateCalendar"
 import ViewFile from './ViewFile'
+import ModalDeny from './ModalDeny';
 //FORM
 import { useForm } from "react-hook-form";
 import * as yup from "yup"
@@ -69,7 +70,7 @@ const InfoCandidate = ({ open, handleClose }) => {
             Email: profile.Email || "",
             Phone: profile.Phone ? profile.Phone : "",
         },
-        mode: 'onBlur',
+        mode: 'all',
         resolver: yupResolver(schema),
     });
     //STATE
@@ -84,7 +85,7 @@ const InfoCandidate = ({ open, handleClose }) => {
     const [status, setStatus] = useState(calendar?.Trangthai || 0)
     const roundsIntern = calendar?.VongPV
     const disabledCreate = roundsIntern ? roundsIntern[roundsIntern.length - 1]?.Trangthai != 1 : false
-    const disabledField = Object.keys(JSON.parse(flagCandidate.DuyetHS)).length != 0
+    const disabledField = Object.keys(JSON.parse(flagCandidate.DuyetHS)).length != 0 || flagCandidate.Trangthai == 2
     const isApproved = JSON.parse(flagCandidate.XacnhanHS).Duyet == 1
     const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
     const judgement = JSON.parse(flagCandidate.DanhgiaHS)
@@ -106,6 +107,14 @@ const InfoCandidate = ({ open, handleClose }) => {
     }, [])
     const handleTicketChange = (e, newValue) => {
         setTicket(newValue)
+    }
+    const handleChangeStatus = (e) => {
+        setStatus(e.target.value)
+        if (e.target.value == 2) {
+            dispatch(openDialog({
+                children: <ModalDeny item={flagCandidate} field="DuyetHS" />
+            }))
+        }
     }
     const handleEditCandidate = async (e) => {
         // Upload Candidate
@@ -206,7 +215,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                             <Grid item xs={12}>
                                 <Typography variant="h4" className={classes.sub__title}>
                                     Lịch phỏng vấn
-                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={disabledCreate || disabledField || !isApproved}>
+                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={disabledCreate || disabledField || !isApproved || flagCandidate.Trangthai == 2}>
                                         <InsertInvitationIcon />
                                     </IconButton>
                                 </Typography>
@@ -264,7 +273,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                                                     value={status}
                                                     label="Đánh giá hồ sơ"
                                                     style={{ fontSize: "15px" }}
-                                                    onChange={(e) => { setStatus(e.target.value) }}
+                                                    onChange={handleChangeStatus}
                                                     disabled={disabledField}
                                                 >
                                                     <MenuItem value={0} disabled></MenuItem>

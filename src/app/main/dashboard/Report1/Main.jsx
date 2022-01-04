@@ -60,6 +60,16 @@ const Main = ({ labels, data, handleClick }) => {
                     bodyFontSize: 14,
                     displayColors: false
                 },
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        color: "#000",
+                        font: {
+                            size: 14,
+                            weight: "bold"
+                        }
+                    },
+                },
                 onClick: function (evt, element) {
                     if (element.length > 0) {
                         //index of element

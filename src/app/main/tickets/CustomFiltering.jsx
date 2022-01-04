@@ -9,8 +9,8 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 const CustomFiltering = (props) => {
     const tickets = useSelector(state => state.fuse.tickets.dataTicket)
     const source = useSelector(state => state.fuse.tickets.source)
-    const mainSource = Array.prototype.concat.apply([], tickets.map(item => JSON.parse(item.Pheduyet)[3].CPTD))
-    const arraySource = [...new Set(mainSource.map(opt => opt.Nguon))]
+    const mainSource = Array.prototype.concat.apply([], tickets.map(item => JSON.parse(item.Pheduyet)[3]?.CPTD))
+    const arraySource = [...new Set(mainSource.map(opt => opt?.Nguon))]
     const [filterValue, setFilterValue] = useState({ Nguon: "", CPDK: [], CPTT: [], CPCL: [] })
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;

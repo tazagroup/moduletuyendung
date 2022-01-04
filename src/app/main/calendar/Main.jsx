@@ -30,7 +30,8 @@ const Main = () => {
     useEffect(async () => {
         if (calendar.length == 0) {
             const response = await candidatesAPI.getCandidate()
-            dispatch(setDataCandidate(response))
+            const result = response.data.map(item => item.attributes)
+            dispatch(setDataCandidate({ main: result, dashboard: result }))
         }
         setIsLoading(false)
     }, [])

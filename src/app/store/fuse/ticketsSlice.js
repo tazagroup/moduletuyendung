@@ -37,12 +37,19 @@ const ticketsSlice = createSlice({
             const firstConditionArray = state.dataTicket.filter(opt => {
                 const approveArray = JSON.parse(opt.Pheduyet)
                 const result = [].concat.apply([], approveArray.map(item => item.Nguoiduyet))
-                return [...new Set(result)].includes(user.profile.id)
+                return [...new Set(result)].includes(user.profile.id) || opt.idTao == user.profile.id
             })
             //Hidden to position
             const secondConditionArray = ConvertPermissionArray(state.dataTicket, 'Vitri')
             const flag = [].concat.apply(firstConditionArray, secondConditionArray)
-            const result = [...new Map(flag.map((item, key) => [item['key'], item])).values()].sort((a, b) => a['id'] - b['id'])
+            let result = [...new Map(flag.map((item, key) => [item['key'], item])).values()].sort((a, b) => a['id'] - b['id'])
+            result = result.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item,
+                }
+            })
             state.dataTicket = [...result]
             state.flagTicket = [...state.dataTicket]
         },

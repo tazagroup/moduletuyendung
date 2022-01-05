@@ -61,10 +61,18 @@ const Table = () => {
     if (isLoading) return <FuseLoading />
     return (
         <>
-            <Report1 />
-            <Report2 />
-            <Report3 />
-            <Report4 />
+            <div className="item__report">
+                <Report1 />
+            </div>
+            <div className="item__report">
+                <Report2 />
+            </div>
+            <div className="item__report">
+                <Report3 />
+            </div>
+            <div className="item__report">
+                <Report4 />
+            </div>
         </>
     )
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Bar } from "react-chartjs-2";
 
-const Sub = ({ labels, data, total }) => {
+const Main = ({ labels, data, total }) => {
     const flag = [...data]
     let customLabels = labels.map((label, index) => `${label}`)
     const chartdata = {
@@ -36,11 +36,8 @@ const Sub = ({ labels, data, total }) => {
                             return data['labels'][tooltipItem[0]['index']];
                         },
                         label: function (tooltipItem, data) {
-                            var dataset = data['datasets'];
                             const value = flag[tooltipItem['index']]
-                            var percent = Math.round((value / total) * 100)
-                            const afterLabel = ' (' + percent + '%)';
-                            return value + afterLabel;
+                            return value;
                         },
                     },
                     backgroundColor: '#FFF',
@@ -66,9 +63,19 @@ const Sub = ({ labels, data, total }) => {
                         }
                     }]
                 },
+                plugins: {
+                    datalabels: {
+                        display: true,
+                        color: "#000",
+                        font: {
+                            size: 14,
+                            weight: "bold"
+                        }
+                    },
+                },
             }}
         />
     )
 }
 
-export default Sub
+export default Main

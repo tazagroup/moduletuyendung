@@ -2,3 +2,6 @@
     width: unset !important;
     height: unset !important;
 }
+.item__report {
+    margin-top: 15px;
+}

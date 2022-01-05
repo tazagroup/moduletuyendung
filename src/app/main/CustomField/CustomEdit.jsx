@@ -77,7 +77,7 @@ const CustomAutocompleteEdit = (props) => {
     const positionTicket = arrayTicket.map(item => item.Vitri)
     //Candidates
     const flagCandidate = arrayCandidate.map(item => item.idTicket)
-    const positionCandidate = arrayTicket.filter(item => flagCandidate.includes(item.key)).map(item => item.Vitri)
+    const positionCandidate = flagCandidate.map(item => arrayTicket.find(opt => opt.key == item).Vitri)
     //RENDER DROPDOWN
     const compareArray = main == "candidate" ? positionCandidate : positionTicket
     const result = sortCount(compareArray)

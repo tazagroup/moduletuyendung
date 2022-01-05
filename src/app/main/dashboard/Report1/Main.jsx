@@ -1,6 +1,6 @@
 import React from 'react'
 import { Doughnut } from "react-chartjs-2";
-
+import "chartjs-plugin-doughnutlabel";
 const Main = ({ labels, data, handleClick }) => {
     const total = data.reduce((partial_sum, a) => partial_sum + a, 0);
     const flag = [...data]
@@ -69,6 +69,16 @@ const Main = ({ labels, data, handleClick }) => {
                             weight: "bold"
                         }
                     },
+                    doughnutlabel: {
+                        labels: [{
+                            text: `Tổng : ${total}`,
+                            color: "#000",
+                            font: {
+                                size: 20,
+                                weight: 'bold'
+                            }
+                        }]
+                    }
                 },
                 onClick: function (evt, element) {
                     if (element.length > 0) {

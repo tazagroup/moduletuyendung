@@ -78,8 +78,10 @@ const Table = () => {
             },
             customFilterAndSearch: (term, rowData) => {
                 if (term.length === 0) return true;
-                const { Vitri } = rowData;
-                return term.includes(Vitri);
+                const { idTicket } = rowData;
+                const item = dataTicket.find(opt => opt.key == idTicket).Vitri
+                const positionId = term.map(item => item.id)
+                return positionId.includes(item)
             }
         },
         {

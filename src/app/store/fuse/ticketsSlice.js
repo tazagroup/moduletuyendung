@@ -15,8 +15,14 @@ const ticketsSlice = createSlice({
         addTicket: (state, action) => {
             const { attributes } = action.payload
             attributes['key'] = attributes.id
-            attributes['id'] = state.dataTicket.length == 0 ? 0 : state.dataTicket.length
-            state.dataTicket.push(attributes)
+            state.dataTicket.unshift(attributes)
+            state.dataTicket = state.dataTicket.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item
+                }
+            })
         },
         refreshTicket: (state, action) => {
             state.dataTicket = action.payload

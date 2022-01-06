@@ -54,7 +54,7 @@ const ModalApproveCurrency = (props) => {
 
     }
     const convertIdToSource = (id) => {
-        return source.find(opt => opt.id == id).Thuoctinh
+        return sources.find(opt => opt.id == id).Thuoctinh
     }
     const availableError = value.map(item => Number(item?.CPTT) > Number(item.Chiphi.split(',').join('')))
     const emptyError = value.map(item => item?.CPTT == '' ? Number(item?.CPTT) == 0 : item?.CPTT == undefined)

@@ -188,7 +188,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                         <Grid item xs={12}>
                             <AutocompleteObjField
                                 value={valueCensor}
-                                options={censor.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes(3) : item.PQTD == 3)}
+                                options={censor.filter(item => Array.isArray(item.PQTD) ? item.PQTD.includes(5) : item.PQTD == 5)}
                                 onChange={handleCensorChange}
                                 field="name"
                                 label="Quản lí phê duyệt"

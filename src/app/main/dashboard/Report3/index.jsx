@@ -5,7 +5,7 @@ import Main from './Main'
 import Sub from './Sub'
 
 const convertIdToName = (arr, id) => {
-    return arr.find(opt => opt.id == id).Thuoctinh
+    return arr.find(opt => opt.id == id)?.Thuoctinh
 }
 
 const Report3 = () => {
@@ -19,12 +19,13 @@ const Report3 = () => {
     const mainDataTicket = useSelector(state => state.fuse.tickets.dashboardTicket)
     const mainDataCandidate = useSelector(state => state.fuse.candidates.dashboardCandidate)
     //FAKE DATA
-    const renderData = mainDataCandidate.map((item, index) => ({
-        id: index,
-        idSource: JSON.parse(item.Profile).Nguon,
-        Vitri: convertIdToName(position, mainDataTicket.find(opt => opt.key == item.idTicket).Vitri),
-    }))
-
+    const renderData = mainDataCandidate.map((item, index) => {
+        return {
+            id: index,
+            idSource: JSON.parse(item.Profile).Nguon,
+            Vitri: convertIdToName(position, mainDataTicket.find(opt => opt.key == item.idTicket)?.Vitri),
+        }
+    })
     useEffect(() => {
         const sourceData = renderData.map(item => source.find(opt => opt.id == item.idSource)?.Thuoctinh)
         console.log(sourceData)

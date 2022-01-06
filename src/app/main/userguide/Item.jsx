@@ -20,7 +20,7 @@ const Item = ({ title, link, id, idGuide }) => {
     }
     return (
         <>
-            <div>
+            <div style={{ display: "flex", alignItems: "center" }}>
                 <ListItemButton
                     onClick={handleItemClick}
                     sx={{ pl: 4 }}
@@ -28,7 +28,7 @@ const Item = ({ title, link, id, idGuide }) => {
                     <ListItemText primary={title} />
                 </ListItemButton>
                 {check && (
-                    <SettingsIcon onClick={handleEdit} style={{ position: "absolute", top: 8, right: 15, cursor: "pointer" }} />
+                    <SettingsIcon onClick={handleEdit} />
                 )}
             </div>
             {isOpened && <ModalItem open={isOpened} handleClose={() => { setIsOpened(false) }} title={title} link={link} />}

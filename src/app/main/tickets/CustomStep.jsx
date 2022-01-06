@@ -71,6 +71,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const bktCondition = user.profile.PQTD.includes(4) && currentPos == 6
         const refuseTicket = data.Trangthai == 3 || data.Trangthai == 2
         const stepCondition = (bqlCondition || btdCondition || bgdCondition || bktCondition) && item?.Nguoiduyet.includes(user.profile.id)
+        console.log(user.profile.PQTD)
         if (!refuseTicket && stepCondition) {
             if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
                 setAnchorEl(e.currentTarget)

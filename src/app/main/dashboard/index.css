@@ -3,5 +3,7 @@
     height: unset !important;
 }
 .item__report {
+    width:100%;
+    overflow: auto;
     margin-top: 15px;
 }

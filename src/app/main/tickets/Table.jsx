@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom"
 import MaterialTable, { MTableAction } from '@material-table/core';
 //REDUX
 import { useDispatch, useSelector, batch } from 'react-redux';
-import { setDataTicket, refreshTicket, setSource } from 'app/store/fuse/ticketsSlice';
+import { setDataTicket, refreshTicket, setSource, removeTicket } from 'app/store/fuse/ticketsSlice';
 //ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
@@ -32,6 +32,7 @@ import CustomNotice from './CustomNotice';
 import CustomRenderCell from './CustomRenderCell'
 import CustomFiltering from './CustomFiltering'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit, CustomAutocompleteNameEdit } from '../CustomField/CustomEdit';
+import Swal from 'sweetalert2';
 //UTILS
 import { ConvertPermissionArray } from '../utils/index';
 //API
@@ -86,6 +87,7 @@ export default function Table() {
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
     const user = JSON.parse(localStorage.getItem("profile"))
+    console.log(user)
     const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
@@ -429,6 +431,27 @@ export default function Table() {
         setIsCC(true)
         handleClose()
     }
+    const handleDelete = async () => {
+        handleClose()
+        Swal.fire({
+            icon: 'error',
+            title: 'Xác nhận xóa yêu cầu tuyển dụng ?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Xác nhận',
+            denyButtonText: `Hủy`,
+        }).then(async (result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if (result.isConfirmed) {
+                const bodyData = {
+                    ...rowData,
+                    published: 1
+                }
+                const response = await ticketsAPI.updateTicket(bodyData, bodyData.key)
+                dispatch(removeTicket(bodyData))
+            }
+        })
+    }
     const handleRefresh = () => {
         setIsFiltering(false)
         dispatch(refreshTicket([]))
@@ -460,7 +483,6 @@ export default function Table() {
                                 onClick={() => setIsCreateTicket(true)}
                                 variant="contained"
                                 color="secondary"
-                                disabled={!user.profile.PQTD.includes(5)}
                                 size="large">
                                 <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                             </IconButton>
@@ -562,6 +584,7 @@ export default function Table() {
                 <MenuItem style={MenuButton} onClick={handleEdit} disabled={[2, 3].includes(rowData.Trangthai)}>Chỉnh sửa</MenuItem>
                 <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
                 <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
+                <MenuItem style={MenuButton} onClick={handleDelete} disabled={user.profile.id != rowData.idTao}>Xóa hồ sơ</MenuItem>
             </Menu >
             {/* CREATE TICKET  */}
             {isCreateTicket &&

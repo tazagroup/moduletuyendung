@@ -73,6 +73,17 @@ const ticketsSlice = createSlice({
                 Pheduyet: attributes['Pheduyet']
             }
         },
+        removeTicket: (state, action) => {
+            const flag = state.dataTicket.map(item => item.key)
+            const flag2 = state.dashboardTicket.map(item => item.key)
+            const index = flag.indexOf(action.payload.key)
+            const index2 = flag2.indexOf(action.payload.key)
+            //REMOVE
+            state.dataTicket.splice(index, 1)
+            state.flagTicket.splice(index, 1)
+            //REMOVE FROM DASHBOARD
+            state.dashboardTicket.splice(index2, 1)
+        },
         setSource: (state, action) => {
             const { attributes } = action.payload
             state.source = JSON.parse(attributes.Dulieu)
@@ -80,6 +91,6 @@ const ticketsSlice = createSlice({
     },
 });
 
-export const { addTicket, refreshTicket, setDataTicket, updateTicket, setSource } = ticketsSlice.actions;
+export const { addTicket, refreshTicket, setDataTicket, updateTicket, setSource, removeTicket } = ticketsSlice.actions;
 
 export default ticketsSlice.reducer;

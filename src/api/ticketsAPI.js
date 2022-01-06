@@ -28,7 +28,7 @@ const ticketsAPI = {
     updateTicket(data, id) {
         const url = `/hrms/tuyendung_phieuyeucaus/${id}`;
         return axiosClient.patch(url, data);
-    }
+    },
 };
 
 export default ticketsAPI;

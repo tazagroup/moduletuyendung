@@ -12,18 +12,24 @@ import WorkIcon from '@mui/icons-material/Work';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
+import { makeStyles } from '@material-ui/core';
 //COMPONENTS
 import Item from './Item'
 import ModalCreate from './ModalCreate'
 import FuseLoading from '@fuse/core/FuseLoading';
 //API
 import guideAPI from 'api/guideAPI.js'
+
+const useStyles = makeStyles({
+    text: { fontSize: "15px" }
+})
 const TextTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
 ))(`
       font-size: .8em;
   `);
 const CollapseItem = ({ title, open, icon, handleState, render }) => {
+    const classes = useStyles()
     return (
         <>
             <ListItemButton onClick={handleState}>
@@ -33,7 +39,7 @@ const CollapseItem = ({ title, open, icon, handleState, render }) => {
                 <ListItemText primary={title} />
                 {open ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
-            <Collapse in={open} timeout="auto" unmountOnExit>
+            <Collapse in={open} timeout="auto" unmountOnExit className={classes.text}>
                 <List component="div" disablePadding>
                     {/* MAP HERE  */}
                     {render && render.map((item, index) => (
@@ -52,6 +58,7 @@ const index = () => {
     const [openTicket, setOpenTicket] = useState(false)
     const [openCandidate, setOpenCandidate] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+
     useEffect(async () => {
         let isFetch = true
         if (isFetch && dataGuide.length == 0) {
@@ -63,7 +70,7 @@ const index = () => {
             isFetch = false
         }
     })
-    const handleOpen = () => {
+    const handleOpen = (e) => {
         handleClosePanel()
         dispatch(openDialog({
             children: <ModalCreate />

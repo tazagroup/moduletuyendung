@@ -2,7 +2,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-size: 15px;
+    font-size: 14px;
 }
 svg {
     width: 22px !important;
@@ -22,12 +22,6 @@ textarea::placeholder {
 thead tr th {
     flex-direction: column !important;
 }
-/* tbody tr td div {
-    max-width: 180px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-} */
 /* Edit input  */
 .MuiInputBase-root-409 {
     margin-top: 1px;
@@ -41,6 +35,9 @@ thead tr th {
 }
 .MuiSelect-select-698.MuiSelect-select-698 {
     margin-top: 8px;
+}
+.MuiListItemText-primary {
+    font-size: 13px !important;
 }
 /* Icon Table  */
 .icon__table {

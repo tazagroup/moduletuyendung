@@ -21,6 +21,11 @@ const guidesSlice = createSlice({
             const index = state.dataGuide.map(item => item.id).indexOf(item.id)
             state.dataGuide[index] = action.payload
         },
+        removeDataGuide: (state, action) => {
+            const item = action.payload;
+            const index = state.dataGuide.map(item => item.id).indexOf(item)
+            state.dataGuide.splice(index, 1)
+        },
         setDataSetting: (state, action) => {
             state.dataSetting = action.payload
         },
@@ -28,6 +33,6 @@ const guidesSlice = createSlice({
     },
 });
 
-export const { setDataGuide, setDataSetting, addDataGuide, updateDataGuide } = guidesSlice.actions;
+export const { setDataGuide, setDataSetting, addDataGuide, updateDataGuide, removeDataGuide } = guidesSlice.actions;
 
 export default guidesSlice.reducer;

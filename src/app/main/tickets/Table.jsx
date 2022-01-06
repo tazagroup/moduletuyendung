@@ -87,7 +87,6 @@ export default function Table() {
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
     const user = JSON.parse(localStorage.getItem("profile"))
-    console.log(user)
     const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
@@ -471,7 +470,7 @@ export default function Table() {
                 ?
                 <TicketStatus item={dataStatus} isHidden={!isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
                 :
-                null
+                <div style={{ height: "130px" }}></div>
             }
             <MaterialTable
                 data={dataTicket}
@@ -498,6 +497,8 @@ export default function Table() {
                     paging: true,
                     filtering: isFiltering,
                     toolbarButtonAlignment: "left",
+                    pageSize: 3,       // make initial page size
+                    emptyRowsWhenPaging: true,   // To avoid of having empty rows
                     rowStyle: rowData => {
                         let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
                         return {

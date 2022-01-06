@@ -1,6 +1,6 @@
 import axiosClient from "./index.js";
 
-const noticesAPI = {
+const guidesAPI = {
     getGuides() {
         const url = "/hrms/huongdans"
         return axiosClient.get(url)
@@ -12,7 +12,7 @@ const noticesAPI = {
     updateGuide(data, id) {
         const url = `hrms/huongdans/${id}`
         return axiosClient.patch(url, data)
-    }
+    },
 };
 
-export default noticesAPI;
+export default guidesAPI;

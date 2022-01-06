@@ -9,6 +9,10 @@ const noticesAPI = {
         const url = "/hrms/notifications?filter[published]=0&page[offset]=0&page[limit]=*"
         return axiosClient.get(url)
     },
+    getDecentralization() {
+        const url = "/hrms/caidats/30"
+        return axiosClient.get(url)
+    },
     postNotice(data) {
         const url = "/hrms/notifications";
         return axiosClient.post(url, data);

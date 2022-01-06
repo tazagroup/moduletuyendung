@@ -391,6 +391,7 @@ const Table = () => {
                     }
                 }}
                 options={{
+                    emptyRowsWhenPaging: false,
                     showDetailPanelIcon: false,
                     columnsButton: true,
                     search: false,

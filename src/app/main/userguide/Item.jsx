@@ -51,9 +51,7 @@ const Item = ({ title, link, id, idGuide }) => {
             ...itemGuide,
             Noidung: JSON.stringify(newContent),
         }
-        console.log(bodyData)
         const response = await guidesAPI.updateGuide(bodyData, bodyData.id)
-        console.log(response)
         dispatch(updateDataGuide(response.data.attributes))
     }
     return (

@@ -63,10 +63,14 @@ const Main = ({ labels, data, handleClick }) => {
                 plugins: {
                     datalabels: {
                         display: true,
-                        color: "#000",
+                        color: "#fff",
                         font: {
                             size: 14,
                             weight: "bold"
+                        },
+                        formatter: (value) => {
+                            if (value == 0) return ""
+                            return value
                         }
                     },
                     doughnutlabel: {

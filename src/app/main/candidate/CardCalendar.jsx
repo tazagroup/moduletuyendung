@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 //REDUX
 import { useSelector, useDispatch, batch } from "react-redux"
 import { updateFlagCandidate, updateCandidate } from 'app/store/fuse/candidateSlice'
@@ -35,19 +35,21 @@ const ExpandMore = styled((props) => {
 
 export default function CardCalendar({ item }) {
   const dispatch = useDispatch()
+  const user = JSON.parse(localStorage.getItem("profile"))
   const users = useSelector(state => state.fuse.tickets.users)
   const currentEdit = useSelector(state => state.fuse.candidates.flagCandidate)
-  const [expanded, setExpanded] = React.useState(false);
-  const [value, setValue] = React.useState(item.Trangthai)
-  const [isEditing, setIsEditing] = React.useState(false)
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [expanded, setExpanded] = useState(false);
+  const [value, setValue] = useState(item.Trangthai)
+  const [isEditing, setIsEditing] = useState(false)
+  const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
   const time = new Date(item[`ThoigianPV`])
+  const isApproved = item.Nguoiduyet == user.profile.id
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
   const handleOpen = (e) => {
-    if (item.Trangthai == 0) {
+    if (item.Trangthai == 0 && isApproved) {
       setAnchorEl(e.currentTarget)
     }
   }
@@ -131,10 +133,6 @@ export default function CardCalendar({ item }) {
         <Collapse in={expanded} timeout="auto" unmountOnExit>
           <CardContent>
             <div className="content-item">
-              <Typography variant="h5">Đánh giá:</Typography>
-              <div dangerouslySetInnerHTML={{ __html: item.Danhgia }}></div>
-            </div>
-            <div className="content-item">
               <Typography variant="h5">Ghi chú:</Typography>
               <div dangerouslySetInnerHTML={{ __html: item.Ghichu }}></div>
             </div>
@@ -145,7 +143,7 @@ export default function CardCalendar({ item }) {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={value}
-                  disabled={item.Trangthai != 0 || JSON.parse(currentEdit.XacnhanHS).XNPV == 0}
+                  disabled={item.Trangthai != 0 || JSON.parse(currentEdit.XacnhanHS).XNPV == 0 || !isApproved}
                   displayEmpty
                   onChange={handleChangeStatus}
                 >

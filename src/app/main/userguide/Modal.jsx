@@ -5,7 +5,6 @@ const Modal = ({ open, handleClose, title, link }) => {
     return (
         <Dialog
             open={open}
-            onClose={handleClose}
             fullWidth={true}
             maxWidth={"md"}
             disableEnforceFocus

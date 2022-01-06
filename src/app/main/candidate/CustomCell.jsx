@@ -27,11 +27,13 @@ const TextTooltip = styled(({ className, ...props }) => (
   `);
 export const CustomStatus = ({ item, field }) => {
     const dispatch = useDispatch()
+    const user = JSON.parse(localStorage.getItem("profile"))
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
     const handleOpen = (e) => {
-        if (item === 0) {
+        const canEdit = (field == "Duyet") ? user.profile.PQTD.includes(1) : user.profile.PQTD.includes(2)
+        if (item === 0 && canEdit) {
             setAnchorEl(e.currentTarget)
         }
     }
@@ -115,7 +117,13 @@ export const CustomExperts = ({ item, field }) => {
     const [isEditing, setIsEditing] = useState(false)
     const [censor, setCensor] = useState(null)
     const handleOpen = (e) => {
-        setAnchorEl(e.currentTarget)
+        console.log(item)
+        const specializeCondition = (field == "DuyetSPV") ? user.profile.PQTD.includes(1) : false
+        const manageCondition = (field == "DuyetQL") ? user.profile.PQTD.includes(5) : false
+        if (specializeCondition || manageCondition) {
+            setAnchorEl(e.currentTarget)
+        }
+
     }
     const handleClose = (e) => {
         setAnchorEl(null)
@@ -238,6 +246,7 @@ export const CustomExperts = ({ item, field }) => {
 
 export const CustomTimeline = ({ item }) => {
     const dispatch = useDispatch()
+    const user = JSON.parse(localStorage.getItem("profile"))
     const currentStep = JSON.parse(item.DuyetHS).DuyetTD.step
     const currentStatus = JSON.parse(item.DuyetHS).DuyetTD.Trangthai
     const steps = [
@@ -247,27 +256,29 @@ export const CustomTimeline = ({ item }) => {
         "Xác nhận ngày làm việc chính thức, báo bộ phận yêu cầu tuyển dụng"
     ]
     const handleUpdateStep = async (step) => {
-        let flag = step + 1
-        if (step < currentStep && step == 0) {
-            flag = 0
-        }
-        if (currentStatus != 1) {
-            const newDuyetTD = {
-                ...JSON.parse(item.DuyetHS).DuyetTD,
-                Trangthai: step == 3 ? 1 : 0,
-                step: flag
+        if (user.profile.PQTD.includes(2)) {
+            let flag = step + 1
+            if (step < currentStep && step == 0) {
+                flag = 0
             }
-            const newDuyetHS = {
-                ...JSON.parse(item.DuyetHS),
-                DuyetTD: newDuyetTD
+            if (currentStatus != 1) {
+                const newDuyetTD = {
+                    ...JSON.parse(item.DuyetHS).DuyetTD,
+                    Trangthai: step == 3 ? 1 : 0,
+                    step: flag
+                }
+                const newDuyetHS = {
+                    ...JSON.parse(item.DuyetHS),
+                    DuyetTD: newDuyetTD
+                }
+                const bodyData = {
+                    ...item,
+                    DuyetHS: JSON.stringify(newDuyetHS),
+                    Trangthai: step == 3 ? 1 : 0,
+                }
+                const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+                dispatch(updateCandidate(response.data))
             }
-            const bodyData = {
-                ...item,
-                DuyetHS: JSON.stringify(newDuyetHS),
-                Trangthai: step == 3 ? 1 : 0,
-            }
-            const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
-            dispatch(updateCandidate(response.data))
         }
     }
     return (

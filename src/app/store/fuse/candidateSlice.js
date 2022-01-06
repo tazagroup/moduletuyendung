@@ -56,12 +56,22 @@ const candidatesSlice = createSlice({
                 ...action.payload,
             };
         },
+        removeCandidate: (state, action) => {
+            const flag = state.dataCandidate.map(item => item.key)
+            const flag2 = state.dashboardCandidate.map(item => item.key)
+            const index = flag.indexOf(action.payload.key)
+            const index2 = flag2.indexOf(action.payload.key)
+            //REMOVE
+            state.dataCandidate.splice(index, 1)
+            //REMOVE FROM DASHBOARD
+            state.dashboardCandidate.splice(index2, 1)
+        },
         refreshDataCandidate: (state, action) => {
             state.dataCandidate = action.payload
         }
     },
 });
 
-export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate, refreshDataCandidate } = candidatesSlice.actions;
+export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate, refreshDataCandidate,removeCandidate } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

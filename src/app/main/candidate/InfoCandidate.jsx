@@ -86,7 +86,8 @@ const InfoCandidate = ({ open, handleClose }) => {
     const roundsIntern = calendar?.VongPV
     const disabledCreate = roundsIntern ? roundsIntern[roundsIntern.length - 1]?.Trangthai != 1 : false
     const disabledField = Object.keys(JSON.parse(flagCandidate.DuyetHS)).length != 0 || flagCandidate.Trangthai == 2
-    const isApproved = JSON.parse(flagCandidate.XacnhanHS).Duyet == 1
+    const disabledBasicInfo = JSON.parse(flagCandidate.XacnhanHS).Duyet == 1
+    const isApproved = JSON.parse(flagCandidate.XacnhanHS).XNPV == 1
     const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
     const judgement = JSON.parse(flagCandidate.DanhgiaHS)
     const checkJudgement = Object.keys(JSON.parse(flagCandidate.DanhgiaHS)).length != 0
@@ -162,13 +163,13 @@ const InfoCandidate = ({ open, handleClose }) => {
                                 <Typography variant="h4" className={classes.sub__title}>Thông tin cơ bản</Typography>
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <InputField form={form} name="Hoten" label="Họ tên ứng viên" type="text" disabled={disabledField} />
+                                <InputField form={form} name="Hoten" label="Họ tên ứng viên" type="text" disabled={disabledBasicInfo} />
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <InputField form={form} name="Email" label="Email" type="text" disabled={disabledField} />
+                                <InputField form={form} name="Email" label="Email" type="text" disabled={disabledBasicInfo} />
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <InputField form={form} name="Phone" label="Số điện thoại" type="number" disabled={disabledField} />
+                                <InputField form={form} name="Phone" label="Số điện thoại" type="number" disabled={disabledBasicInfo} />
                             </Grid>
                             <Grid item xs={12} md={4}>
                                 <Autocomplete
@@ -177,7 +178,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                                     value={ticket}
                                     onChange={handleTicketChange}
                                     options={tickets}
-                                    disabled={disabledField}
+                                    disabled={disabledBasicInfo}
                                     getOptionLabel={option => getPositionById(option[`Vitri`])}
                                     renderOption={(props, option) => {
                                         return (
@@ -191,7 +192,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                                 />
                             </Grid>
                             <Grid item xs={12} md={4}>
-                                <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} disabled={disabledField} />
+                                <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} disabled={disabledBasicInfo} />
                             </Grid>
                             <Grid item xs={12} md={3}>
                                 <NumberFormat

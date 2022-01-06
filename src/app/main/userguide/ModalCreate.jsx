@@ -79,6 +79,9 @@ const ModalCreate = () => {
                 dispatch(closeDialog())
             })
         }
+        else {
+            console.log(guideList)
+        }
     }
     return (
         <React.Fragment>

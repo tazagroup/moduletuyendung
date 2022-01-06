@@ -30,7 +30,6 @@ const EditCalendar = ({ open, item, handleClose }) => {
     const currentStage = useSelector(state => state.fuse.candidates.flagCandidate)
     const [selectedDate, setSelectedDate] = useState(item.ThoigianPV)
     const [note, setNote] = useState(item.Ghichu)
-    const [comment, setComment] = useState(item.Danhgia)
     const handleChangeDate = (e) => {
         setSelectedDate(e[0])
     }
@@ -39,7 +38,6 @@ const EditCalendar = ({ open, item, handleClose }) => {
         const index = calendar.VongPV.map(option => option.id).indexOf(item.id)
         const newItem = {
             ...item,
-            Danhgia: comment,
             Ghichu: note,
             ThoigianPV: new Date(selectedDate).toISOString()
         }
@@ -77,13 +75,9 @@ const EditCalendar = ({ open, item, handleClose }) => {
                             />
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} md={6}>
+                    <Grid item xs={12} md={12}>
                         <Typography variant="h5">Ghi chú</Typography>
                         <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"ghi chú"} />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <Typography variant="h5">Đánh giá</Typography>
-                        <Tinymce value={comment} onChange={(e) => { setComment(e) }} label={"đánh giá"} />
                     </Grid>
                 </Grid>
             </DialogContent>

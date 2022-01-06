@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom"
 //REDUX
 import { useDispatch, useSelector, batch } from 'react-redux';
 import { setDataTicket, setSource } from 'app/store/fuse/ticketsSlice';
-import { setDataCandidate, updateFlagCandidate, refreshDataCandidate } from 'app/store/fuse/candidateSlice';
+import { setDataCandidate, updateFlagCandidate, refreshDataCandidate, removeCandidate } from 'app/store/fuse/candidateSlice';
 //MUI
 import MaterialTable, { MTableAction } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
@@ -21,6 +21,7 @@ import InfoCandidate from './InfoCandidate';
 import { CustomCV, CustomStatus, CustomExperts, CustomTimeline, CustomSelect } from './CustomCell'
 import { CustomName } from '../CustomField/CustomId'
 import { CustomDateEdit, CustomAutocompleteNameEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
+import Swal from 'sweetalert2';
 //API
 import ticketsAPI from 'api/ticketsAPI';
 import candidatesAPI from 'api/candidatesAPI';
@@ -36,6 +37,7 @@ const Table = () => {
     const idParam = queryParams.get("idhash")
     ///////////////////////////////////////////////
     const dispatch = useDispatch();
+    const user = JSON.parse(localStorage.getItem("profile"))
     const data = useSelector(state => state.fuse.candidates.dataCandidate)
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const flagDataCandidate = useSelector(state => state.fuse.candidates.flagDataCandidate)
@@ -316,6 +318,27 @@ const Table = () => {
         dispatch(updateFlagCandidate(rowData))
         setIsEditing(true)
     }
+    const handleDelete = async (e) => {
+        handleClose()
+        Swal.fire({
+            icon: 'error',
+            title: 'Xác nhận xóa hồ sơ ứng viên ?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Xác nhận',
+            denyButtonText: `Hủy`,
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const bodyData = {
+                    ...rowData,
+                    published: 1
+                }
+                const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+                dispatch(removeCandidate(response.data.attributes))
+            }
+        })
+
+    }
     const handleRefresh = () => {
         setIsFiltering(false)
         dispatch(refreshDataCandidate([]))
@@ -331,13 +354,17 @@ const Table = () => {
                 tableRef={tableRef}
                 title={<>
                     <TextTooltip title="Tạo hồ sơ ứng viên">
-                        <IconButton
-                            onClick={() => { setIsCreating(true) }}
-                            variant="contained"
-                            color="secondary"
-                            size="large">
-                            <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
-                        </IconButton>
+                        <div>
+                            <IconButton
+                                onClick={() => { setIsCreating(true) }}
+                                variant="contained"
+                                color="secondary"
+                                size="large"
+                                disabled={!user.profile.PQTD.includes(2)}
+                            >
+                                <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
+                            </IconButton>
+                        </div>
                     </TextTooltip>
                 </>}
                 actions={[
@@ -419,6 +446,7 @@ const Table = () => {
                 }}
             >
                 <MenuItem onClick={handleEdit}>Thông tin</MenuItem>
+                <MenuItem onClick={handleDelete}>Xóa</MenuItem>
             </Menu>
             {isCreating &&
                 <CreateCandidate

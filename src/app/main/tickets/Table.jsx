@@ -25,6 +25,7 @@ import ModalEditItem from './ModalEditItem'
 import ModalCreateItem from "./ModalCreateItem"
 import ModalCopyItem from './ModalCopyItem'
 import TicketStatus from './TicketStatus'
+import TicketStatusFlag from './TicketStatusFlag'
 import CreateCandidate from '../candidate/CreateCandidate'
 import CustomStep from './CustomStep'
 import { CustomPosition, CustomName } from '../CustomField/CustomId'
@@ -99,7 +100,6 @@ export default function Table() {
     const [isEditTicket, setIsEditTicket] = useState(false)
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
-    const [isHidden, setIsHidden] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
     const tableRef = useRef();
     const headers = [
@@ -468,9 +468,9 @@ export default function Table() {
         <Fragment>
             {dataStatus
                 ?
-                <TicketStatus item={dataStatus} isHidden={!isHidden} setIsHidden={() => { setIsHidden(state => !state) }} />
+                <TicketStatus item={dataStatus} />
                 :
-                <div style={{ height: "130px" }}></div>
+                <TicketStatusFlag />
             }
             <MaterialTable
                 data={dataTicket}
@@ -491,14 +491,17 @@ export default function Table() {
                 }
                 initialFormData={initialData}
                 options={{
+                    maxBodyHeight: 310,
+                    headerStyle: { position: "sticky", top: 0 },
                     showDetailPanelIcon: false,
                     columnsButton: true,
                     search: false,
                     paging: true,
                     filtering: isFiltering,
                     toolbarButtonAlignment: "left",
-                    pageSize: 3,       // make initial page size
-                    emptyRowsWhenPaging: true,   // To avoid of having empty rows
+                    pageSize: 10,       // make initial page size
+                    pageSizeOptions: [10, 25, 50],
+                    emptyRowsWhenPaging: false,   // To avoid of having empty rows
                     rowStyle: rowData => {
                         let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
                         return {
@@ -527,15 +530,6 @@ export default function Table() {
                             ),
                             isFreeAction: true,
                             onClick: (event) => setIsFiltering(state => !state)
-                        },
-                        {
-                            icon: () => (
-                                <TextTooltip title="Trạng thái">
-                                    {!isHidden ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                                </TextTooltip>
-                            ),
-                            isFreeAction: true,
-                            onClick: (event) => setIsHidden(state => !state)
                         },
                         {
                             icon: () => (

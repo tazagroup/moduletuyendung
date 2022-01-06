@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 //REDUX
 import { useSelector, useDispatch, batch } from "react-redux"
-import { addDataGuide } from "app/store/fuse/guideSlice"
+import { updateDataGuide } from "app/store/fuse/guideSlice"
 import { closeDialog } from 'app/store/fuse/dialogSlice';
 import { styled } from "@mui/material/styles"
 import { DialogActions, DialogTitle, DialogContent, IconButton, Tooltip, Grid, TextField, Button } from '@mui/material'
@@ -19,10 +19,12 @@ const TextTooltip = styled(({ className, ...props }) => (
   `);
 const ModalCreate = () => {
     const dispatch = useDispatch()
+    const dataGuide = useSelector(state => state.fuse.guides.dataGuide)
     const dataSetting = useSelector(state => state.fuse.guides.dataSetting)
     const [guideList, setGuideList] = useState([{ Step: "", Lienket: "" }]);
     const [subSourceArray, setSubSourceArray] = useState([])
     const [idModule, setIdModule] = useState("")
+    const idArray = dataGuide.map(item => item.idModule)
     const sourceArray = dataSetting.map(item => item.Thuoctinh)
     const handleAddSource = (e) => {
         setGuideList([...guideList, { Step: "", Lienket: "" }]);
@@ -56,19 +58,27 @@ const ModalCreate = () => {
         setSubSourceArray(flag)
     }
     const handleSubmit = async (e) => {
-        const Noidung = guideList.map((item, index) => ({
-            id: index,
-            ...item
-        }))
-        const bodyData = {
-            Noidung: JSON.stringify(Noidung),
-            idModule: dataSetting.find(opt => opt.Thuoctinh == idModule).id
+        const idMain = dataSetting.find(opt => opt.Thuoctinh == idModule).id
+        if (idArray.includes(idMain)) {
+            const main = dataGuide.find(item => item.idModule == idMain)
+            const content = JSON.parse(main.Noidung)
+            const result = content.concat(guideList).map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item
+                }
+            })
+            const bodyData = {
+                ...main,
+                Noidung: JSON.stringify(result)
+            }
+            const response = await guideAPI.updateGuide(bodyData, bodyData.id)
+            batch(() => {
+                dispatch(updateDataGuide(response.data.attributes))
+                dispatch(closeDialog())
+            })
         }
-        const response = await guideAPI.postGuides(bodyData)
-        batch(() => {
-            dispatch(addDataGuide(response.data.attributes))
-            dispatch(closeDialog())
-        })
     }
     return (
         <React.Fragment>

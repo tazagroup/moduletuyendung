@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { openDialog } from 'app/store/fuse/dialogSlice';
-import { removeDataGuide } from 'app/store/fuse/guideSlice'
+import { updateDataGuide } from 'app/store/fuse/guideSlice'
 import { ListItemButton, ListItemText, ListItemIcon, Menu, MenuItem } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import EditIcon from '@mui/icons-material/Edit';
@@ -37,7 +37,24 @@ const Item = ({ title, link, id, idGuide }) => {
     const handleRemove = async () => {
         setAnchorEl(null)
         const itemGuide = dataGuide.find(opt => opt.id == idGuide)
-        console.log(itemGuide)
+        const itemContent = JSON.parse(itemGuide.Noidung)
+        const index = itemContent.map(item => item.id).indexOf(id)
+        itemContent.splice(index, 1)
+        const newContent = itemContent.map((item, index) => {
+            delete item.id
+            return {
+                id: index,
+                ...item
+            }
+        })
+        const bodyData = {
+            ...itemGuide,
+            Noidung: JSON.stringify(newContent),
+        }
+        console.log(bodyData)
+        const response = await guidesAPI.updateGuide(bodyData, bodyData.id)
+        console.log(response)
+        dispatch(updateDataGuide(response.data.attributes))
     }
     return (
         <>

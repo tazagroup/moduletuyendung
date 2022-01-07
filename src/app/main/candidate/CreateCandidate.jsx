@@ -210,10 +210,10 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                         <Grid item xs={12}>
                             <TextField
                                 id="outlined-read-only-input"
-                                label="CV"
+                                label="Hồ sơ"
                                 type="file"
                                 error={isFileEmpty}
-                                helperText={isFileEmpty ? "Vui lòng nhập CV ứng viên" : ""}
+                                helperText={isFileEmpty ? "Vui lòng nhập hồ sơ ứng viên" : ""}
                                 InputLabelProps={{
                                     shrink: true
                                 }}

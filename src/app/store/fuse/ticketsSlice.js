@@ -80,7 +80,14 @@ const ticketsSlice = createSlice({
             const index2 = flag2.indexOf(action.payload.key)
             //REMOVE
             state.dataTicket.splice(index, 1)
-            state.flagTicket.splice(index, 1)
+            state.dataTicket = state.dataTicket.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item
+                }
+            })
+            state.flagTicket = [...state.dataTicket]
             //REMOVE FROM DASHBOARD
             state.dashboardTicket.splice(index2, 1)
         },

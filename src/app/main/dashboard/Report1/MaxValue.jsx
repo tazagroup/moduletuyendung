@@ -1,7 +1,7 @@
 import React from 'react'
-import { Bar } from "react-chartjs-2";
-
-const Main = ({ labels, data, total }) => {
+import { Doughnut } from "react-chartjs-2";
+import "chartjs-plugin-doughnutlabel";
+const MaxValue = ({ labels, data, handleClick }) => {
     const flag = [...data]
     let customLabels = labels.map((label, index) => `${label}`)
     const chartdata = {
@@ -9,35 +9,38 @@ const Main = ({ labels, data, total }) => {
         datasets: [
             {
                 backgroundColor: [
-                    "#4285f4",
-                    "#db4437",
-                    "#f4b400",
-                    "#6ba547",
-                    "#9cf168",
-                    "#e48f1b",
-                    "#fbc543",
-                    "#b77ea3",
-                    "#ffc9ed",
-                    "#6ba547",
+                    "#ff0000",
                 ],
                 data: data,
             },
         ],
     };
+
     return (
-        <Bar
+        <Doughnut
             data={chartdata}
             options={{
                 responsive: true,
-                legend: { display: false, position: "right" },
+                legend: { display: true, position: "right" },
+                datalabels: {
+                    display: true,
+                    formatter: (val, ctx) => {
+                        return ctx.chart.data.labels[ctx.dataIndex];
+                    },
+                    color: '#fff',
+                },
                 tooltips: {
                     callbacks: {
                         title: function (tooltipItem, data) {
                             return data['labels'][tooltipItem[0]['index']];
                         },
                         label: function (tooltipItem, data) {
+                            var dataset = data['datasets'];
                             const value = flag[tooltipItem['index']]
-                            return value;
+                            const sum = dataset[0].data.reduce((partial_sum, a) => partial_sum + a, 0)
+                            var percent = Math.round((value / sum) * 100)
+                            const afterLabel = ' (' + percent + '%)';
+                            return value + afterLabel;
                         },
                     },
                     backgroundColor: '#FFF',
@@ -47,31 +50,30 @@ const Main = ({ labels, data, total }) => {
                     bodyFontSize: 14,
                     displayColors: false
                 },
-                scales: {
-                    yAxes: [{
-                        gridLines: { display: false },
-                        display: true,
-                        ticks: {
-                            suggestedMin: 0,
-                            suggestedMax: total,
-                            beginAtZero: true,   // minimum value will be 0.
-                            callback: function (value) { if (value % 1 === 0) { return value; } }
-                        }
-                    }]
-                },
                 plugins: {
                     datalabels: {
                         display: true,
-                        color: "#000",
+                        color: "#fff",
                         font: {
                             size: 14,
                             weight: "bold"
+                        },
+                        formatter: (value) => {
+                            if (value == 0) return ""
+                            return value
                         }
                     },
+                },
+                onClick: function (evt, element) {
+                    if (element.length > 0) {
+                        //index of element
+                        var index = element[0]._index;
+                        handleClick(labels[index])
+                    }
                 },
             }}
         />
     )
 }
 
-export default Main
+export default MaxValue

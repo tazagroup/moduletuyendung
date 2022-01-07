@@ -16,7 +16,6 @@ const ViewFile = ({ open, handleClose, item }) => {
     return (
         <Dialog
             open={open}
-            onClose={handleClose}
             fullWidth={true}
             maxWidth={'md'}
             scroll="paper"

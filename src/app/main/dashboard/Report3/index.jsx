@@ -18,7 +18,7 @@ const Report3 = () => {
     const position = useSelector(state => state.fuse.tickets.position)
     const mainDataTicket = useSelector(state => state.fuse.tickets.dashboardTicket)
     const mainDataCandidate = useSelector(state => state.fuse.candidates.dashboardCandidate)
-    //FAKE DATA
+    //DATA
     const renderData = mainDataCandidate.map((item, index) => {
         return {
             id: index,
@@ -28,7 +28,6 @@ const Report3 = () => {
     })
     useEffect(() => {
         const sourceData = renderData.map(item => source.find(opt => opt.id == item.idSource)?.Thuoctinh)
-        console.log(sourceData)
         const counts = {};
         sourceData.forEach(function (x) {
             counts[x] = (counts[x] || 0) + 1;

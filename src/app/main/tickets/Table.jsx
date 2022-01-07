@@ -434,7 +434,6 @@ export default function Table() {
             confirmButtonText: 'Xác nhận',
             denyButtonText: `Hủy`,
         }).then(async (result) => {
-            /* Read more about isConfirmed, isDenied below */
             if (result.isConfirmed) {
                 const bodyData = {
                     ...rowData,

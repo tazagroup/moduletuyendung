@@ -113,7 +113,7 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
                                 options={arrayCensor}
                                 onChange={handleChangeCensor}
                                 field="name"
-                                label="Người kiểm duyệt"
+                                label="Người phỏng vấn"
                             />
                         </FormControl>
                     </Grid>

@@ -78,6 +78,7 @@ const InfoCandidate = ({ open, handleClose }) => {
     const [ticket, setTicket] = useState({})
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [isCreating, setIsCreating] = useState(false)
+    const [isViewing, setIsViewing] = useState(false)
     const calendar = JSON.parse(flagCandidate.LichPV)
     const [firstRate, setFirstRate] = useState(calendar?.Danhgia || emptyTinymce)
     const [point, setPoint] = useState(calendar?.Diem || 0)
@@ -194,7 +195,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                             <Grid item xs={12} md={4}>
                                 <DateField label="Ngày ứng tuyển" value={selectedDate} handleChange={setSelectedDate} disabled={disabledBasicInfo} />
                             </Grid>
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={4}>
                                 <NumberFormat
                                     label={"Mức lương dự kiến"}
                                     customInput={TextField}
@@ -204,11 +205,6 @@ const InfoCandidate = ({ open, handleClose }) => {
                                     fullWidth
                                     disabled={true}
                                 />
-                            </Grid>
-                            <Grid item xs={12} md>
-                                <FormControl fullWidth style={{ marginTop: "15px" }}>
-                                    <Button variant="contained" size="large">CV</Button>
-                                </FormControl>
                             </Grid>
                         </Grid>
                         {/* Calendar */}
@@ -344,6 +340,12 @@ const InfoCandidate = ({ open, handleClose }) => {
                     </DialogActions>
                 </form>
             </Dialog>
+            {isViewing && (
+                <ViewFile
+                    open={isViewing}
+                    handleClose={() => { setIsViewing(false) }}
+                />
+            )}
             {isCreating &&
                 <CreateCalendar
                     open={isCreating}

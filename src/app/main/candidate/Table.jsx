@@ -176,7 +176,7 @@ const Table = () => {
             title: "Trạng thái", field: "Trangthai", lookup: { 0: "Đang xử lí", 1: "Đạt", 2: "Loại" }
         },
         {
-            title: "CV", field: "CV",
+            title: "Hồ sơ", field: "CV",
             render: rowData => {
                 const profile = JSON.parse(rowData.Profile)
                 return <CustomCV item={profile.CV} />

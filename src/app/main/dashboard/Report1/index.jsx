@@ -3,22 +3,25 @@ import { useSelector } from "react-redux"
 import { Grid, Typography } from '@mui/material'
 import Main from './Main'
 import Sub from './Sub'
-import Table from './Table'
+import MaxValue from './MaxValue'
 const convertIdToName = (arr, id) => {
     return arr.find(opt => opt.id == id).Thuoctinh
 }
 const countSum = (array) => {
     return array.reduce((sum, a) => sum + a, 0);
 }
-const mergeDuplicateObject = (array, field) => {
-
+const sumArrays = (...arrays) => {
+    const n = arrays.reduce((max, xs) => Math.max(max, xs.length), 0);
+    const result = Array.from({ length: n });
+    return result.map((_, i) => arrays.map(xs => xs[i] || 0).reduce((sum, x) => sum + x, 0));
 }
+
 const Report1 = () => {
     const dataTicket = useSelector(state => state.fuse.tickets.dashboardTicket)
     const dataCandidate = useSelector(state => state.fuse.candidates.dashboardCandidate)
     const positionArray = useSelector(state => state.fuse.tickets.position)
-    const approveCandidate = dataCandidate.filter(item => item.Trangthai == 1).map(item => item.idTicket)
-    let main = dataTicket.reduce(function (accumulator, cur) {
+    const approveCandidate = dataCandidate.map(item => item.idTicket)
+    const main = dataTicket.reduce(function (accumulator, cur) {
         let Vitri = cur.Vitri
         let found = accumulator.find(function (elem) {
             return elem.Vitri == Vitri
@@ -33,13 +36,14 @@ const Report1 = () => {
         else accumulator.push(cur);
         return accumulator;
     }, []);
+    const candidateToPosition = main.map(item => dataCandidate.filter(item2 => item2.idTicket == item.key).length)
     const positionLabels = main.map(item => convertIdToName(positionArray, item.Vitri))
-    const firstData = [...main.map(item => item.SLHT)] // sum of duplicate object
-    const secondData = [...main.map(item => item.SLCT)]
-    const thirdData = [countSum(firstData), countSum(secondData)]
+    const firstData = [...main.map(item => item.SLHT)]
+    const secondData = [...sumArrays(main.map(item => item.SLHT), candidateToPosition)]
+    const thirdData = [countSum(firstData), countSum(dataTicket.map(item => item.SLCT)), dataCandidate.length, countSum(secondData)]
+    //SELECT CELL
     const [selectedData, setSelectedData] = useState([])
     const [select, setSelect] = useState(null)
-    const thirdLabels = ["Trước tuyển dụng", "Sau tuyển dụng"]
     const selectedLabels = ["Trước tuyển dụng", "Cần tuyển", "Thực tế", "Sau tuyển dụng"]
     useEffect(() => {
         if (select) {
@@ -52,12 +56,17 @@ const Report1 = () => {
             setSelectedData([beforeData, needData, inputData, outputData])
         }
     }, [select])
+    const deviantResult = secondData.map((item, index) => ({
+        vitri: positionLabels[index],
+        value: item / countSum(secondData)
+    })).sort((a, b) => b.value - a.value)
+    console.log(deviantResult)
     return (
-        <Grid container spacing={2} style={{ justifyContent: "center" }}>
+        <Grid container spacing={4}>
             <Grid item xs={12}>
                 <Typography variant="h3" gutterBottom component="div">Báo cáo định biên</Typography>
             </Grid>
-            <Grid item container xs={12}>
+            <Grid item container xs={12} style={{ justifyContent: "center" }}>
                 <Grid item xs={12} md={6}>
                     <Typography variant="h6" gutterBottom component="div">Trước tuyển dụng</Typography>
                     <Main data={firstData} labels={positionLabels} handleClick={setSelect} />
@@ -66,17 +75,22 @@ const Report1 = () => {
                     <Typography variant="h6" gutterBottom component="div">Sau tuyển dụng</Typography>
                     <Main data={secondData} labels={positionLabels} handleClick={setSelect} />
                 </Grid>
-                <Grid item xs={12} md={12}>
-                    <Typography variant="h6" gutterBottom component="div">&nbsp;</Typography>
-                    <Sub data={thirdData} labels={thirdLabels} />
+                <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom component="div">Vị trí : {select}</Typography>
+                    {select && <Sub data={selectedData} labels={selectedLabels} />}
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom component="div">Tổng quát : sau tuyển dụng</Typography>
+                    <Sub data={thirdData} labels={selectedLabels} />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom component="div">
+                        Biến động nhiều nhất : {deviantResult.map(item => item.vitri)[0]}
+                    </Typography>
+                    <MaxValue labels={deviantResult.map(item => item.vitri)} data={deviantResult.map(item => item.value)} />
                 </Grid>
             </Grid>
-            <Grid item xs={8} style={{ marginTop: "15px" }}>
-                {select && <Sub data={selectedData} labels={selectedLabels} />}
-            </Grid>
-            <Grid item xs={12}>
-                <Table />
-            </Grid>
+
         </Grid>
     )
 }

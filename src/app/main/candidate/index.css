@@ -88,3 +88,22 @@ svg.calendar__icon {
     background-color: unset;
     cursor: pointer;
 }
+/* Loading screen  */
+.loading__screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(44, 44, 44, 0.6);
+    z-index: 99;
+}
+.loading__icon {
+    position: relative;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff !important;
+}
+.loading__icon svg {
+    width: unset !important;
+    height: unset !important;
+}

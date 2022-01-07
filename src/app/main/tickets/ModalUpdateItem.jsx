@@ -209,19 +209,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                     }
                     {/* Thời gian thử việc  */}
                     <Grid item xs={12} md={12}>
-                        <LocalizationProvider dateAdapter={AdapterDateFns}>
-                            <DatePicker
-                                views={['year', 'month', 'day']}
-                                label="Thời gian thử việc"
-                                value={data.TGThuviec}
-                                disabled={true}
-                                onChange={(newValue) => {
-                                    setValue(newValue);
-                                }}
-                                inputFormat="dd/MM/yyyy"
-                                renderInput={(params) => <TextField {...params} fullWidth />}
-                            />
-                        </LocalizationProvider>
+                        <TextInputCustom value={data.TGThuviec} label="Thời gian thử việc" type="number" />
                     </Grid>
                     {/* Người kiểm duyệt  */}
                     <Grid item xs={12}>
@@ -230,11 +218,17 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                     {sourceList.map((item, index) => (
                         <React.Fragment key={index}>
                             {/* Nguồn mua  */}
-                            <Grid item xs={12} md={3}>
+                            <Grid item xs={12} md={2}>
                                 <SelectField
                                     label="Nguồn mua" value={item.Nguon} arrayItem={sourceArray}
                                     handleChange={(e) => handleChangeSource(e, index)}
                                     arraySubItem={subSourceArray}
+                                />
+                            </Grid>
+                            {/* Thời gian mua  */}
+                            <Grid item xs={12} md={2}>
+                                <DateField label="Thời gian mua" value={item.TGMua}
+                                    handleChange={(e) => handleChangeDate(e, index)}
                                 />
                             </Grid>
                             {/* Chi phí mua  */}
@@ -247,12 +241,6 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                                     value={item.Chiphi}
                                     allowLeadingZeros={false}
                                     fullWidth
-                                />
-                            </Grid>
-                            {/* Thời gian mua  */}
-                            <Grid item xs={12} md={2}>
-                                <DateField label="Thời gian mua" value={item.TGMua}
-                                    handleChange={(e) => handleChangeDate(e, index)}
                                 />
                             </Grid>
                             {/* Hình thức thanh toán  */}

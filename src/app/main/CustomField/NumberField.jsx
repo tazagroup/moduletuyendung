@@ -2,6 +2,10 @@ import React from 'react'
 import { Controller } from "react-hook-form"
 import { TextField } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
+
+const CustomInput = (props) => {
+    return <TextField {...props} InputLabelProps={{ shrink: true }} />
+}
 const NumberField = (props) => {
     const { label, form, name, disabled = false } = props
     const control = form.control
@@ -16,7 +20,7 @@ const NumberField = (props) => {
                     <NumberFormat
                         {...props.field}
                         label={label}
-                        customInput={TextField}
+                        customInput={CustomInput}
                         thousandSeparator
                         error={invalid}
                         helperText={error?.message}

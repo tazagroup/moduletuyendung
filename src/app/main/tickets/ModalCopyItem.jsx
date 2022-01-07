@@ -24,6 +24,7 @@ const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập mức lương"),
     SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
     SLCT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
+    TGThuviec: yup.number("Vui lòng nhập số").required("Vui lòng nhập thời gian thử việc").min(1, "Dữ liệu không chính xác"),
 });
 const useStyles = makeStyles({
     title: {
@@ -55,7 +56,6 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
     const user = JSON.parse(localStorage.getItem("profile"))
     const dispatch = useDispatch()
     const classes = useStyles()
-    const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [reason, setReason] = useState(arrayReason.includes(item.Lydo) ? item.Lydo : "Khác")
     const [otherReason, setOtherReason] = useState(!arrayReason.includes(item.Lydo) ? item.Lydo : "")
     const [position, setPosition] = useState([...data.position])
@@ -69,8 +69,9 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
             SLCT: item.SLCT,
             SLHT: item.SLHT,
             LuongDK: item.LuongDK,
+            TGThuviec: item.TGThuviec,
         },
-        mode: 'onBlur',
+        mode: 'all',
         resolver: yupResolver(schema),
     });
     const reasonValid = otherReason ? otherReason !== "" : reason !== ""
@@ -80,7 +81,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
             Vitri: valuePosition['id'],
             SLHT: e.SLHT,
             SLCT: e.SLCT,
-            TGThuviec: new Date(selectedDate).toISOString(),
+            TGThuviec: e.TGThuviec,
             TNNS: {},
             Lydo: otherReason ? otherReason : reason,
             Mota: description,
@@ -165,7 +166,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
                             }
                             {/* Thời gian thử việc  */}
                             <Grid item xs={12} md={12}>
-                                <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
+                                <InputField form={form} name="TGThuviec" label="Thời gian thử việc" type="number" />
                             </Grid>
                             {/* Mô tả / yêu cầu tuyển dụng  */}
                             <Grid item xs={12} md={6}>

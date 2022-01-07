@@ -30,12 +30,17 @@ const useStyles = makeStyles({
 const CreateCalendar = ({ open, handleClose, candidate, position }) => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.fuse.tickets.users)
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const calendar = JSON.parse(candidate.LichPV)
     const user = JSON.parse(localStorage.getItem("profile"))
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [censor, setCensor] = useState(null)
     const [note, setNote] = useState('')
+    const arrayCensor = (Object.keys(calendar).length == 0) ?
+        users.filter(item => { if (item.PQTD) { return item.PQTD.includes(2) } })
+        : users.filter(item => item.id == dataTicket.find(opt => opt.key == candidate.idTicket).idTao)
+
     const handleChangeDate = (newValue) => {
         setSelectedDate(newValue[0])
     }
@@ -105,12 +110,7 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
                         <FormControl variant="standard" fullWidth>
                             <AutocompleteObjField
                                 value={censor}
-                                options={users.filter(item => {
-                                    if (item.PQTD) {
-                                        return item.PQTD.includes(Object.keys(calendar).length == 0 ? 2 : 1)
-                                    }
-                                    return false
-                                })}
+                                options={arrayCensor}
                                 onChange={handleChangeCensor}
                                 field="name"
                                 label="Người kiểm duyệt"

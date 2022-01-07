@@ -26,6 +26,7 @@ const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập mức lương"),
     SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
     SLCT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
+    TGThuviec: yup.number("Vui lòng nhập số").required("Vui lòng nhập thời gian thử việc").min(1, "Dữ liệu không chính xác"),
 });
 const useStyles = makeStyles({
     title: {
@@ -55,8 +56,9 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             LuongDK: "",
             SLHT: 0,
             SLCT: 0,
+            TGThuviec: 1,
         },
-        mode: 'onBlur',
+        mode: 'all',
         resolver: yupResolver(schema),
     });
     const dispatch = useDispatch();
@@ -92,7 +94,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             Vitri: valuePosition['id'],
             SLHT: e.SLHT,
             SLCT: e.SLCT,
-            TGThuviec: new Date(selectedDate).toISOString(),
+            TGThuviec: e.TGThuviec,
             TNNS: {},
             Lydo: otherReason ? otherReason : reasons,
             Mota: description,
@@ -154,7 +156,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                             />
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <DateField label="Thời gian thử việc" value={selectedDate} handleChange={setSelectedDate} />
+                            <InputField form={form} name="TGThuviec" label={"Thời gian thử việc"} type="number" />
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <InputField form={form} name="SLHT" label={"Nhân sự hiện có"} type="number" />

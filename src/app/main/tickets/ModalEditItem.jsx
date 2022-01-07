@@ -28,6 +28,7 @@ const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
     SLHT: yup.number().min(0, "Dữ liệu không đúng"),
     SLCT: yup.number().min(1, "Dữ liệu không đúng"),
+    TGThuviec: yup.number().min(1, "Dữ liệu không đúng"),
 });
 const useStyles = makeStyles({
     title: {
@@ -81,6 +82,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
             SLCT: item.SLCT,
             SLHT: item.SLHT,
             LuongDK: item.LuongDK,
+            TGThuviec: item.TGThuviec,
         },
         mode: 'onBlur',
         resolver: yupResolver(schema),
@@ -105,7 +107,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
             Yeucau: require,
             Mota: description,
             Vitri: valuePosition.id,
-            TGThuviec: new Date(selectedDate[0]).toISOString(),
+            TGThuviec: e.TGThuviec,
             Lydo: otherReason ? otherReason : reason,
             Pheduyet: JSON.stringify(flagPheduyet)
         }
@@ -181,11 +183,11 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                 <InputField form={form} name="SLCT" label="Nhân sự cần tuyển" type="number" />
                             </Grid>
                             {/* Mức lương dự kiến  */}
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={4}>
                                 <NumberField form={form} name="LuongDK" label="Mức lương dự kiến" error="Vui lòng nhập mức lương" />
                             </Grid>
                             {/* Lí do tuyển dụng  */}
-                            <Grid item xs={12} md={6}>
+                            <Grid item xs={12} md={4}>
                                 <SelectField label="Lí do tuyển dụng" value={reason} arrayItem={arrayReason} handleChange={(e) => { setReason(e.target.value) }} />
                             </Grid>
                             {item.Lydo === "Khác" &&
@@ -201,8 +203,8 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                 </Grid>
                             }
                             {/* Thời gian thử việc  */}
-                            <Grid item xs={12}>
-                                <DateField label="Thời gian thử việc" value={selectedDate} handleChange={(e) => { setSelectedDate(e) }} />
+                            <Grid item xs={4}>
+                                <InputField form={form} name="TGThuviec" label="Thời gian thử việc" type="number" />
                             </Grid>
                             {/* Mô tả tuyển dụng  */}
                             <Grid item xs={12} md={6}>

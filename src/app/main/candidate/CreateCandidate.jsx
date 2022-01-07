@@ -8,8 +8,9 @@ import { showMessage } from "app/store/fuse/messageSlice"
 import {
     Dialog, DialogTitle, DialogContent, DialogActions,
     Button, Grid, InputLabel, MenuItem, FormControl, Box,
-    Typography, Select
+    Typography, Select, CircularProgress
 } from '@mui/material';
+
 import { TextField, makeStyles } from '@material-ui/core';
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -57,6 +58,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [fileName, setFileName] = useState("")
     const [isFileEmpty, setIsFileEmpty] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
     const [source, setSource] = useState(null)
     const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => mainSource.find(opt => opt.id == item.Nguon).Thuoctinh) : []
     useEffect(async () => {
@@ -116,12 +118,14 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             }))
         }
         else {
+            setIsLoading(true)
             const uploadFile = storage.ref(`files/${file.name}`).put(file);
             uploadFile.on("state_changed", (snapshot) => {
             },
                 (error) => console.log(error),
                 () => {
                     storage.ref("files").child(file.name).getDownloadURL().then((url) => {
+                        setIsLoading(false)
                         setFileName(url)
                     })
                 })
@@ -133,8 +137,13 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             fullWidth={true}
             maxWidth={'lg'}
         >
-            <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Tạo hồ sơ ứng viên</DialogTitle>
-            <form onSubmit={form.handleSubmit(handleCreateCandidate)}>
+            <form onSubmit={form.handleSubmit(handleCreateCandidate)} style={{ position: "relative" }}>
+                {isLoading && (
+                    <div className='loading__screen'>
+                        <CircularProgress className="loading__icon" color="secondary" />
+                    </div>
+                )}
+                <DialogTitle id="alert-dialog-title" style={{ width: "100%", textAlign: "center", fontSize: "20px", fontWeight: "bold" }}>Tạo hồ sơ ứng viên</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>

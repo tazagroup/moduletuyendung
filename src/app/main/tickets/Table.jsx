@@ -152,16 +152,10 @@ export default function Table() {
         {
             title: "Thời gian thử việc",
             field: "TGThuviec",
-            type: "date",
-            dateSetting: { locale: "en-GB" },
-            filterComponent: (props) => <CustomDateEdit {...props} />,
-            customFilterAndSearch: (term, rowData) => {
-                if (term.length === 0) return true
-                const time = Date.parse(rowData.TGThuviec)
-                const beforeDate = Date.parse(term[0])
-                const afterDate = Date.parse(term[1])
-                return time >= beforeDate && time <= afterDate
-            }
+            type: "numeric",
+            render: data => (
+                <div>{data.TGThuviec} tháng</div>
+            )
         },
         {
             title: "Thời gian tiếp nhận",

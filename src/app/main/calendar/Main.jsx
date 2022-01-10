@@ -67,13 +67,10 @@ const Main = () => {
                         <TextTooltip title={`${event.event.title}`}>
                             <div className='fc-event-main-frame'>
                                 {event.timeText &&
-                                    <div className='fc-event-time'>{event.timeText}</div>
-                                }
-                                <div className='fc-event-title-container'>
-                                    <div className='fc-event-title fc-sticky'>
-                                        {event.event.title || <Fragment>&nbsp;</Fragment>}
+                                    <div className='fc-event-time'>
+                                        {event.timeText} {event.event.title || <Fragment>&nbsp;</Fragment>}
                                     </div>
-                                </div>
+                                }
                             </div>
                         </TextTooltip>
                     )
@@ -82,11 +79,11 @@ const Main = () => {
                 headerToolbar={{
                     start: 'prev,next today',
                     center: 'title',
-                    end: 'dayGridMonth,timeGridWeek,timeGridDay listWeek'
+                    end: 'dayGridMonth listWeek'
                 }
                 }
                 initialDate={new Date()}
-                initialView="timeGridDay"
+                initialView="dayGridMonth"
             />
             {openModal &&
                 <ModalCalendarItem

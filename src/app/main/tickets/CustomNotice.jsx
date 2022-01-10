@@ -24,8 +24,6 @@ const CustomNotice = ({ item, handleClose }) => {
         <>
             <Dialog
                 open={item.open}
-                TransitionComponent={Transition}
-                keepMounted
                 onClose={handleClose}
                 aria-describedby="alert-dialog-slide-description"
                 fullWidth={true}

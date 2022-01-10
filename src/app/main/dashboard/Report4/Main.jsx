@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList, Label, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LabelList, Label } from 'recharts';
 
 const Main = () => {
     const data = [
@@ -21,48 +21,47 @@ const Main = () => {
         return value != 0 ? <Label {...rest} value={`${result}%`} fontSize="10" fill="#000" fontWeight="Bold" /> : null
     };
     return (
-        <ResponsiveContainer width={800} height={300}>
-            <BarChart
-                data={data}
-                margin={{
-                    top: 20, right: 30, left: 20, bottom: 5,
-                }}
-            >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip cursor={false} />
-                <Legend />
-                <Bar name="Học việc" dataKey="hv" stackId="a" fill="#4285f4">
-                    <LabelList
-                        dataKey="hv"
-                        position="inside"
-                        content={renderCustomizedLabel}
-                    />
-                </Bar>
-                <Bar name="Thử việc" dataKey="tv" stackId="a" fill="#db4437"  >
-                    <LabelList
-                        dataKey="tv"
-                        position="inside"
-                        content={renderCustomizedLabel}
-                    />
-                </Bar>
-                <Bar name="Chính thức" dataKey="ct" stackId="a" fill="#f4b400" >
-                    <LabelList
-                        dataKey="ct"
-                        position="inside"
-                        content={renderCustomizedLabel}
-                    />
-                </Bar>
-                <Bar name="Nghỉ việc" dataKey="nv" stackId="a" fill="#8f8f8f" >
-                    <LabelList
-                        dataKey="nv"
-                        position="inside"
-                        content={renderCustomizedLabel}
-                    />
-                </Bar>
-            </BarChart>
-        </ResponsiveContainer>
+        <BarChart
+            data={data}
+            margin={{
+                top: 20, right: 30, left: 20, bottom: 5,
+            }}
+            width={800} height={300}
+        >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="name" />
+            <YAxis />
+            <Tooltip cursor={false} />
+            <Legend />
+            <Bar name="Học việc" dataKey="hv" stackId="a" fill="#4285f4">
+                <LabelList
+                    dataKey="hv"
+                    position="inside"
+                    content={renderCustomizedLabel}
+                />
+            </Bar>
+            <Bar name="Thử việc" dataKey="tv" stackId="a" fill="#db4437"  >
+                <LabelList
+                    dataKey="tv"
+                    position="inside"
+                    content={renderCustomizedLabel}
+                />
+            </Bar>
+            <Bar name="Chính thức" dataKey="ct" stackId="a" fill="#f4b400" >
+                <LabelList
+                    dataKey="ct"
+                    position="inside"
+                    content={renderCustomizedLabel}
+                />
+            </Bar>
+            <Bar name="Nghỉ việc" dataKey="nv" stackId="a" fill="#8f8f8f" >
+                <LabelList
+                    dataKey="nv"
+                    position="inside"
+                    content={renderCustomizedLabel}
+                />
+            </Bar>
+        </BarChart>
     )
 }
 

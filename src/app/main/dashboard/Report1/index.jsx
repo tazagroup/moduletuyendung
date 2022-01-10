@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from "react-redux"
-import { Grid, Typography } from '@mui/material'
+import { Grid, Typography, Tabs, Tab } from '@mui/material'
+import TabContext from '@mui/lab/TabContext';
+import TabPanel from '@mui/lab/TabPanel';
+import TabList from '@mui/lab/TabList';
 import Main from './Main'
 import Sub from './Sub'
 import MaxValue from './MaxValue'
@@ -44,6 +47,10 @@ const Report1 = () => {
     //SELECT CELL
     const [selectedData, setSelectedData] = useState([])
     const [select, setSelect] = useState(null)
+    const [value, setValue] = useState("1");
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+    };
     const selectedLabels = ["Trước tuyển dụng", "Cần tuyển", "Thực tế", "Sau tuyển dụng"]
     useEffect(() => {
         if (select) {
@@ -58,40 +65,47 @@ const Report1 = () => {
     }, [select])
     const deviantResult = secondData.map((item, index) => ({
         vitri: positionLabels[index],
-        value: item / countSum(secondData)
+        value: item - firstData[index]
     })).sort((a, b) => b.value - a.value)
-    console.log(deviantResult)
     return (
         <Grid container spacing={4}>
             <Grid item xs={12}>
                 <Typography variant="h3" gutterBottom component="div">Báo cáo định biên</Typography>
             </Grid>
-            <Grid item container xs={12} style={{ justifyContent: "center" }}>
-                <Grid item xs={12} md={6}>
-                    <Typography variant="h6" gutterBottom component="div">Trước tuyển dụng</Typography>
-                    <Main data={firstData} labels={positionLabels} handleClick={setSelect} />
+            <Grid item container xs={12} style={{ justifyContent: "center", padding: 0 }}>
+                <Grid item xs={12} md={6} style={{ transform: "scale(0.8)" }}>
+                    <Typography variant="h4" gutterBottom component="div">Trước tuyển dụng</Typography>
+                    <Main data={firstData} labels={positionLabels} handleClick={setSelect} legend={true} />
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <Typography variant="h6" gutterBottom component="div">Sau tuyển dụng</Typography>
+                <Grid item xs={12} md={6} style={{ transform: "scale(0.8)" }}>
+                    <Typography variant="h4" gutterBottom component="div">Sau tuyển dụng</Typography>
                     <Main data={secondData} labels={positionLabels} handleClick={setSelect} />
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <Typography variant="h6" gutterBottom component="div">Vị trí : {select}</Typography>
-                    {select && <Sub data={selectedData} labels={selectedLabels} />}
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <Typography variant="h6" gutterBottom component="div">Tổng quát : sau tuyển dụng</Typography>
-                    <Sub data={thirdData} labels={selectedLabels} />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                    <Typography variant="h6" gutterBottom component="div">
+                <Grid item xs={12} md={6} style={{ transform: "scale(0.8)" }}>
+                    <Typography variant="h4" gutterBottom component="div">
                         Biến động nhiều nhất : {deviantResult.map(item => item.vitri)[0]}
                     </Typography>
                     <MaxValue labels={deviantResult.map(item => item.vitri)} data={deviantResult.map(item => item.value)} />
                 </Grid>
+                <Grid item xs={12} md={6}>
+                    <TabContext value={value}>
+                        <TabList onChange={handleChange} aria-label="lab API tabs example" centered>
+                            <Tab label="Tổng quát" value={"1"} />
+                            <Tab label="Vị trí" value={"2"} />
+                        </TabList>
+                        <TabPanel value={"1"}>
+                            <Typography variant="h4" gutterBottom component="div">Tổng quát : sau tuyển dụng</Typography>
+                            <Sub data={thirdData} labels={selectedLabels} />
+                        </TabPanel>
+                        <TabPanel value={"2"}>
+                            <Typography variant="h4" gutterBottom component="div">Vị trí : {select}</Typography>
+                            {select && <Sub data={selectedData} labels={selectedLabels} />}
+                        </TabPanel>
+                    </TabContext>
+                </Grid>
             </Grid>
 
-        </Grid>
+        </Grid >
     )
 }
 

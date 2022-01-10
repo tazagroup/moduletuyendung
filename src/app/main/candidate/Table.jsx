@@ -15,6 +15,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 //COMPONENTS
+import Status from './Status'
 import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
@@ -44,7 +45,7 @@ const Table = () => {
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket).filter(item => item.Trangthai == 2)
     const position = useSelector(state => state.fuse.tickets.position)
     const source = useSelector(state => state.fuse.tickets.source)
-    const [rowData, setRowData] = useState({})
+    const [rowData, setRowData] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
@@ -348,6 +349,7 @@ const Table = () => {
     }
     return isLoading ? <FuseLoading /> :
         <Fragment>
+            {rowData && <Status data={rowData} />}
             <MaterialTable
                 data={data}
                 initialFormData={initialData}

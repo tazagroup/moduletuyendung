@@ -1,7 +1,7 @@
 import React from 'react'
 import { Doughnut } from "react-chartjs-2";
 import "chartjs-plugin-doughnutlabel";
-const Main = ({ labels, data, handleClick }) => {
+const Main = ({ labels, data, handleClick, legend = false }) => {
     const total = data.reduce((partial_sum, a) => partial_sum + a, 0);
     const flag = [...data]
     let customLabels = labels.map((label, index) => `${label}`)
@@ -31,7 +31,7 @@ const Main = ({ labels, data, handleClick }) => {
             data={chartdata}
             options={{
                 responsive: true,
-                legend: { display: true, position: "right" },
+                legend: { display: legend, position: "right" },
                 datalabels: {
                     display: true,
                     formatter: (val, ctx) => {

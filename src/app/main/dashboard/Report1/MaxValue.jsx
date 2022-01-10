@@ -9,7 +9,7 @@ const MaxValue = ({ labels, data, handleClick }) => {
         datasets: [
             {
                 backgroundColor: [
-                    "#ff0000",
+                    "#ea4335",
                 ],
                 data: data,
             },
@@ -21,7 +21,7 @@ const MaxValue = ({ labels, data, handleClick }) => {
             data={chartdata}
             options={{
                 responsive: true,
-                legend: { display: true, position: "right" },
+                legend: { display: false, position: "right" },
                 datalabels: {
                     display: true,
                     formatter: (val, ctx) => {

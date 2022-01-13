@@ -16,6 +16,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 //COMPONENTS
 import Status from './Status'
+import FlagStatus from './FlagStatus'
 import FuseLoading from '@fuse/core/FuseLoading';
 import CreateCandidate from '../candidate/CreateCandidate'
 import InfoCandidate from './InfoCandidate';
@@ -261,7 +262,7 @@ const Table = () => {
             ])
             const { data: { attributes: { Dulieu } } } = responsePosition
             const { data } = responseUser
-            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, Profile: JSON.parse(attributes.Profile), PQTD: JSON.parse(attributes.Profile)?.PQTD }))
             batch(() => {
                 dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
                 dispatch(setSource(responseSource.data))
@@ -347,9 +348,15 @@ const Table = () => {
             dispatch(refreshDataCandidate([...flagDataCandidate]))
         }, 0)
     }
+    const handleRowClick = (rowData) => {
+        if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
+            dispatch(updateFlagCandidate(rowData))
+        }
+        setRowData(rowData)
+    }
     return isLoading ? <FuseLoading /> :
         <Fragment>
-            {rowData && <Status data={rowData} />}
+            {rowData ? <Status /> : <FlagStatus />}
             <MaterialTable
                 data={data}
                 initialFormData={initialData}
@@ -398,7 +405,7 @@ const Table = () => {
                 editable={{
                     isEditHidden: (rowData) => rowData,
                 }}
-                onRowClick={(event, rowData) => { setRowData(rowData) }}
+                onRowClick={(event, rowData) => handleRowClick(rowData)}
                 onChangeColumnHidden={(r) => {
                     const index = hiddenColumns.findIndex(item => item === r.field)
                     if (index !== -1) {
@@ -420,6 +427,8 @@ const Table = () => {
                     }
                 }}
                 options={{
+                    maxBodyHeight: 235,
+                    headerStyle: { position: "sticky", top: 0 },
                     emptyRowsWhenPaging: false,
                     showDetailPanelIcon: false,
                     columnsButton: true,

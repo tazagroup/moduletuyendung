@@ -378,7 +378,7 @@ export default function Table() {
                 ])
                 const { data: { attributes: { Dulieu } } } = responsePosition
                 const { data } = responseUser
-                const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+                const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, Profile: JSON.parse(attributes.Profile), PQTD: JSON.parse(attributes.Profile)?.PQTD }))
                 batch(() => {
                     dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
                     dispatch(setSource(responseSource.data))
@@ -502,7 +502,6 @@ export default function Table() {
                             color: selected ? "#fff" : "#000",
                         };
                     },
-
                 }}
                 components={{
                     Action: props => {

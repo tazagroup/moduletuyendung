@@ -54,7 +54,9 @@ const useStyles = makeStyles({
     },
 })
 
-
+const CustomInput = (props) => {
+    return <TextField {...props} InputLabelProps={{ shrink: true }} />
+}
 const TextInputCustom = (props) => {
     const { value, label, type } = props
     return (
@@ -101,7 +103,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
             CPTD: CPTD,
             NTC: new Date(selectedDate2).toISOString()
         }
-        const newStep = { id: 4, status: 0, Nguoiduyet: [censor.id], Ngaytao: new Date().toISOString() }
+        const newStep = { id: 4, status: 0, Nguoiduyet: [censor.id], Ngaytao: new Date().toISOString(), Ngayupdate: new Date().toISOString() }
         step.push(newStep)
         const bodyData = {
             Pheduyet: JSON.stringify([...step])
@@ -188,7 +190,8 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                         <TextInputCustom value={data.SLCT} label="Nhân sự cần tuyển" type="number" />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <NumberFormat customInput={TextField}
+                        <NumberFormat
+                            customInput={CustomInput}
                             label="Mức lương dự kiến"
                             variant="standard"
                             thousandSeparator={true}
@@ -235,7 +238,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                             <Grid item xs={12} md={3}>
                                 <NumberFormat
                                     label={"Chi phí"}
-                                    customInput={TextField}
+                                    customInput={CustomInput}
                                     thousandSeparator
                                     onChange={(e) => { handleChangeCurrency(e, index) }}
                                     value={item.Chiphi}

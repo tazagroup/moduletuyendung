@@ -37,33 +37,13 @@ const CustomTooltip = styled(({ className, ...props }) => (
         border: '1px solid #dadde9',
     },
 }));
-const Status = () => {
-    const data = useSelector(state => state.fuse.candidates.flagCandidate)
-    const XacnhanHS = JSON.parse(data.XacnhanHS)
-    const LichPV = JSON.parse(data.LichPV).VongPV
-    const DanhgiaHS = JSON.parse(data.DanhgiaHS)
-    const lastStage = Array.isArray(LichPV) ? LichPV[LichPV.length - 1] : null
-    const DuyetHS = JSON.parse(data.DuyetHS)
-    const steps = [
-        "Nhận kết quả.Gửi thư mời làm việc / thư cảm ơn quản lí cấp cao",
-        "Gửi mail duyệt thư mời làm việc",
-        "Gửi thư mời ứng viên",
-        "Xác nhận ngày làm việc chính thức, báo bộ phận yêu cầu tuyển dụng"
-    ]
-    const currentStep = Object.keys(DuyetHS).includes("DuyetTD") ? steps[DuyetHS.DuyetTD.step] : null
+const FlagStatus = () => {
     const classes = useStyles()
-    const CustomTimeline = ({ item, title, classStatus = "disabled", currentStep }) => {
-        let status = item ? (item == 1 ? "success" : "pending") : classStatus
+    const CustomTimeline = ({ title, classStatus = "disabled" }) => {
         return (
             <TimelineItem className={classes.item}>
                 <TimelineSeparator>
-                    {currentStep ? (
-                        <CustomTooltip title={currentStep}>
-                            <TimelineDot className={`timeline ${status}`} />
-                        </CustomTooltip>
-                    ) : (
-                        <TimelineDot className={`timeline ${status}`} />
-                    )}
+                    <TimelineDot className={`timeline ${classStatus}`} />
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
                     <p style={{ marginTop: "3px" }}>{title}</p>
@@ -71,12 +51,11 @@ const Status = () => {
             </TimelineItem>
         )
     }
-    const CustomTimelineConnector = ({ item, title, classStatus = "disabled" }) => {
-        let status = item ? (item == 1 ? "success" : "pending") : classStatus
+    const CustomTimelineConnector = ({ title, classStatus = "disabled" }) => {
         return (
             <TimelineItem className={classes.item}>
                 <TimelineSeparator>
-                    <TimelineDot className={`timeline ${status}`} />
+                    <TimelineDot className={`timeline ${classStatus}`} />
                     <TimelineConnector />
                 </TimelineSeparator>
                 <TimelineContent className={classes.timeline}>
@@ -92,24 +71,24 @@ const Status = () => {
                     <Grid item xs={4}>
                         <h3>Ban tuyển dụng</h3>
                         <Timeline>
-                            <CustomTimelineConnector title="B1:Tạo hồ sơ" classStatus='success' />
-                            <CustomTimelineConnector item={XacnhanHS.XNPV} title="B3:Xác nhận phỏng vấn" />
-                            <CustomTimelineConnector item={LichPV ? (LichPV.length > 1 ? 1 : 0) : null} title="B4:Đặt lịch phỏng vấn vòng 1" />
-                            <CustomTimeline item={Object.keys(DuyetHS).includes("DuyetTD") ? DuyetHS.DuyetTD.Trangthai : null} title="B8:Trả kết quả" currentStep={currentStep} />
+                            <CustomTimelineConnector title="B1:Tạo hồ sơ" />
+                            <CustomTimelineConnector title="B3:Xác nhận phỏng vấn" />
+                            <CustomTimelineConnector title="B4:Đặt lịch phỏng vấn vòng 1" />
+                            <CustomTimeline title="B8:Trả kết quả" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={4}>
                         <h3>Ban chuyên môn</h3>
                         <Timeline>
-                            <CustomTimelineConnector item={XacnhanHS.Duyet} title="B2:Duyệt hồ sơ" />
-                            <CustomTimelineConnector item={LichPV ? (LichPV.length !== 1 ? lastStage.Trangthai : null) : null} title="B5:Đặt lịch phỏng vấn vòng 2" />
-                            <CustomTimeline item={Object.keys(DanhgiaHS).length !== 0 ? 1 : null} title="B6:Đánh giá hồ sơ.Phê duyệt sau phỏng vấn" />
+                            <CustomTimelineConnector title="B2:Duyệt hồ sơ" />
+                            <CustomTimelineConnector title="B5:Đặt lịch phỏng vấn vòng 2" />
+                            <CustomTimeline title="B6:Đánh giá hồ sơ.Phê duyệt sau phỏng vấn" />
                         </Timeline>
                     </Grid>
                     <Grid item xs={4}>
                         <h3>Ban quản lí</h3>
                         <Timeline>
-                            <CustomTimeline item={Object.keys(DuyetHS).includes("DuyetQL") ? DuyetHS.DuyetQL.Trangthai : null} title="B7:Phê duyệt cuối cùng" />
+                            <CustomTimeline title="B7:Phê duyệt cuối cùng" />
                         </Timeline>
                     </Grid>
                 </Grid>
@@ -118,4 +97,4 @@ const Status = () => {
     )
 }
 
-export default Status
+export default FlagStatus

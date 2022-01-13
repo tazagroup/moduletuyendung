@@ -47,7 +47,7 @@ const Table = () => {
         else if (response.length != 0) {
             const { data: { attributes: { Dulieu } } } = response[1]
             const { data } = response[2]
-            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, PQTD: JSON.parse(attributes.Profile)?.PQTD }))
+            const dataUser = data.map(({ attributes }) => ({ id: attributes.id, name: attributes.name, position: JSON.parse(attributes.Profile)?.Vitri, Profile: JSON.parse(attributes.Profile), PQTD: JSON.parse(attributes.Profile)?.PQTD }))
             //get the approved tickets
             idTicket = response[0].data.map(item => item.attributes).filter(item2 => item2.Trangthai == 2).map(opt => opt.id)
             batch(() => {

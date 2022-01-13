@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
 import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
-import { Tooltip, Menu, MenuItem, FormControl, Select } from '@mui/material';
+import { Tooltip, Menu, MenuItem, FormControl, Select, IconButton } from '@mui/material';
 import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -64,6 +64,7 @@ export const CustomStatus = ({ item, field }) => {
         }
         const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
         dispatch(updateCandidate(response.data))
+        dispatch(updateFlagCandidate(bodyData))
         handleClose()
     }
     const handleDeny = async () => {
@@ -277,6 +278,7 @@ export const CustomTimeline = ({ item }) => {
                     Trangthai: step == 3 ? 1 : 0,
                 }
                 const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
+                dispatch(updateFlagCandidate(bodyData))
                 dispatch(updateCandidate(response.data))
             }
         }

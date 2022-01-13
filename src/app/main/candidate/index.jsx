@@ -8,12 +8,12 @@ const Candidates = () => {
     return (
         <FusePageSimple
             header={
-                <div className="p-24">
+                <div className="p-12">
                     <h4>Hồ sơ ứng viên</h4>
                 </div>
             }
             content={
-                <div className="p-24">
+                <div className="p-12">
                     <Table />
                     <br />
                 </div>

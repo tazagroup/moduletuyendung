@@ -5,6 +5,10 @@ const guidesAPI = {
         const url = "/hrms/huongdans"
         return axiosClient.get(url)
     },
+    getStatus(){
+        const url = "/hrms/caidats/34"
+        return axiosClient.get(url)
+    },
     postGuides(data) {
         const url = "/hrms/huongdans"
         return axiosClient.post(url, data)

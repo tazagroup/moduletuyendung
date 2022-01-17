@@ -13,8 +13,6 @@ import Report4 from './Report4/index'
 import candidatesAPI from 'api/candidatesAPI'
 import ticketsAPI from 'api/ticketsAPI';
 
-
-
 const Table = () => {
     const dispatch = useDispatch();
     const dataTicket = useSelector(state => state.fuse.tickets.dashboardTicket)

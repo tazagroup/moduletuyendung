@@ -17,7 +17,7 @@ const candidatesSlice = createSlice({
     reducers: {
         setDataCandidate: (state, action) => {
             const { main, dashboard } = action.payload
-            state.dataCandidate = main.map(({ id: key, ...item }, index) => ({
+            state.dataCandidate = main.sort((a, b) => new Date(b.Ngaytao) - new Date(a.Ngaytao)).map(({ id: key, ...item }, index) => ({
                 id: index,
                 key,
                 ...item,
@@ -27,7 +27,7 @@ const candidatesSlice = createSlice({
                 key,
                 ...item,
             }))
-            state.flagDataCandidate = state.dataCandidate
+            state.flagDataCandidate = [...state.dataCandidate].sort((a, b) => new Date(b.Ngaytao) - new Date(a.Ngaytao))
         },
         addCandidate: (state, action) => {
             const { attributes } = action.payload
@@ -72,6 +72,6 @@ const candidatesSlice = createSlice({
     },
 });
 
-export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate, refreshDataCandidate,removeCandidate } = candidatesSlice.actions;
+export const { setDataCandidate, updateCandidate, updateFlagCandidate, addCandidate, refreshDataCandidate, removeCandidate } = candidatesSlice.actions;
 
 export default candidatesSlice.reducer;

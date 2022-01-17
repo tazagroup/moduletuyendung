@@ -13,7 +13,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import DownloadIcon from '@mui/icons-material/Download';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
@@ -33,7 +33,12 @@ import CustomNotice from './CustomNotice';
 import CustomRenderCell from './CustomRenderCell'
 import CustomFiltering from './CustomFiltering'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit, CustomAutocompleteNameEdit } from '../CustomField/CustomEdit';
+import XLSX from 'xlsx'
 import Swal from 'sweetalert2';
+// import ReactExport from "react-data-export";
+// const ExcelFile = ReactExport.ExcelFile;
+// const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
+// const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
 //UTILS
 import { ConvertPermissionArray } from '../utils/index';
 //API
@@ -83,7 +88,8 @@ export default function Table() {
     const idParam = queryParams.get("idhash")
     //////////////////////////////////////////////////////////
     const dispatch = useDispatch()
-    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    let dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    dataTicket = idParam ? dataTicket.filter(item => item.key == idParam) : dataTicket
     const flagTicket = useSelector(state => state.fuse.tickets.flagTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
@@ -101,6 +107,7 @@ export default function Table() {
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
+    const [excelData, setExcelData] = useState(null)
     const tableRef = useRef();
     const headers = [
         {
@@ -385,9 +392,7 @@ export default function Table() {
                 })
                 setIsLoading(false)
             }
-            else {
-                setIsLoading(false)
-            }
+            else { setIsLoading(false) }
         }
         return () => {
             isFetching = false;
@@ -403,6 +408,7 @@ export default function Table() {
             dispatch(refreshTicket(data))
         }
     }, [idParam])
+
     const handleClick = (event, row) => {
         setRowData(row);
         setAnchorEl(event.currentTarget);
@@ -451,6 +457,43 @@ export default function Table() {
             dispatch(refreshTicket([...flagTicket]))
         }, 0)
     }
+    const convertValue = (value) => {
+        return value != 0 ? (value == 1 ? "Đã duyệt" : "Từ chối") : "Đang xử lí"
+    }
+    const handleExport = () => {
+        const flag = dataTicket
+        const data = flag.map(item => {
+            const receive = JSON.parse(item.TNNS)
+            const checkReceive = Object.keys(receive)
+            const steps = JSON.parse(item?.Pheduyet)
+            return {
+                "Vị trí": position.find(opt => opt.id == item.Vitri)?.Thuoctinh,
+                "Số lượng hiện tại": item?.SLHT,
+                "Số lượng cần tuyển": item?.SLCT,
+                "Lương dự kiến": item?.LuongDK,
+                "Thời gian thử việc": item?.TGThuviec + " tháng",
+                "Tiếp nhận nhân sự": checkReceive.length != 0 ? "Đã tiếp nhận" : "Chưa tiếp nhận",
+                "Lí do": item?.Lydo,
+                "Bước 1": steps[0] ? convertValue(steps[0].status) : "Chờ xử lí",
+                "Bước 2": steps[1] ? convertValue(steps[1].status) : "Chờ xử lí",
+                "Bước 3": steps[2] ? convertValue(steps[2].status) : "Chờ xử lí",
+                "Bước 4": steps[3] ? convertValue(steps[3].status) : "Chờ xử lí",
+                "Bước 5": steps[4] ? convertValue(steps[4].status) : "Chờ xử lí",
+                "Bước 6": steps[5] ? convertValue(steps[5].status) : "Chờ xử lí",
+                "Bước 7": steps[6] ? convertValue(steps[6].status) : "Chờ xử lí",
+                "Trạng thái": convertValue(item.Trangthai)
+            }
+        })
+        const workSheet = XLSX.utils.json_to_sheet(data)
+        const workBook = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(workBook, workSheet, "Yêu cầu tuyển dụng")
+        //buffer
+        let buf = XLSX.write(workBook, { bookType: "xlsx", type: "buffer" })
+        //binary
+        XLSX.write(workBook, { bookType: "xlsx", type: "binary" })
+        //download
+        XLSX.writeFile(workBook, "Tickets.xlsx")
+    }
     //FILTER RANGE NUMBER
     const salary = [
         { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
@@ -459,9 +502,9 @@ export default function Table() {
     ]
     return isLoading ? <FuseLoading /> :
         <Fragment>
-            {dataStatus
+            {dataStatus || idParam
                 ?
-                <TicketStatus item={dataStatus} />
+                <TicketStatus item={idParam ? dataTicket[0] : dataStatus} />
                 :
                 <TicketStatusFlag />
             }
@@ -531,6 +574,15 @@ export default function Table() {
                             ),
                             isFreeAction: true,
                             onClick: (event) => { handleRefresh() }
+                        },
+                        {
+                            icon: () => (
+                                <TextTooltip title="Xuất excel">
+                                    <DownloadIcon />
+                                </TextTooltip>
+                            ),
+                            isFreeAction: true,
+                            onClick: (event) => { handleExport() }
                         }
                     ]}
                 editable={{
@@ -572,9 +624,21 @@ export default function Table() {
                 <MenuItem style={MenuButton} onClick={handleCopy}>Sao chép</MenuItem>
                 <MenuItem style={MenuButton} onClick={handleCreate} disabled={isBlock}>Tạo hồ sơ</MenuItem>
                 <MenuItem style={MenuButton} onClick={handleDelete} disabled={user.profile.id != rowData.idTao}>Xóa hồ sơ</MenuItem>
+                {/* {excelData && (
+                    <ExcelFile element={(
+                        <MenuItem style={MenuButton} onClick={() => { setAnchorEl(null) }}>Xuất Excel</MenuItem>
+                    )}>
+                        <ExcelSheet dataSet={excelData} name="Yêu cầu tuyển dụng">
+                            {Object.keys(excelData).map((item, index) => (
+                                <ExcelColumn key={index} label={item} value={item} />
+                            ))}
+                        </ExcelSheet>
+                    </ExcelFile>
+                )} */}
             </Menu >
             {/* CREATE TICKET  */}
-            {isCreateTicket &&
+            {
+                isCreateTicket &&
                 <ModalCreateItem
                     open={isCreateTicket}
                     data={{ users: users, position: position }}
@@ -582,12 +646,14 @@ export default function Table() {
                 />
             }
             {/* CREATE CANDIDATE  */}
-            {isCC &&
+            {
+                isCC &&
                 <CreateCandidate
                     open={isCC}
                     item={rowData}
                     handleClose={() => { setIsCC(false) }}
-                />}
+                />
+            }
             {/* EDIT TICKET  */}
             {
                 isEditTicket &&
@@ -608,11 +674,13 @@ export default function Table() {
                 />
             }
             {/* DETAIL DECRIPTIONS / REQUIREMENTS  */}
-            {Object.keys(customNotice).length !== 0 &&
+            {
+                Object.keys(customNotice).length !== 0 &&
                 <CustomNotice
                     item={customNotice}
                     handleClose={() => { setCustomNotice({}) }}
-                />}
+                />
+            }
         </Fragment >
 }
 

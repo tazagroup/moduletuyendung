@@ -48,7 +48,7 @@ const ticketsSlice = createSlice({
             //Hidden to position
             const secondConditionArray = ConvertPermissionArray(state.dataTicket, 'Vitri')
             const flag = [].concat.apply(firstConditionArray, secondConditionArray)
-            let result = [...new Map(flag.map((item, key) => [item['key'], item])).values()].sort((a, b) => a['id'] - b['id'])
+            let result = [...new Map(flag.map((item, key) => [item['key'], item])).values()].sort((a, b) => new Date(b['Ngaytao']) - new Date(a['Ngaytao']))
             result = result.map((item, index) => {
                 delete item.id
                 return {

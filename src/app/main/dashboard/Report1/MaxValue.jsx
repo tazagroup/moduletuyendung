@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Doughnut } from "react-chartjs-2";
 import "chartjs-plugin-doughnutlabel";
-const MaxValue = ({ labels, data, handleClick }) => {
+const MaxValue = ({ labels, data }) => {
     const flag = [...data]
+    const chartRef = useRef(null)
     let customLabels = labels.map((label, index) => `${label}`)
     const chartdata = {
         labels: customLabels,
@@ -18,10 +19,14 @@ const MaxValue = ({ labels, data, handleClick }) => {
 
     return (
         <Doughnut
+            ref={chartRef}
             data={chartdata}
             options={{
                 responsive: true,
-                legend: { display: false, position: "right" },
+                legend: {
+                    display: false,
+                    position: "right"
+                },
                 datalabels: {
                     display: true,
                     formatter: (val, ctx) => {
@@ -64,13 +69,13 @@ const MaxValue = ({ labels, data, handleClick }) => {
                         }
                     },
                 },
-                onClick: function (evt, element) {
-                    if (element.length > 0) {
-                        //index of element
-                        var index = element[0]._index;
-                        handleClick(labels[index])
-                    }
-                },
+                // onClick: function (evt, element) {
+                //     if (element.length > 0) {
+                //         //index of element
+                //         var index = element[0]._index;
+
+                //     }
+                // },
             }}
         />
     )

@@ -8,6 +8,8 @@ import { setDataSetting } from "app/store/fuse/guideSlice"
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import { IconButton, Menu, MenuItem, List, Badge, styled } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { AiOutlineFileExcel } from 'react-icons/ai'
 //API
 import noticesAPI from 'api/noticesAPI'
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -17,6 +19,17 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
         boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
     },
 
+}));
+const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: '#f5f5f9',
+        color: 'rgba(0, 0, 0, 0.87)',
+        maxWidth: 220,
+        fontSize: 12,
+        border: '1px solid #dadde9',
+    },
 }));
 const NotificationButton = () => {
     const dispatch = useDispatch()
@@ -52,6 +65,7 @@ const NotificationButton = () => {
     }, [])
     const NoticeItem = ({ item }) => {
         const main = item.attributes
+        const content = JSON.parse(main.Noidung)
         const handleUpdate = async (e) => {
             const bodyData = {
                 ...main,
@@ -61,14 +75,14 @@ const NotificationButton = () => {
             dispatch(updateNotice(response.data))
             setAnchorEl(null)
         }
-        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}?idhash=${main.Noidung}`
+        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}?idhash=${content?.id}`
         return (<MenuItem onClick={handleUpdate}>
             <List
                 sx={{ width: "400px", overflow: "hidden" }}
                 component="div"
                 aria-labelledby="nested-list-subheader"
             >
-                <div style={{ display: "flex", gap: "0 35px", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     {main.Dadoc == 0 ? <StyledBadge
                         overlap="circular"
                         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -79,9 +93,12 @@ const NotificationButton = () => {
                     <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
                     {
                         [3].includes(main.idModule) ?
-                            <Link to={`${linkURL.split("https://tuyendung.tazagroup.vn")[1]}`} style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link> :
-                            <Link to={{ pathname: linkURL }} target="_blank" rel='noopener noreferrer' style={{ minWidth: "50px" }}>{`#${main.Noidung}`}</Link>
+                            <Link to={`${linkURL.split("https://tuyendung.tazagroup.vn")[1]}`} style={{ minWidth: "50px" }}>{`#${content?.id}`}</Link> :
+                            <Link to={{ pathname: linkURL }} target="_blank" rel='noopener noreferrer' style={{ minWidth: "50px" }}>{`#${content?.id}`}</Link>
                     }
+                    <CustomTooltip title={content?.text}>
+                        <p>{content?.text}</p>
+                    </CustomTooltip>
                     <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
                 </div>
             </List>

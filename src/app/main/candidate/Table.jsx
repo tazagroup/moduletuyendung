@@ -14,6 +14,7 @@ import AddBoxIcon from '@mui/icons-material/AddBox';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
+import DownloadIcon from '@mui/icons-material/Download';
 //COMPONENTS
 import Status from './Status'
 import FlagStatus from './FlagStatus'
@@ -23,6 +24,7 @@ import InfoCandidate from './InfoCandidate';
 import { CustomCV, CustomStatus, CustomExperts, CustomTimeline, CustomSelect } from './CustomCell'
 import { CustomName } from '../CustomField/CustomId'
 import { CustomDateEdit, CustomAutocompleteNameEdit, CustomFileEdit, CustomAutocompleteEdit } from '../CustomField/CustomEdit';
+import XLSX from 'xlsx'
 import Swal from 'sweetalert2';
 //API
 import ticketsAPI from 'api/ticketsAPI';
@@ -40,7 +42,8 @@ const Table = () => {
     ///////////////////////////////////////////////
     const dispatch = useDispatch();
     const user = JSON.parse(localStorage.getItem("profile"))
-    const data = useSelector(state => state.fuse.candidates.dataCandidate)
+    let data = useSelector(state => state.fuse.candidates.dataCandidate)
+    data = idParam ? data.filter(item => item.key == idParam) : data
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const flagDataCandidate = useSelector(state => state.fuse.candidates.flagDataCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket).filter(item => item.Trangthai == 2)
@@ -354,6 +357,9 @@ const Table = () => {
         }
         setRowData(rowData)
     }
+    const handleExport = () => {
+        console.log(data)
+    }
     return isLoading ? <FuseLoading /> :
         <Fragment>
             {rowData ? <Status /> : <FlagStatus />}
@@ -391,6 +397,15 @@ const Table = () => {
                         ),
                         isFreeAction: true,
                         onClick: (event) => { handleRefresh() }
+                    },
+                    {
+                        icon: () => (
+                            <TextTooltip title="Xuất Excel">
+                                <DownloadIcon />
+                            </TextTooltip>
+                        ),
+                        isFreeAction: true,
+                        onClick: (event) => { handleExport() }
                     }
                 ]}
                 components={{

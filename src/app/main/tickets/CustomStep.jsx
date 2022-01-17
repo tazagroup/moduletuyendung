@@ -34,6 +34,15 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const [reason, setReason] = useState('')
     const [idCensor, setIdCensor] = useState('')
     //STEPS
+    const STEP_STATUS = {
+        0: "Bước 1 : Duyệt phiếu tuyển dụng",
+        1: "Bước 2 : Tiếp nhận tuyển dụng",
+        2: "Bước 3 : Phê duyệt phiếu",
+        3: "Bước 4 : Triển khai tuyển dụng",
+        4: "Bước 5 :Phê duyệt tuyển dụng",
+        5: "Bước 6 : Xác nhận thanh toán",
+        6: "Bước 7 : Thực hiện tuyển dụng"
+    }
     const stepBTD = [1, 3, 6]
     const stepBGD = [2, 4]
     const handleCloseADialog = async (e) => {
@@ -71,7 +80,6 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         const bktCondition = user.profile.PQTD.includes(4) && currentPos == 6
         const refuseTicket = data.Trangthai == 3 || data.Trangthai == 2
         const stepCondition = (bqlCondition || btdCondition || bgdCondition || bktCondition) && item?.Nguoiduyet.includes(user.profile.id)
-        console.log(user.profile.PQTD)
         if (!refuseTicket && stepCondition) {
             if ((currentPos === steps.length && item.status !== 3) || (currentPos == (steps.length - 1) && steps[`${currentPos}`].status === 3)) {
                 setAnchorEl(e.currentTarget)
@@ -137,12 +145,11 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                 "idNhan": value.id,
                 "idModule": 3,
                 "Loai": 1,
-                "Noidung": data.key,
+                "Noidung": JSON.stringify({ id: data.key, text: STEP_STATUS[item.id + 1] }),
                 "idTao": user.profile.id
             }
             noticesAPI.postNotice(noticeData)
         }
-
     }
     const handleRefuse = async (e) => {
         handleSubClose()
@@ -187,6 +194,15 @@ const CustomStep = ({ item, data, setDataStatus }) => {
         dispatch(updateTicket(response.data))
         setDataStatus(rowData)
         showNotify()
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": previousStep.Nguoiduyet[0],
+            "idModule": 3,
+            "Loai": 1,
+            "Noidung": JSON.stringify({ id: data.key, text: STEP_STATUS[previousStep.id] }),
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
     }
     //RENDER STATUS
     const checkStatus = (status) => {
@@ -218,20 +234,21 @@ const CustomStep = ({ item, data, setDataStatus }) => {
             <div style={{ alignItems: "center", marginLeft: "12px" }}>
                 Bước {item.id + 1} - {checkStatus(item.status)}
                 <Menu
-                    id="basic-menu"
                     anchorEl={anchorEl}
                     open={open}
                     onClose={handleClose}
                 >
-                    {item.id != 6 && <NestedMenuItem
-                        label={"Phê duyệt"}
-                        parentMenuOpen={open}
-                    >
-                        {/* Người duyệt  */}
-                        {users.filter(checkApprove).map(item => (
-                            <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
-                        ))}
-                    </NestedMenuItem>}
+                    {item.id != 6 && (
+                        <NestedMenuItem
+                            label={"Phê duyệt"}
+                            parentMenuOpen={!!open}
+                        >
+                            {/* Người duyệt  */}
+                            {users.filter(checkApprove).map(item => (
+                                <MenuItem key={item.id} onClick={handleApprove}>{item.name}</MenuItem>
+                            ))}
+                        </NestedMenuItem>
+                    )}
                     {item.id == 6 && <MenuItem onClick={handleApprove}>Triển khai tuyển dụng</MenuItem>}
                     {item.status !== 2 && <MenuItem onClick={handleSubClick}>Từ chối</MenuItem>}
                     {(item.status !== 3 && item.id !== 0) && <MenuItem onClick={handleEdit}>Sửa lỗi</MenuItem>}

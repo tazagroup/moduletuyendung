@@ -52,6 +52,7 @@ const Main = () => {
             <FullCalendar
                 plugins={[daygridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
                 allDayText="Cả ngày"
+                dayMaxEvents={4}
                 noEventsContent="Không có lịch phỏng vấn"
                 buttonText={{
                     today: 'Hôm nay',
@@ -67,7 +68,7 @@ const Main = () => {
                         <TextTooltip title={`${event.event.title}`}>
                             <div className='fc-event-main-frame'>
                                 {event.timeText &&
-                                    <div className='fc-event-time'>
+                                    <div className="fc-event-time">
                                         {event.timeText} {event.event.title || <Fragment>&nbsp;</Fragment>}
                                     </div>
                                 }
@@ -84,6 +85,7 @@ const Main = () => {
                 }
                 initialDate={new Date()}
                 initialView="dayGridMonth"
+
             />
             {openModal &&
                 <ModalCalendarItem

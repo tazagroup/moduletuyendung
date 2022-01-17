@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from 'react'
 import { useSelector } from "react-redux"
-import { Grid, Typography, FormControl } from '@mui/material'
+import { Grid, Typography, FormControl, IconButton } from '@mui/material'
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import { AiOutlineFileExcel } from 'react-icons/ai'
+import { styled } from '@mui/material/styles';
 import Flatpickr from "react-flatpickr";
 import Main from './Main'
-const convertData = (data) => {
-
-}
+import ReactExport from "react-data-export";
+const ExcelFile = ReactExport.ExcelFile;
+const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
+const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: '#f5f5f9',
+        color: 'rgba(0, 0, 0, 0.87)',
+        maxWidth: 220,
+        fontSize: 12,
+        border: '1px solid #dadde9',
+    },
+}));
 const Report2 = () => {
     const flagData = useSelector(state => state.fuse.candidates.dashboardCandidate)
     const [mainData, setMainData] = useState([...flagData])
@@ -18,6 +32,11 @@ const Report2 = () => {
     const labels = ["Hồ sơ đạt", "Đến phỏng vấn", "Đậu", "Nhận việc", "Nghỉ việc"]
     const total = mainData.length
     const data = [approveCandidate, approveIntern, passIntern, 0, 0]
+    const dataSet = [{
+        columns: labels.map(item => ({ title: item })),
+        data: [data.map(item => ({ value: item }))]
+    }]
+    console.log(dataSet)
     const handleChangeMin = (e) => {
         setMinDate(e)
     }
@@ -32,12 +51,23 @@ const Report2 = () => {
             const result = flag.filter(item => new Date(item.Ngaytao) < maxValue && new Date(item.Ngaytao) > minValue)
             setMainData([...result])
         }
-
     }, [minDate, maxDate])
+
     return (
         <Grid container spacing={2} style={{ justifyContent: "center" }}>
             <Grid item xs={12}>
-                <Typography variant="h3" gutterBottom component="div">Báo cáo tuyển dụng</Typography>
+                <div className="flex">
+                    <Typography variant="h3" component="div">Báo cáo tuyển dụng</Typography>
+                    <ExcelFile element={(
+                        <CustomTooltip title='Xuất Excel'>
+                            <IconButton>
+                                <AiOutlineFileExcel style={{ color: "green" }} />
+                            </IconButton>
+                        </CustomTooltip>
+                    )}>
+                        <ExcelSheet name="Báo cáo tuyển dụng" dataSet={dataSet} />
+                    </ExcelFile>
+                </div>
             </Grid>
             <Grid item container xs={12} style={{ justifyContent: "center" }}>
                 <Grid item xs={2}>

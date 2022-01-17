@@ -74,7 +74,6 @@ const Report3 = () => {
     }
     columnsExcel.splice(columnsExcel.indexOf('Vitri'), 1)
     columnsExcel.splice(columnsExcel.indexOf('Tong'), 1)
-    //TEST EXCEL
     useEffect(() => {
         const sourceData = renderData.map(item => source.find(opt => opt.id == item.idSource)?.Thuoctinh)
         const counts = {};
@@ -98,7 +97,7 @@ const Report3 = () => {
         <Grid container spacing={2}>
             <Grid item xs={12}>
                 <div style={{ display: "flex" }}>
-                    <Typography variant="h3" gutterBottom component="div">Báo cáo nguồn</Typography>
+                    <Typography variant="h3" component="div">Báo cáo nguồn</Typography>
                     <ExcelFile element={(
                         <CustomTooltip title='Xuất Excel'>
                             <IconButton>

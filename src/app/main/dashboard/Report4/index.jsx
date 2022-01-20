@@ -12,13 +12,14 @@ const Report2 = () => {
     const [minDate, setMinDate] = useState(null)
     const [maxDate, setMaxDate] = useState(null)
     const [arrayStatus, setArrayStatus] = useState(null)
-    const data = userData.map((item, index) => ({
+    let data = userData.map((item, index) => ({
         ...item,
         id: index,
         key: item.id,
     }))
-    // const labels = ["IT", "SEO", "Kế toán", "Quản lí", "Giảng viên"]
-    // const data = [10, 3, 5, 8, 7]
+    data = data.filter(item => {
+        return [4, 5].includes(item.Profile.TTLV)
+    })
     const handleChangeMin = (e) => {
         setMinDate(e)
     }
@@ -143,8 +144,7 @@ const Report2 = () => {
                     //     };
                     // },
                 }}
-                title="Ứng viên"
-
+                title=""
             >
             </MaterialTable>
         </>

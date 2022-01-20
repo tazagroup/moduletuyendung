@@ -12,6 +12,9 @@ import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 //API
 import noticesAPI from 'api/noticesAPI'
+import moment from 'moment'
+import 'moment/locale/vi'
+moment.locale("vi")
 const StyledBadge = styled(Badge)(({ theme }) => ({
     "& .MuiBadge-badge": {
         backgroundColor: "red",
@@ -120,13 +123,9 @@ const NotificationButton = () => {
                     ) : (
                         <p>{mainText}</p>
                     )}
-                    <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB", {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}</p>
+                    <CustomTooltip title={new Date(main.Ngaytao).toLocaleString("en-GB")}>
+                        <p style={{ maxWidth: 70, whiteSpace: "pre-wrap" }}>{moment(main.Ngaytao).fromNow()}</p>
+                    </CustomTooltip>
                     <IconButton onClick={handleHide}>
                         <VisibilityIcon />
                     </IconButton>

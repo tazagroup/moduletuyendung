@@ -69,7 +69,7 @@ const Main = ({ labels, data, total }) => {
                 plugins: {
                     datalabels: {
                         display: true,
-                        color: "#000",
+                        color: "#fff",
                         font: {
                             size: 14,
                             weight: "bold"

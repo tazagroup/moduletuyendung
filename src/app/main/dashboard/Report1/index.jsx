@@ -27,7 +27,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
     },
 }));
 const listItemStyle = {
-    color: "#333",
+    color: "#000",
     listStyle: "none",
     textAlign: "left",
     display: "flex",
@@ -192,6 +192,7 @@ const Report1 = () => {
                                             height: "20px",
                                             textAlign: "center",
                                             fontWeight: "bold",
+                                            color:"#fff",
                                             backgroundColor: legend.colors[index] ? legend.colors[index] : "#dddddf"
                                         }}
                                     >
@@ -222,6 +223,7 @@ const Report1 = () => {
                                             height: "20px",
                                             textAlign: "center",
                                             fontWeight: "bold",
+                                            color:"#fff",
                                             backgroundColor: legend.colors[index] ? legend.colors[index] : "#dddddf"
                                         }}
                                     >

@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from "react-router-dom"
 //REDUX
 import { useDispatch, useSelector } from "react-redux"
-import { setDataNotice, updateNotice } from "app/store/fuse/noticesSlice"
+import { hideNotice, setDataNotice, updateNotice } from "app/store/fuse/noticesSlice"
 import { setDataSetting } from "app/store/fuse/guideSlice"
 //MUI
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
-import { IconButton, Menu, MenuItem, List, Badge, styled } from '@mui/material';
+import { IconButton, Menu, MenuItem, List, Badge, styled, Tabs, Tab } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
-import { AiOutlineFileExcel } from 'react-icons/ai'
+import VisibilityIcon from '@mui/icons-material/Visibility';
 //API
 import noticesAPI from 'api/noticesAPI'
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -38,6 +38,7 @@ const NotificationButton = () => {
     const dataNotice = useSelector(state => state.fuse.notices.dataNotice)
     const renderNotice = dataNotice.filter(item => item.attributes.Dadoc == 0)
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [value, setValue] = useState(0)
     const open = Boolean(anchorEl);
     const handleClick = (e) => {
         if (dataNotice.length != 0) {
@@ -65,7 +66,15 @@ const NotificationButton = () => {
     }, [])
     const NoticeItem = ({ item }) => {
         const main = item.attributes
-        const content = JSON.parse(main.Noidung)
+        const content = JSON.parse(main?.Noidung)
+        var id = content
+        var mainText = ""
+        var mainStep = ""
+        if (typeof (content) == 'object') {
+            id = content.id
+            mainText = content?.text
+            mainStep = content?.step
+        }
         const handleUpdate = async (e) => {
             const bodyData = {
                 ...main,
@@ -75,14 +84,22 @@ const NotificationButton = () => {
             dispatch(updateNotice(response.data))
             setAnchorEl(null)
         }
-        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}?idhash=${content?.id}`
+        const handleHide = () => {
+            const bodyData = {
+                "id": item.attributes.id,
+                "published": 1
+            }
+            noticesAPI.updateNotice(bodyData)
+            dispatch(hideNotice(item.attributes.id))
+        }
+        const linkURL = `${settings.find(item => item.id == main.idModule)?.Link}?idhash=${id}`
         return (<MenuItem onClick={handleUpdate}>
             <List
                 sx={{ width: "400px", overflow: "hidden" }}
                 component="div"
                 aria-labelledby="nested-list-subheader"
             >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", textAlign: "center" }}>
                     {main.Dadoc == 0 ? <StyledBadge
                         overlap="circular"
                         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -90,19 +107,51 @@ const NotificationButton = () => {
                     >
                         <Avatar>{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>
                     </StyledBadge> : <Avatar>{user?.profile.Hoten.split(" ").slice(-1)[0].charAt(0)}</Avatar>}
-                    <p style={{ minWidth: "80px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
+                    <p style={{ minWidth: "95px" }}>{settings.find(item => item.id == main.idModule)?.Thuoctinh}</p>
                     {
                         [3].includes(main.idModule) ?
-                            <Link to={`${linkURL.split("https://tuyendung.tazagroup.vn")[1]}`} style={{ minWidth: "50px" }}>{`#${content?.id}`}</Link> :
-                            <Link to={{ pathname: linkURL }} target="_blank" rel='noopener noreferrer' style={{ minWidth: "50px" }}>{`#${content?.id}`}</Link>
+                            <Link to={`${linkURL.split("https://tuyendung.tazagroup.vn")[1]}`} style={{ minWidth: "50px" }}>{`#${id}`}</Link> :
+                            <Link to={{ pathname: linkURL }} target="_blank" rel='noopener noreferrer' style={{ minWidth: "50px" }}>{`#${id}`}</Link>
                     }
-                    <CustomTooltip title={content?.text}>
-                        <p>{content?.text}</p>
-                    </CustomTooltip>
-                    <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB")}</p>
+                    {mainStep ? (
+                        <CustomTooltip title={mainStep}>
+                            <p>{mainText}</p>
+                        </CustomTooltip>
+                    ) : (
+                        <p>{mainText}</p>
+                    )}
+                    <p>{new Date(`${main.Ngaytao}`).toLocaleString("en-GB", {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</p>
+                    <IconButton onClick={handleHide}>
+                        <VisibilityIcon />
+                    </IconButton>
                 </div>
             </List>
         </MenuItem>)
+    }
+    const handleChange = (event, value) => {
+        setValue(value)
+    }
+    function TabPanel(props) {
+        const { children, value, index, ...other } = props;
+        return (
+            <div
+                role="tabpanel"
+                hidden={value !== index}
+                id={`simple-tabpanel-${index}`}
+                aria-labelledby={`simple-tab-${index}`}
+                {...other}
+            >
+                {value === index && (
+                    <>{children}</>
+                )}
+            </div>
+        );
     }
     return (
         <>
@@ -118,8 +167,9 @@ const NotificationButton = () => {
                 onClose={() => { setAnchorEl(null) }}
                 PaperProps={{
                     style: {
+                        minWidth: 432,
                         height: 350,
-                        marginTop: "13px"
+                        marginTop: "13px",
                     },
                 }}
                 anchorOrigin={{
@@ -127,18 +177,20 @@ const NotificationButton = () => {
                     horizontal: "right",
                 }}
             >
-                <MenuItem>
-                    <List
-                        sx={{ width: "100%" }}
-                        component="div"
-                        aria-labelledby="nested-list-subheader"
-                    >
-                        <div style={{ fontWeight: "bold", textAlign: "center" }}>Thông báo</div>
-                    </List>
-                </MenuItem>
-                {dataNotice && dataNotice.map((item, index) => (
-                    <NoticeItem key={index} item={item} />
-                ))}
+                <Tabs value={value} onChange={handleChange} variant="fullWidth" >
+                    <Tab label="Thông báo mới" value={0} />
+                    <Tab label="Tất cả" value={1} />
+                </Tabs>
+                <TabPanel value={value} index={0}>
+                    {renderNotice && renderNotice.map((item, index) => (
+                        <NoticeItem key={index} item={item} />
+                    ))}
+                </TabPanel>
+                <TabPanel value={value} index={1}>
+                    {dataNotice && dataNotice.map((item, index) => (
+                        <NoticeItem key={index} item={item} />
+                    ))}
+                </TabPanel>
             </Menu>
         </>
 

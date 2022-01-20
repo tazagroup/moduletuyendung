@@ -86,7 +86,7 @@ const Main = ({ labels, data, handleClick, handleSetRef }) => {
                         doughnutlabel: {
                             labels: [{
                                 text: `Tổng : ${total}`,
-                                color: "#000",
+                                color: total == 0 ? 'transparent' : "#000",
                                 font: {
                                     size: 20,
                                     weight: 'bold'

@@ -6,7 +6,6 @@ const Calendar = () => {
         <FusePageSimple
             header={
                 <div className="p-24">
-                    <h4>Lịch phỏng vấn</h4>
                 </div>
             }
             content={

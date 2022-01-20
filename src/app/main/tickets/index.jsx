@@ -6,8 +6,7 @@ const Tickets = () => {
     return (
         <FusePageSimple
             header={
-                <div className="p-24" style={{ paddingTop: 15 }}>
-                    <h4>Phiếu yêu cầu tuyển dụng</h4>
+                <div className="p-24">
                 </div>
             }
             content={

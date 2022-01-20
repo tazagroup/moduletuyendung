@@ -17,8 +17,8 @@ const ModalDeny = ({ item, field }) => {
     const handleConfirm = async () => {
         const flag = JSON.parse(item['XacnhanHS'])
         const XacnhanHS = {
-            Duyet: field == "Duyet" ? 2 : flag?.Duyet,
-            XNPV: field == "XNPV" ? 2 : flag?.XNPV
+            Duyet: field == "Duyet" ? { ...flag.Duyet, status: 2 } : flag?.Duyet,
+            XNPV: field == "XNPV" ? { ...flag.XNPV, status: 2 } : flag?.XNPV
         }
         const bodyData = {
             ...item,

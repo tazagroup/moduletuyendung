@@ -80,12 +80,17 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
     const sources = useSelector(state => state.fuse.tickets.source)
     const [sourceArray, setSourceArray] = useState(sources.map(item => item.Thuoctinh))
     const [subSourceArray, setSubSourceArray] = useState([])
-    const typeArray = ["Chuyển khoản", "Thanh toán tiền mặt"]
-    const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const [value, setValue] = useState('')
     const [sourceList, setSourceList] = useState([{ Nguon: "", Chiphi: "", TGMua: new Date(), Hinhthuc: '' }]);
     const [selectedDate2, setSelectedDate2] = useState(new Date())
     const isValid = sourceList.map(item => Object.values(item).every(x => x !== ''))
+    const typeArray = ["Chuyển khoản", "Thanh toán tiền mặt"]
+    const reasons = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
+    let { max, min } = JSON.parse(data.LuongDK)
+    min = min && new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(min || 0)
+    max = max && new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(max || 0)
+    const currency = `${min}${max ? ` - ${max}` : ""}`
+
     //UPDATE TICKETS
     const convertSourceToId = (name) => {
         return sources.find(opt => opt.Thuoctinh == name).id
@@ -123,7 +128,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
             "idNhan": censor.id,
             "idModule": 3,
             "Loai": 1,
-            "Noidung": item.key,
+            "Noidung": JSON.stringify({ id: item.key, text: "Bước 5", step: "Phê duyệt tuyển dụng" }),
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)
@@ -190,17 +195,7 @@ const ModalUpdateItem = ({ data, censor, showNotify, setDataStatus }) => {
                         <TextInputCustom value={data.SLCT} label="Nhân sự cần tuyển" type="number" />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <NumberFormat
-                            customInput={CustomInput}
-                            label="Mức lương dự kiến"
-                            variant="standard"
-                            thousandSeparator={true}
-                            value={data.LuongDK}
-                            disabled={true}
-                            autoComplete="off"
-                            suffix="đ"
-                            fullWidth
-                        />
+                        <TextInputCustom value={currency} label="Mức lương dự kiến" type="text" />
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <TextInputCustom value={reasons.includes(data.Lydo) ? data.Lydo : "Khác"} label="Lí do tuyển dụng" type="text" />

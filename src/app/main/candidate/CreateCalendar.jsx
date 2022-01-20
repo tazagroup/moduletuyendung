@@ -90,7 +90,7 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
             "idNhan": censor.id,
             "idModule": 4,
             "Loai": 1,
-            "Noidung": bodyData.key,
+            "Noidung": JSON.stringify({ id: bodyData.key, text: `Bước ${id + 4}`, step: `Phỏng vấn vòng ${id + 1}` }),
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)

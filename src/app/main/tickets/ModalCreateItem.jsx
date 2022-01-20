@@ -4,13 +4,12 @@ import { useDispatch } from 'react-redux';
 import { showMessage } from "app/store/fuse/messageSlice"
 import { addTicket } from "app/store/fuse/ticketsSlice"
 //MUI
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Checkbox } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
+import NumberFormat from 'react-number-format';
 import InputField from '../CustomField/InputField';
-import NumberField from '../CustomField/NumberField'
 import SelectField from "../CustomField/SelectField"
-import DateField from "../CustomField/DateField"
 import AutocompleteObjField from '../CustomField/AutocompleteObj';
 import Tinymce from "../CustomField/Tinymce"
 //FORM
@@ -23,7 +22,6 @@ import noticesAPI from "api/noticesAPI"
 //TEST
 
 const schema = yup.object().shape({
-    LuongDK: yup.string().required("Vui lòng nhập mức lương"),
     SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
     SLCT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
     TGThuviec: yup.number("Vui lòng nhập số").required("Vui lòng nhập thời gian thử việc").min(1, "Dữ liệu không chính xác"),
@@ -49,11 +47,12 @@ const useStyles = makeStyles({
         cursor: "pointer"
     }
 })
-
+const CustomInput = (props) => {
+    return <TextField {...props} InputLabelProps={{ shrink: true }} />
+}
 const ModalCreateItem = ({ data, open, handleClose }) => {
     const form = useForm({
         defaultValues: {
-            LuongDK: "",
             SLHT: 0,
             SLCT: 0,
             TGThuviec: 1,
@@ -64,7 +63,6 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
     const dispatch = useDispatch();
     const classes = useStyles()
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")))
-    const [selectedDate, setSelectedDate] = useState(new Date())
     const [position, setPosition] = useState([...data.position])
     const [valuePosition, setValuePosition] = useState(null)
     const [reasons, setReasons] = useState('');
@@ -73,10 +71,14 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
     const [valueCensor, setValueCensor] = useState([])
     const [description, setDescription] = useState('')
     const [require, setRequire] = useState('')
+    const [minCurrency, setMinCurrency] = useState(null)
+    const [maxCurrency, setMaxCurrency] = useState(null)
+    const [typeCurrency, setTypeCurrency] = useState(false)
     const [censor, setCensor] = useState([...data.users])
     const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
     const reasonValid = isOther ? otherReason !== "" : reasons !== ""
-    const isValid = form.formState.isValid && reasonValid && valueCensor.length !== 0 && valuePosition !== null && require !== "" && description !== ""
+    const currencyCondition = typeCurrency ? (maxCurrency && minCurrency && maxCurrency.split(',').join('') > minCurrency.split(',').join('')) : minCurrency !== null
+    const isValid = form.formState.isValid && reasonValid && valueCensor.length !== 0 && valuePosition !== null && require !== "" && description !== "" && currencyCondition
     const handleReasonChange = (event) => {
         setReasons(event.target.value)
         if (event.target.value === "Khác") { setIsOther(true) }
@@ -100,7 +102,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
             Mota: description,
             Yeucau: require,
             Pheduyet: [],
-            LuongDK: e.LuongDK.split(',').join(''),
+            LuongDK: JSON.stringify({ min: minCurrency.split(',').join(''), max: maxCurrency ? maxCurrency.split(',').join('') : null }),
             idTao: user.profile.id
         }
         const step = { id: 0, Nguoiduyet: valueCensor.map(item => item.id), status: 0, Ngaytao: new Date().toISOString() }
@@ -128,7 +130,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                 "idNhan": item.id,
                 "idModule": 3,
                 "Loai": 1,
-                "Noidung": response.data.attributes.key,
+                "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 1", step: "Duyệt phiếu tuyển dụng" }),
                 "idTao": user.profile.id
             }
             noticesAPI.postNotice(noticeData)
@@ -164,8 +166,32 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
                         <Grid item xs={12} md={6}>
                             <InputField form={form} name="SLCT" label={"Nhân sự cần tuyển"} type="number" />
                         </Grid>
-                        <Grid item xs={12} md={6}>
-                            <NumberField form={form} name="LuongDK" label="Mức lương dự kiến" error="Vui lòng nhập mức lương" />
+                        <Grid item container xs={12} md={6} spacing={2}>
+                            <Grid item xs={typeCurrency ? 5 : 11}>
+                                <NumberFormat
+                                    label={typeCurrency ? "Mức lương tối thiểu" : "Mức lương dự kiến"}
+                                    customInput={CustomInput}
+                                    thousandSeparator
+                                    allowLeadingZeros={false}
+                                    fullWidth
+                                    onChange={(e) => { setMinCurrency(e.target.value) }}
+                                />
+                            </Grid>
+                            {typeCurrency && (
+                                <Grid item xs={5}>
+                                    <NumberFormat
+                                        label={"Mức lương tối đa"}
+                                        customInput={CustomInput}
+                                        thousandSeparator
+                                        allowLeadingZeros={false}
+                                        fullWidth
+                                        onChange={(e) => { setMaxCurrency(e.target.value) }}
+                                    />
+                                </Grid>
+                            )}
+                            <Grid item xs>
+                                <Checkbox style={{ marginTop: "20px" }} onChange={() => { setTypeCurrency(state => !state) }} />
+                            </Grid>
                         </Grid>
                         <Grid item xs={12} md={6}>
                             <SelectField label="Lí do tuyển dụng" value={reasons} arrayItem={arrayReason} handleChange={handleReasonChange} />

@@ -14,6 +14,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import DownloadIcon from '@mui/icons-material/Download';
+import HelpIcon from '@mui/icons-material/Help';
 //MUI
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
@@ -35,10 +36,6 @@ import CustomFiltering from './CustomFiltering'
 import { CustomDateEdit, CustomSelectEdit, CustomSelectPriceEdit, CustomAutocompleteEdit, CustomAutocompleteNameEdit } from '../CustomField/CustomEdit';
 import XLSX from 'xlsx'
 import Swal from 'sweetalert2';
-// import ReactExport from "react-data-export";
-// const ExcelFile = ReactExport.ExcelFile;
-// const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
-// const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
 //UTILS
 import { ConvertPermissionArray } from '../utils/index';
 //API
@@ -107,7 +104,7 @@ export default function Table() {
     const [isCopyTicket, setIsCopyTicket] = useState(false)
     const [isBlock, setIsBlock] = useState(false)
     const [customNotice, setCustomNotice] = useState({})
-    const [excelData, setExcelData] = useState(null)
+    const disabledButton = user.profile?.PQTD.includes(1)
     const tableRef = useRef();
     const headers = [
         {
@@ -142,18 +139,24 @@ export default function Table() {
         {
             title: "Mức lương dự kiến",
             field: "LuongDK",
-            type: "currency",
-            currencySetting: { locale: 'vi', currencyCode: "VND", minimumFractionDigits: 0 },
+            render: props => {
+                let { min, max } = JSON.parse(props.LuongDK)
+                min = min && new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(min || 0)
+                max = max && new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(max || 0)
+                return <div style={{ whiteSpace: "nowrap" }}>{`${min}${max ? ` - ${max}` : ""}`}</div>
+            },
             filterComponent: props => {
-                return <CustomSelectPriceEdit {...props} data={salary} width={150} field="LuongDK" />
+                return <CustomSelectPriceEdit {...props} data={salary} width={170} field="LuongDK" />
             },
             customFilterAndSearch: (term, rowData) => {
+                const { min, max } = JSON.parse(rowData.LuongDK)
                 const minPrice = Math.min(...term.map(item => item.minPrice))
                 const maxPrice = Math.max(...term.map(item => item.maxPrice))
                 if (!maxPrice) {
-                    return rowData.LuongDK >= minPrice
+                    return max ? max >= minPrice : min >= minPrice
                 }
-                return rowData.LuongDK >= minPrice && rowData.LuongDK <= maxPrice
+                if (max) return min >= minPrice && max <= maxPrice
+                return min >= minPrice && min <= maxPrice
             }
         },
         {
@@ -494,6 +497,14 @@ export default function Table() {
         //download
         XLSX.writeFile(workBook, "Tickets.xlsx")
     }
+    const handleCheck = () => {
+        const approveArray = dataTicket.filter(item => {
+            const flag = JSON.parse(item.Pheduyet).slice(-1)
+            const value = flag[0].Nguoiduyet
+            return value.includes(user.profile.id) && flag[0].status == 0
+        })
+        dispatch(refreshTicket([...approveArray]))
+    }
     //FILTER RANGE NUMBER
     const salary = [
         { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
@@ -518,7 +529,9 @@ export default function Table() {
                                 onClick={() => setIsCreateTicket(true)}
                                 variant="contained"
                                 color="secondary"
-                                size="large">
+                                size="large"
+                                disabled={!disabledButton}
+                            >
                                 <AddBoxIcon style={{ width: "22px", height: "22px", fill: "#61DBFB" }} />
                             </IconButton>
                         </div>
@@ -527,7 +540,7 @@ export default function Table() {
                 }
                 initialFormData={initialData}
                 options={{
-                    maxBodyHeight: 310,
+                    maxBodyHeight: 380,
                     headerStyle: { position: "sticky", top: 0 },
                     showDetailPanelIcon: false,
                     columnsButton: true,
@@ -537,7 +550,6 @@ export default function Table() {
                     toolbarButtonAlignment: "left",
                     pageSize: 10,       // make initial page size
                     pageSizeOptions: [10, 25, 50],
-                    emptyRowsWhenPaging: false,   // To avoid of having empty rows
                     rowStyle: rowData => {
                         let selected = dataStatus && dataStatus.tableData.id === rowData.tableData.id;
                         return {
@@ -583,7 +595,16 @@ export default function Table() {
                             ),
                             isFreeAction: true,
                             onClick: (event) => { handleExport() }
-                        }
+                        },
+                        {
+                            icon: () => (
+                                <TextTooltip title="Xử lí">
+                                    <HelpIcon />
+                                </TextTooltip>
+                            ),
+                            isFreeAction: true,
+                            onClick: (event) => { handleCheck() }
+                        },
                     ]}
                 editable={{
                     isEditHidden: (rowData) => rowData,

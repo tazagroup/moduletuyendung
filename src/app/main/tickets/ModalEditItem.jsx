@@ -2,8 +2,9 @@ import React, { useState } from 'react'
 //REDUX
 import { useDispatch, useSelector } from 'react-redux';
 import { updateTicket } from 'app/store/fuse/ticketsSlice';
+import { showMessage } from "app/store/fuse/messageSlice"
 //MUI
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Checkbox } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid, Tooltip, IconButton } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
@@ -23,7 +24,6 @@ import Tinymce from '../CustomField/Tinymce';
 import AutocompleteObjField from '../CustomField/AutocompleteObj';
 // API 
 import ticketsAPI from "api/ticketsAPI"
-import noticesAPI from 'api/noticesAPI'
 const schema = yup.object().shape({
     LuongDK: yup.string().required("Vui lòng nhập lương dự kiến"),
     SLHT: yup.number().min(0, "Dữ liệu không đúng"),
@@ -61,6 +61,9 @@ const useStyles = makeStyles({
         paddingLeft: "8px"
     }
 })
+const CustomInput = (props) => {
+    return <TextField {...props} InputLabelProps={{ shrink: true }} />
+}
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
 const arraySource = ["Facebook", "ITViec", "TopCV"]
 const arrayType = ["Thanh toán tiền mặt", "Chuyển khoản"]
@@ -69,6 +72,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const classes = useStyles()
     const position = useSelector(state => state.fuse.tickets.position)
     const steps = JSON.parse(item['Pheduyet'])
+    const salary = JSON.parse(item.LuongDK)
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate4, setSelectedDate4] = useState(steps[3] && steps[3].NTC || "")
@@ -77,6 +81,10 @@ const ModalEditItem = ({ item, open, handleClose }) => {
     const [description, setDescription] = useState(item.Mota)
     const [require, setRequire] = useState(item.Yeucau)
     const [valueCPTD, setValueCPTD] = useState(steps[3]?.CPTD || [])
+    const [minCurrency, setMinCurrency] = useState(salary.min)
+    const [maxCurrency, setMaxCurrency] = useState(salary.max)
+    const [typeCurrency, setTypeCurrency] = useState(salary.max !== null)
+    const disabledButton = typeCurrency ? parseInt(maxCurrency.split(",").join("")) < parseInt(minCurrency.split(",").join("")) : false
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,
@@ -84,7 +92,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
             LuongDK: item.LuongDK,
             TGThuviec: item.TGThuviec,
         },
-        mode: 'onBlur',
+        mode: 'all',
         resolver: yupResolver(schema),
     });
     const handleEditTicket = async (e) => {
@@ -101,7 +109,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
         }
         const bodyData = {
             ...item,
-            LuongDK: e.LuongDK.split(",").join(''),
+            LuongDK: JSON.stringify({ min: minCurrency.split(',').join(''), max: typeCurrency ? maxCurrency.split(',').join('') : null }),
             SLCT: e.SLCT,
             SLHT: e.SLHT,
             Yeucau: require,
@@ -174,6 +182,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                     onChange={(e, newValue) => { setValuePosition(newValue) }}
                                     field="Thuoctinh"
                                     label="Vị trí tuyển dụng"
+                                    disabled
                                 />
                             </Grid>
                             <Grid item xs={12} md={3}>
@@ -183,8 +192,34 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                 <InputField form={form} name="SLCT" label="Nhân sự cần tuyển" type="number" />
                             </Grid>
                             {/* Mức lương dự kiến  */}
-                            <Grid item xs={12} md={4}>
-                                <NumberField form={form} name="LuongDK" label="Mức lương dự kiến" error="Vui lòng nhập mức lương" />
+                            <Grid item container xs={12} md={4} spacing={2}>
+                                <Grid item xs={typeCurrency ? 5 : 10}>
+                                    <NumberFormat
+                                        value={minCurrency}
+                                        label={typeCurrency ? "Mức lương tối thiểu" : "Mức lương dự kiến"}
+                                        customInput={CustomInput}
+                                        thousandSeparator
+                                        allowLeadingZeros={false}
+                                        fullWidth
+                                        onChange={(e) => { setMinCurrency(e.target.value) }}
+                                    />
+                                </Grid>
+                                {typeCurrency && (
+                                    <Grid item xs={5}>
+                                        <NumberFormat
+                                            value={maxCurrency}
+                                            label={"Mức lương tối đa"}
+                                            customInput={CustomInput}
+                                            thousandSeparator
+                                            allowLeadingZeros={false}
+                                            fullWidth
+                                            onChange={(e) => { setMaxCurrency(e.target.value) }}
+                                        />
+                                    </Grid>
+                                )}
+                                <Grid item xs>
+                                    <Checkbox style={{ marginTop: "20px" }} checked={typeCurrency} onChange={() => { setTypeCurrency(state => !state) }} />
+                                </Grid>
                             </Grid>
                             {/* Lí do tuyển dụng  */}
                             <Grid item xs={12} md={4}>
@@ -277,7 +312,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                 </React.Fragment>
                             ))}
                             {/* Ngày cần thanh toán  */}
-                            {valueCPTD && <Grid item xs={12}>
+                            {valueCPTD.length !== 0 && <Grid item xs={12}>
                                 <FormControl variant="standard" fullWidth>
                                     <DateField label="Ngày cần thanh toán"
                                         value={selectedDate4}
@@ -291,7 +326,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                         <Button color="error" autoFocus type="submit" variant="contained" onClick={handleClose} size="large">
                             Đóng
                         </Button>
-                        <Button color="primary" autoFocus type="submit" variant="contained" size="large">
+                        <Button color="primary" autoFocus type="submit" variant="contained" size="large" disabled={disabledButton}>
                             Cập nhật tuyển dụng
                         </Button>
                     </DialogActions>

@@ -93,7 +93,7 @@ const ModalBeforeSubmitting = ({ open, handleClose, item, censor }) => {
             "idNhan": censor.id,
             "idModule": 4,
             "Loai": 1,
-            "Noidung": bodyData.key,
+            "Noidung": JSON.stringify({ id: bodyData.key, text: "Bước 7", step: "Phê duyệt cuối cùng" }),
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)

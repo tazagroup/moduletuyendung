@@ -1,8 +1,12 @@
 .fc-event-main,
-.fc-daygrid-event,
+.fc-daygrid-event {
+    overflow: hidden;
+    cursor: pointer;
+}
 .fc-event-main-frame {
     overflow: hidden;
     cursor: pointer;
+    display: flex;
 }
 input:disabled.flatpickr-input {
     color: rgba(141, 140, 140, 0.8);

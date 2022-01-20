@@ -24,6 +24,7 @@ import AutocompleteField from './../CustomField/Autocomplete'
 // API
 import { storage } from "../../services/firebaseService/fireBase"
 import candidatesAPI from 'api/candidatesAPI';
+import noticesAPI from 'api/noticesAPI'
 const schema = yup.object().shape({
     Hoten: yup.string().required("Vui lòng nhập tên ứng viên"),
     Email: yup.string().email("Vui lòng nhập đúng định dạng email").required("Vui lòng nhập email"),
@@ -65,9 +66,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         //GET THE CURRENT TICKETS
         const tickets = dataTicket.filter(item => item.Trangthai == 2)
         setTickets(tickets)
-        return () => {
-
-        }
+        return () => { }
     }, [])
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh
@@ -95,7 +94,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             idTicket: ticket.key,
             Profile: JSON.stringify(profile),
             LichPV: JSON.stringify({}),
-            XacnhanHS: JSON.stringify({ Duyet: 0 }),
+            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: ticket.idTao, status: 0 } }),
             DuyetHS: JSON.stringify({}),
             DanhgiaHS: JSON.stringify({}),
             idTao: user.profile.id
@@ -103,6 +102,15 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         const response = await candidatesAPI.postCandidate(bodyData)
         dispatch(addCandidate(response.data))
         handleClose();
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": ticket.idTao,
+            "idModule": 4,
+            "Loai": 1,
+            "Noidung": JSON.stringify({ id: bodyData.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
+            "idTao": user.profile.id
+        }
+        noticesAPI.postNotice(noticeData)
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]

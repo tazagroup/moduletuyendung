@@ -47,7 +47,7 @@ const ModalApproveCurrency = (props) => {
             "idNhan": censor,
             "idModule": 3,
             "Loai": 1,
-            "Noidung": data.key,
+            "Noidung": JSON.stringify({ id: rowData.key, text: "Bước 7", step: "Triển khai tuyển dụng" }),
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)

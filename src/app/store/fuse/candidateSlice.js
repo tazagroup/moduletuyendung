@@ -31,9 +31,14 @@ const candidatesSlice = createSlice({
         },
         addCandidate: (state, action) => {
             const { attributes } = action.payload
+            const flagDashboard = { ...attributes }
             attributes['key'] = attributes.id
             attributes['id'] = state.dataCandidate.length == 0 ? 0 : state.dataCandidate.length
             state.dataCandidate.push(attributes)
+            state.flagDataCandidate = [...state.dataCandidate].sort((a, b) => new Date(b.Ngaytao) - new Date(a.Ngaytao))
+            flagDashboard['key'] = attributes.id
+            flagDashboard['id'] = state.dashboardCandidate.length == 0 ? 0 : state.dashboardCandidate.length
+            state.dashboardCandidate.push(flagDashboard)
         },
         updateCandidate: (state, action) => {
             const { attributes } = action.payload

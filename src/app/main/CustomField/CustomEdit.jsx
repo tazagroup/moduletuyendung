@@ -258,7 +258,7 @@ const CustomSelectPriceEdit = (props) => {
                             <Checkbox
                                 checked={value.find((option) => option.id === item.id) ? true : false}
                             />
-                            <ListItemText primary={`${item.name} (${countPriceProperty(arrayTicket, props.field, item)})`} />
+                            <ListItemText primary={`${item.name}`} />
                         </MenuItem>
                     ))}
                 </Select>

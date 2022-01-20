@@ -4,13 +4,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice';
 import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
-import { Tooltip, Menu, MenuItem, FormControl, Select, IconButton } from '@mui/material';
+import { Menu, MenuItem, FormControl, Select } from '@mui/material';
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { NestedMenuItem } from 'mui-nested-menu'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import CircleIcon from '@mui/icons-material/Circle';
 import CircleTwoToneIcon from '@mui/icons-material/CircleTwoTone';
 import HourglassFullIcon from '@mui/icons-material/HourglassFull';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { AiOutlineFileWord, AiOutlineFileExcel, AiOutlineFilePdf } from "react-icons/ai"
 import { styled } from "@mui/material/styles"
 //COMPONENTS
@@ -25,15 +27,32 @@ const TextTooltip = styled(({ className, ...props }) => (
 ))(`
       font-size: 1em;
   `);
-export const CustomStatus = ({ item, field }) => {
+const CustomTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+    [`& .${tooltipClasses.tooltip}`]: {
+        backgroundColor: '#f5f5f9',
+        color: 'rgba(0, 0, 0, 0.87)',
+        maxWidth: 220,
+        fontSize: 12,
+        border: '1px solid #dadde9',
+    },
+}));
+export const CustomStatus = ({ item, field, censor }) => {
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
+    let users = useSelector(state => state.fuse.tickets.users)
+    users = users.filter(opt => opt.PQTD)
+    const position = useSelector(state => state.fuse.tickets.position)
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const getPositionById = (id) => {
+        return position.find(opt => opt.id == id)?.Thuoctinh || "TEST"
+    }
     const handleOpen = (e) => {
         const canEdit = (field == "Duyet") ? user.profile.PQTD.includes(1) : user.profile.PQTD.includes(2)
-        if (item === 0 && canEdit) {
+        if (item === 0 && (user.profile.id == censor)) {
             setAnchorEl(e.currentTarget)
         }
     }
@@ -41,22 +60,27 @@ export const CustomStatus = ({ item, field }) => {
         setAnchorEl(null)
     }
     //RENDER STATUS
-    const checkStatus = (status) => {
+    const checkStatus = (status, censor) => {
         let variable;
+        let name = users.find(opt => opt.id == censor).name
         if (status == 0) variable = <HourglassFullIcon className="icon__table__candidate pending" onClick={handleOpen} />
         else if (status == 1) variable = <CheckCircleIcon className="icon__table__candidate success" />
         else variable = <CancelIcon className="icon__table__candidate warning" />
         return (
-            <TextTooltip title={status != 0 ? (status == 1 ? "Đã duyệt" : "Từ chối") : "Chờ xử lí"}>
+            <TextTooltip title={status != 0 ? (status == 1 ? "Đã duyệt" : "Từ chối") : `Chờ xử lí:${name}`}>
                 {variable}
             </TextTooltip>
         )
     }
-    const handleApprove = async () => {
+    const handleApprove = async (e) => {
+        var censor = ""
+        if (field == "Duyet") {
+            censor = e.target.innerText.split(/[()]/)[0].slice(0, -1)
+        }
         const flag = JSON.parse(flagCandidate['XacnhanHS'])
         const newStatus = {
-            Duyet: field == "Duyet" ? 1 : flag?.Duyet,
-            XNPV: field == "XNPV" ? 1 : 0
+            Duyet: field == "Duyet" ? { ...flag.Duyet, status: 1 } : flag?.Duyet,
+            XNPV: field == "XNPV" ? { ...flag.XNPV, status: 1 } : { Nguoiduyet: users.find(opt => opt.name == censor).id, status: 0 }
         }
         const bodyData = {
             ...flagCandidate,
@@ -66,6 +90,17 @@ export const CustomStatus = ({ item, field }) => {
         dispatch(updateCandidate(response.data))
         dispatch(updateFlagCandidate(bodyData))
         handleClose()
+        if (field == "Duyet") {
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": users.find(opt => opt.name == censor).id,
+                "idModule": 4,
+                "Loai": 1,
+                "Noidung": JSON.stringify({ id: bodyData.key, text: "Bước 3", step: "Xác nhận phỏng vấn" }),
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
+        }
     }
     const handleDeny = async () => {
         handleClose()
@@ -75,20 +110,31 @@ export const CustomStatus = ({ item, field }) => {
     }
     return (
         <Fragment>
-            {checkStatus(item)}
+            {checkStatus(item, censor)}
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
             >
-                <MenuItem onClick={handleApprove}>Duyệt</MenuItem>
+                {field == "Duyet" ? (
+                    <NestedMenuItem
+                        label={"Duyệt"}
+                        parentMenuOpen={open}
+                    >
+                        {users.filter(opt => opt?.PQTD.includes(2)).map(item => (
+                            <MenuItem key={item.id} onClick={handleApprove}>{`${item.name} ( ${getPositionById(item.position)} )`}</MenuItem>
+                        ))}
+                    </NestedMenuItem>
+                ) : (
+                    <MenuItem onClick={handleApprove}>Duyệt</MenuItem>
+                )}
                 <MenuItem onClick={handleDeny}>Từ chối</MenuItem>
             </Menu>
         </Fragment>
     )
 }
-
+// CUSTOM CV 
 export const CustomCV = ({ item }) => {
     var arrStr = item.split('%2F')[1].split('?alt')[0]
     const type = arrStr.split('.')[1]
@@ -104,12 +150,12 @@ export const CustomCV = ({ item }) => {
         </Fragment>
     )
 }
-
 //CUSTOM STEP
 export const CustomExperts = ({ item, field }) => {
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
     const valueStep = JSON.parse(item.DuyetHS)[`${field}`]?.Trangthai
+    const censorStep = JSON.parse(item.DuyetHS)[`${field}`]?.Nguoiduyet
     const users = useSelector(state => state.fuse.tickets.users)
     const position = useSelector(state => state.fuse.tickets.position)
     const currentEdit = useSelector(state => state.fuse.candidates.flagCandidate)
@@ -118,13 +164,12 @@ export const CustomExperts = ({ item, field }) => {
     const [isEditing, setIsEditing] = useState(false)
     const [censor, setCensor] = useState(null)
     const handleOpen = (e) => {
-        console.log(item)
         const specializeCondition = (field == "DuyetSPV") ? user.profile.PQTD.includes(1) : false
         const manageCondition = (field == "DuyetQL") ? user.profile.PQTD.includes(5) : false
-        if (specializeCondition || manageCondition) {
+        const canEditCondition = user.profile.id == censorStep
+        if (canEditCondition && specializeCondition || manageCondition) {
             setAnchorEl(e.currentTarget)
         }
-
     }
     const handleClose = (e) => {
         setAnchorEl(null)
@@ -164,6 +209,16 @@ export const CustomExperts = ({ item, field }) => {
             }
             const response = await candidatesAPI.updateCandidate(bodyData, bodyData.key)
             dispatch(updateCandidate(response.data))
+            //NOTICES
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": censor.id,
+                "idModule": 4,
+                "Loai": 1,
+                "Noidung": JSON.stringify({ id: bodyData.key, text: "Bước 8", step: "Trả kết quả" }),
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
         }
         handleClose();
     }
@@ -175,13 +230,14 @@ export const CustomExperts = ({ item, field }) => {
         else {
             return Array.isArray(option.PQTD) ? option.PQTD.includes(2) : option.PQTD == 2
         }
-
     }
     const handleDeny = async (e) => {
         handleClose()
         let DuyetHS = JSON.parse(currentEdit.DuyetHS)
         let DanhgiaHS = JSON.parse(currentEdit.DanhgiaHS)
         let censor = null;
+        let mainText = ""
+        let mainStep = ""
         if (field == "DuyetSPV") {
             DuyetHS = {}
             DanhgiaHS = {}
@@ -191,6 +247,8 @@ export const CustomExperts = ({ item, field }) => {
             DuyetHS = {
                 DuyetSPV: { ...DuyetHS.DuyetSPV, Trangthai: 0 },
             }
+            mainText = "Bước 6"
+            mainStep = "Đánh giá, duyệt sau phỏng vấn."
             delete DuyetHS.DuyetQL
         }
         const bodyData = {
@@ -206,16 +264,20 @@ export const CustomExperts = ({ item, field }) => {
                 "idNhan": censor,
                 "idModule": 4,
                 "Loai": 1,
-                "Noidung": response.data.attributes.key,
+                "Noidung": JSON.stringify({ id: bodyData.key, text: mainText, step: mainStep }),
                 "idTao": user.profile.id
             }
             noticesAPI.postNotice(noticeData)
         }
     }
-    //RETURN JSX
     return (
         <Fragment>
             {checkStatus(valueStep)}
+            {valueStep == 0 && (
+                <CustomTooltip title={`${users.find(opt => opt.id == censorStep)?.name}`}>
+                    <AccountCircleIcon />
+                </CustomTooltip>
+            )}
             <Menu
                 id="basic-menu"
                 anchorEl={anchorEl}
@@ -248,6 +310,8 @@ export const CustomExperts = ({ item, field }) => {
 export const CustomTimeline = ({ item }) => {
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
+    const users = useSelector(state => state.fuse.tickets.users)
+    const censorStep = JSON.parse(item.DuyetHS).DuyetTD.Nguoiduyet
     const currentStep = JSON.parse(item.DuyetHS).DuyetTD.step
     const currentStatus = JSON.parse(item.DuyetHS).DuyetTD.Trangthai
     const steps = [
@@ -256,8 +320,9 @@ export const CustomTimeline = ({ item }) => {
         "Gửi thư mời ứng viên",
         "Xác nhận ngày làm việc chính thức, báo bộ phận yêu cầu tuyển dụng"
     ]
+    const name = users.find(opt => opt.id == censorStep).name
     const handleUpdateStep = async (step) => {
-        if (user.profile.PQTD.includes(2)) {
+        if (censorStep == user.profile.id) {
             let flag = step + 1
             if (step < currentStep && step == 0) {
                 flag = 0
@@ -285,7 +350,7 @@ export const CustomTimeline = ({ item }) => {
     }
     return (
         <>
-            <div style={{ display: "flex", gap: "0 10px" }}>
+            <div style={{ display: "flex", gap: "0 10px", marginTop: 22 }}>
                 {steps.map((item, index) => (
                     <TextTooltip title={item} key={index}>
                         <div onClick={() => { handleUpdateStep(index) }}>
@@ -294,6 +359,9 @@ export const CustomTimeline = ({ item }) => {
                     </TextTooltip>
                 ))}
             </div>
+            <CustomTooltip title={`${users.find(opt => opt.id == censorStep).name}`}>
+                <AccountCircleIcon />
+            </CustomTooltip>
         </>
     )
 }

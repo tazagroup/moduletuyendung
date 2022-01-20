@@ -24,8 +24,14 @@ const Report2 = () => {
     const flagData = useSelector(state => state.fuse.candidates.dashboardCandidate)
     const [mainData, setMainData] = useState([...flagData])
     const users = useSelector(state => state.fuse.tickets.users)
-    const approveCandidate = mainData.filter(item => JSON.parse(item.XacnhanHS)?.Duyet == 1).length
-    const approveIntern = mainData.filter(item => JSON.parse(item.XacnhanHS)?.XNPV == 1).length
+    const approveCandidate = mainData.filter(item => {
+        const main = JSON.parse(item.XacnhanHS)?.Duyet
+        return main.status && main.status == 1
+    }).length
+    const approveIntern = mainData.filter(item => {
+        const main = JSON.parse(item.XacnhanHS)?.XNPV
+        return main ? main.status == 1 : false
+    }).length
     const passIntern = mainData.filter(item => item.Trangthai == 1).length
     const [minDate, setMinDate] = useState(null)
     const [maxDate, setMaxDate] = useState(null)

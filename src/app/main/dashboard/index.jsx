@@ -20,7 +20,6 @@ const index = () => {
         <FusePageSimple
             header={
                 <div className="p-24">
-                    <h4>Dashboard</h4>
                 </div>
             }
             content={

@@ -26,7 +26,7 @@ const ModalCalendarItem = ({ open, item, handleClose }) => {
     const users = useSelector(state => state.fuse.tickets.users)
     const [selectedDate, setSelectedDate] = useState(item.ThoigianPV)
     const convertIdUser = (id) => {
-        return users.find(option => option.id == item.Nguoiduyet).name
+        return users.find(option => option.id == id).name
     }
     return (
         <Dialog

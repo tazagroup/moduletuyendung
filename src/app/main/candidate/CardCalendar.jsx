@@ -143,7 +143,7 @@ export default function CardCalendar({ item }) {
                   labelId="demo-simple-select-label"
                   id="demo-simple-select"
                   value={value}
-                  disabled={item.Trangthai != 0 || JSON.parse(currentEdit.XacnhanHS).XNPV == 0 || !isApproved}
+                  disabled={item.Trangthai != 0 || JSON.parse(currentEdit.XacnhanHS).XNPV.status == 0 || !isApproved}
                   displayEmpty
                   onChange={handleChangeStatus}
                 >

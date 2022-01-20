@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { addTicket } from 'app/store/fuse/ticketsSlice';
 //MUI
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Checkbox } from '@mui/material';
 import { TextField, makeStyles } from '@material-ui/core';
 import { Grid } from '@mui/material';
 //FORM
@@ -14,14 +14,13 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import InputField from "../CustomField/InputField"
 import DateField from '../CustomField/DateField';
 import SelectField from "../CustomField/SelectField"
-import NumberField from '../CustomField/NumberField';
 import Tinymce from '../CustomField/Tinymce';
 import AutocompleteObjField from '../CustomField/AutocompleteObj'
+import NumberFormat from 'react-number-format';
 //API
 import ticketsAPI from 'api/ticketsAPI';
 import noticesAPI from 'api/noticesAPI'
 const schema = yup.object().shape({
-    LuongDK: yup.string().required("Vui lòng nhập mức lương"),
     SLHT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng hiện tại").min(0, "Dữ liệu không chính xác"),
     SLCT: yup.number("Vui lòng nhập số").required("Vui lòng nhập số lượng cần tuyển").min(1, "Dữ liệu không chính xác"),
     TGThuviec: yup.number("Vui lòng nhập số").required("Vui lòng nhập thời gian thử việc").min(1, "Dữ liệu không chính xác"),
@@ -51,6 +50,9 @@ const useStyles = makeStyles({
         paddingLeft: "8px"
     }
 })
+const CustomInput = (props) => {
+    return <TextField {...props} InputLabelProps={{ shrink: true }} />
+}
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
 const ModalCopyItem = ({ item, data, open, handleClose }) => {
     const user = JSON.parse(localStorage.getItem("profile"))
@@ -64,18 +66,21 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
     const [valueCensor, setValueCensor] = useState([])
     const [description, setDescription] = useState('')
     const [require, setRequire] = useState('')
+    const [minCurrency, setMinCurrency] = useState(null)
+    const [maxCurrency, setMaxCurrency] = useState(null)
+    const [typeCurrency, setTypeCurrency] = useState(false)
     const form = useForm({
         defaultValues: {
             SLCT: item.SLCT,
             SLHT: item.SLHT,
-            LuongDK: item.LuongDK,
             TGThuviec: item.TGThuviec,
         },
         mode: 'all',
         resolver: yupResolver(schema),
     });
     const reasonValid = otherReason ? otherReason !== "" : reason !== ""
-    const isValid = form.formState.isValid && reasonValid && valueCensor.length !== 0 && valuePosition !== null && require !== "" && description !== ""
+    const currencyCondition = typeCurrency ? (maxCurrency && minCurrency && maxCurrency.split(',').join('') > minCurrency.split(',').join('')) : minCurrency !== null
+    const isValid = form.formState.isValid && reasonValid && valueCensor.length !== 0 && valuePosition !== null && require !== "" && description !== "" && currencyCondition
     const handleEditTicket = async (e) => {
         const flag = {
             Vitri: valuePosition['id'],
@@ -105,7 +110,7 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
                 "idNhan": item.id,
                 "idModule": 3,
                 "Loai": 1,
-                "Noidung": bodyData.key,
+                "Noidung": JSON.stringify({ id: bodyData.key, text: "Bước 1", step: "Duyệt phiếu tuyển dụng" }),
                 "idTao": user.profile.id
             }
             noticesAPI.postNotice(noticeData)
@@ -145,8 +150,32 @@ const ModalCopyItem = ({ item, data, open, handleClose }) => {
                                 <InputField form={form} name="SLCT" label="Nhân sự cần tuyển" type="number" />
                             </Grid>
                             {/* Mức lương dự kiến  */}
-                            <Grid item xs={12} md={6}>
-                                <NumberField form={form} name="LuongDK" label="Mức lương dự kiến" error="Vui lòng nhập mức lương" />
+                            <Grid item container xs={12} md={6} spacing={2}>
+                                <Grid item xs={typeCurrency ? 5 : 11}>
+                                    <NumberFormat
+                                        label={typeCurrency ? "Mức lương tối thiểu" : "Mức lương dự kiến"}
+                                        customInput={CustomInput}
+                                        thousandSeparator
+                                        allowLeadingZeros={false}
+                                        fullWidth
+                                        onChange={(e) => { setMinCurrency(e.target.value) }}
+                                    />
+                                </Grid>
+                                {typeCurrency && (
+                                    <Grid item xs={5}>
+                                        <NumberFormat
+                                            label={"Mức lương tối đa"}
+                                            customInput={CustomInput}
+                                            thousandSeparator
+                                            allowLeadingZeros={false}
+                                            fullWidth
+                                            onChange={(e) => { setMaxCurrency(e.target.value) }}
+                                        />
+                                    </Grid>
+                                )}
+                                <Grid item xs>
+                                    <Checkbox style={{ marginTop: "20px" }} onChange={() => { setTypeCurrency(state => !state) }} />
+                                </Grid>
                             </Grid>
                             {/* Lí do tuyển dụng  */}
                             <Grid item xs={12} md={6}>

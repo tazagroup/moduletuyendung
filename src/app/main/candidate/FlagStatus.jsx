@@ -73,7 +73,7 @@ const FlagStatus = () => {
                         <Timeline>
                             <CustomTimelineConnector title="B1:Tạo hồ sơ" />
                             <CustomTimelineConnector title="B3:Xác nhận phỏng vấn" />
-                            <CustomTimelineConnector title="B4:Đặt lịch phỏng vấn vòng 1" />
+                            <CustomTimelineConnector title="B4:Phỏng vấn vòng 1" />
                             <CustomTimeline title="B8:Trả kết quả" />
                         </Timeline>
                     </Grid>
@@ -81,7 +81,7 @@ const FlagStatus = () => {
                         <h3>Ban chuyên môn</h3>
                         <Timeline>
                             <CustomTimelineConnector title="B2:Duyệt hồ sơ" />
-                            <CustomTimelineConnector title="B5:Đặt lịch phỏng vấn vòng 2" />
+                            <CustomTimelineConnector title="B5:Phỏng vấn vòng 2" />
                             <CustomTimeline title="B6:Đánh giá hồ sơ.Phê duyệt sau phỏng vấn" />
                         </Timeline>
                     </Grid>

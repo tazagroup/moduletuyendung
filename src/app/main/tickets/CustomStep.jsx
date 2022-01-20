@@ -35,13 +35,13 @@ const CustomStep = ({ item, data, setDataStatus }) => {
     const [idCensor, setIdCensor] = useState('')
     //STEPS
     const STEP_STATUS = {
-        0: "Bước 1 : Duyệt phiếu tuyển dụng",
-        1: "Bước 2 : Tiếp nhận tuyển dụng",
-        2: "Bước 3 : Phê duyệt phiếu",
-        3: "Bước 4 : Triển khai tuyển dụng",
-        4: "Bước 5 :Phê duyệt tuyển dụng",
-        5: "Bước 6 : Xác nhận thanh toán",
-        6: "Bước 7 : Thực hiện tuyển dụng"
+        0: { step: "Duyệt phiếu tuyển dụng", text: "Bước 1" },
+        1: { step: "Tiếp nhận tuyển dụng", text: "Bước 2" },
+        2: { step: "Phê duyệt phiếu", text: "Bước 3" },
+        3: { step: "Triển khai tuyển dụng", text: "Bước 4" },
+        4: { step: "Phê duyệt tuyển dụng", text: "Bước 5" },
+        5: { step: "Xác nhận thanh toán", text: "Bước 6" },
+        6: { step: "Thực hiện tuyển dụng", text: "Bước 7" }
     }
     const stepBTD = [1, 3, 6]
     const stepBGD = [2, 4]
@@ -145,7 +145,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
                 "idNhan": value.id,
                 "idModule": 3,
                 "Loai": 1,
-                "Noidung": JSON.stringify({ id: data.key, text: STEP_STATUS[item.id + 1] }),
+                "Noidung": JSON.stringify({ id: data.key, text: STEP_STATUS[item.id + 1].text, step: STEP_STATUS[item.id + 1].step }),
                 "idTao": user.profile.id
             }
             noticesAPI.postNotice(noticeData)
@@ -199,7 +199,7 @@ const CustomStep = ({ item, data, setDataStatus }) => {
             "idNhan": previousStep.Nguoiduyet[0],
             "idModule": 3,
             "Loai": 1,
-            "Noidung": JSON.stringify({ id: data.key, text: STEP_STATUS[previousStep.id] }),
+            "Noidung": JSON.stringify({ id: data.key, text: STEP_STATUS[previousStep.id].text, step: STEP_STATUS[previousStep.id].step }),
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)

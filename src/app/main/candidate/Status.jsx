@@ -93,16 +93,16 @@ const Status = () => {
                         <h3>Ban tuyển dụng</h3>
                         <Timeline>
                             <CustomTimelineConnector title="B1:Tạo hồ sơ" classStatus='success' />
-                            <CustomTimelineConnector item={XacnhanHS.XNPV} title="B3:Xác nhận phỏng vấn" />
-                            <CustomTimelineConnector item={LichPV ? (LichPV.length > 1 ? 1 : 0) : null} title="B4:Đặt lịch phỏng vấn vòng 1" />
+                            <CustomTimelineConnector item={XacnhanHS.XNPV?.status} title="B3:Xác nhận phỏng vấn" />
+                            <CustomTimelineConnector item={LichPV ? (LichPV[0].Trangthai) : null} title="B4:Phỏng vấn vòng 1" />
                             <CustomTimeline item={Object.keys(DuyetHS).includes("DuyetTD") ? DuyetHS.DuyetTD.Trangthai : null} title="B8:Trả kết quả" currentStep={currentStep} />
                         </Timeline>
                     </Grid>
                     <Grid item xs={4}>
                         <h3>Ban chuyên môn</h3>
                         <Timeline>
-                            <CustomTimelineConnector item={XacnhanHS.Duyet} title="B2:Duyệt hồ sơ" />
-                            <CustomTimelineConnector item={LichPV ? (LichPV.length !== 1 ? lastStage.Trangthai : null) : null} title="B5:Đặt lịch phỏng vấn vòng 2" />
+                            <CustomTimelineConnector item={XacnhanHS.Duyet?.status} title="B2:Duyệt hồ sơ" />
+                            <CustomTimelineConnector item={LichPV ? (LichPV.length !== 1 ? lastStage.Trangthai : null) : null} title="B5:Phỏng vấn vòng 2" />
                             <CustomTimeline item={Object.keys(DanhgiaHS).length !== 0 ? 1 : null} title="B6:Đánh giá hồ sơ.Phê duyệt sau phỏng vấn" />
                         </Timeline>
                     </Grid>

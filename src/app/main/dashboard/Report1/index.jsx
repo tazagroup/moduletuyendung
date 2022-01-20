@@ -124,7 +124,7 @@ const Report1 = () => {
             }]
             dataSet[0].data.unshift([{ value: "#" }, { value: "Tổng : " + countSum(data.beforeData) }, { value: "Tổng : " + countSum(data.afterData) }])
             let flag = dataSet[0].data[1]
-            flag = flag.map(item => {
+            flag = flag && flag.map(item => {
                 return {
                     ...item,
                     style: { fill: { patternType: "solid", fgColor: { rgb: "FFFF0000" } }, font: { color: { rgb: "FFFFFFFF" } } }

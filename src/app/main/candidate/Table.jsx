@@ -12,6 +12,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 import IconButton from '@mui/material/IconButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import HelpIcon from '@mui/icons-material/Help';
 import RefreshIcon from '@mui/icons-material/Refresh'
 import ViewColumnIcon from '@mui/icons-material/ViewColumn';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -165,7 +166,7 @@ const Table = () => {
             title: "Duyệt hồ sơ", field: "Duyet",
             render: rowData => {
                 const item = JSON.parse(rowData['XacnhanHS'])?.Duyet
-                return <CustomStatus item={item} field="Duyet" />
+                return <CustomStatus censor={item?.Nguoiduyet} item={item?.status} field="Duyet" />
             }
         },
         {
@@ -174,7 +175,7 @@ const Table = () => {
                 const item = JSON.parse(rowData['XacnhanHS'])?.XNPV
                 const status = [2, 3].includes(JSON.parse(rowData['DanhgiaHS'])?.Trangthai)
                 const check = JSON.parse(rowData['XacnhanHS']).hasOwnProperty('XNPV') && !status
-                return check ? <CustomStatus item={item} field="XNPV" /> : <ClearIcon />
+                return check ? <CustomStatus censor={item?.Nguoiduyet} item={item?.status} field="XNPV" /> : <ClearIcon />
             }
         },
         {
@@ -270,24 +271,16 @@ const Table = () => {
                 dispatch(setDataTicket({ data: responseData.data, position: Dulieu, users: dataUser }))
                 dispatch(setSource(responseSource.data))
             })
-            setIsLoading(false)
         }
         const responseCandidate = await candidatesAPI.getCandidate()
         const mainCandidate = responseCandidate.data.map(item => item.attributes)
-        let idTicket = []
-        if (responseData.data) {
-            idTicket = responseData.data.map(item => item.attributes).filter(item2 => item2.Trangthai == 2).map(opt => opt.id)
-        }
-        else {
-            idTicket = dataTicket.map(item => item.key)
-        }
+        let idTicket = dataTicket.map(item => item.key)
         const mainData = mainCandidate.filter(item2 => idTicket.includes(item2.idTicket))
         dispatch(setDataCandidate({ main: mainData, dashboard: mainCandidate }))
         setIsLoading(false)
         return () => {
-
         }
-    }, [])
+    }, [isLoading])
     //FILTER TO ID
     useEffect(() => {
         if (idParam) {
@@ -357,8 +350,62 @@ const Table = () => {
         }
         setRowData(rowData)
     }
+    const convertValue = (value) => {
+        return value != 0 ? (value == 1 ? "Đã duyệt" : "Từ chối") : "Đang xử lí"
+    }
     const handleExport = () => {
-        console.log(data)
+        const flag = data
+        const dataExcel = flag.map(item => {
+            const ticket = dataTicket.find(opt => opt.key == item.idTicket)
+            const profile = JSON.parse(item.Profile)
+            const approve = JSON.parse(item.XacnhanHS)
+            const calendar = JSON.parse(item.LichPV)?.VongPV
+            const judge = JSON.parse(item.DanhgiaHS)
+            const check = JSON.parse(item.DuyetHS)
+            return {
+                "Vị trí": position.find(opt => opt.id == ticket.Vitri)?.Thuoctinh,
+                "Họ tên": profile.Hoten,
+                "Email": profile.Email,
+                "Số điện thoại": profile.Phone,
+                "Nguồn ứng tuyển": profile.Nguon,
+                "Ngày ứng tuyển": new Date(profile.NgayUT).toLocaleDateString("en-GB"),
+                "Bước 1": convertValue(1),
+                "Bước 2": approve?.Duyet ? convertValue(approve.Duyet.status) : "",
+                "Bước 3": approve?.XNPV ? convertValue(approve.XNPV.status) : "",
+                "Bước 4": calendar ? convertValue(calendar[0].Trangthai) : "",
+                "Bước 5": calendar && calendar.length > 1 ? convertValue(calendar.slice(-1)[0].Trangthai) : "",
+                "Bước 6": convertValue(Object.keys(judge).length !== 0 ? 1 : 0),
+                "Bước 7": convertValue(Object.keys(check).length >= 2 ? check.DuyetQL.Trangthai : 0),
+                "Bước 8": convertValue(Object.keys(check).length == 3 ? check.DuyetTD.Trangthai : 0),
+                "Trạng thái": convertValue(item.Trangthai)
+            }
+        })
+        const workSheet = XLSX.utils.json_to_sheet(data)
+        const workBook = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(workBook, workSheet, "Yêu cầu tuyển dụng")
+        //buffer
+        let buf = XLSX.write(workBook, { bookType: "xlsx", type: "buffer" })
+        //binary
+        XLSX.write(workBook, { bookType: "xlsx", type: "binary" })
+        //download
+        XLSX.writeFile(workBook, "Ungvien.xlsx")
+    }
+    const handleCheck = () => {
+        const flag = data
+        const result = flag.filter(item => {
+            const lastStage = JSON.parse(item.LichPV).VongPV.slice(-1)[0]
+            const DuyetHS = JSON.parse(item.DuyetHS)
+            const approveStep = Object.keys(DuyetHS).slice(-1)
+            const currentApprove = DuyetHS[approveStep[0]]
+            const XacnhanHS = JSON.parse(item.XacnhanHS)
+            const checkStep = Object.keys(XacnhanHS).slice(-1)
+            const currentCheck = XacnhanHS[checkStep[0]]
+            if (currentCheck.Trangthai == 0) return (currentCheck.Nguoiduyet == user.profile.id)
+            else if (currentApprove.Trangthai == 0) return (currentApprove.Nguoiduyet == user.profile.id)
+            else if (lastStage.Trangthai == 0) return (lastStage.Nguoiduyet == user.profile.id)
+            return false
+        })
+        dispatch(refreshDataCandidate([...result]))
     }
     return isLoading ? <FuseLoading /> :
         <Fragment>
@@ -406,6 +453,15 @@ const Table = () => {
                         ),
                         isFreeAction: true,
                         onClick: (event) => { handleExport() }
+                    },
+                    {
+                        icon: () => (
+                            <TextTooltip title="Xử lí">
+                                <HelpIcon />
+                            </TextTooltip>
+                        ),
+                        isFreeAction: true,
+                        onClick: (event) => { handleCheck() }
                     }
                 ]}
                 components={{
@@ -442,9 +498,8 @@ const Table = () => {
                     }
                 }}
                 options={{
-                    maxBodyHeight: 235,
+                    maxBodyHeight: 310,
                     headerStyle: { position: "sticky", top: 0 },
-                    emptyRowsWhenPaging: false,
                     showDetailPanelIcon: false,
                     columnsButton: true,
                     search: false,

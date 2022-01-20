@@ -61,6 +61,7 @@ const InfoCandidate = ({ open, handleClose }) => {
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
+    const user = JSON.parse(localStorage.getItem("profile"))
     const profile = JSON.parse(flagCandidate.Profile)
     const dispatch = useDispatch()
     const classes = useStyles()
@@ -87,8 +88,8 @@ const InfoCandidate = ({ open, handleClose }) => {
     const roundsIntern = calendar?.VongPV
     const disabledCreate = roundsIntern ? roundsIntern[roundsIntern.length - 1]?.Trangthai != 1 : false
     const disabledField = Object.keys(JSON.parse(flagCandidate.DuyetHS)).length != 0 || flagCandidate.Trangthai == 2
-    const disabledBasicInfo = JSON.parse(flagCandidate.XacnhanHS).Duyet == 1
-    const isApproved = JSON.parse(flagCandidate.XacnhanHS).XNPV == 1
+    const disabledBasicInfo = JSON.parse(flagCandidate.XacnhanHS).Duyet.status == 1
+    const isApproved = JSON.parse(flagCandidate.XacnhanHS)?.XNPV
     const secondStep = roundsIntern ? roundsIntern[1]?.Trangthai == 1 : false
     const judgement = JSON.parse(flagCandidate.DanhgiaHS)
     const checkJudgement = Object.keys(JSON.parse(flagCandidate.DanhgiaHS)).length != 0
@@ -127,7 +128,7 @@ const InfoCandidate = ({ open, handleClose }) => {
             Phone: e.Phone,
         }
         //If edit  the ticket's status
-        const DuyetHS = !status ? JSON.parse(flagCandidate.DuyetHS) : ([2, 3].includes(status) ? flagCandidate.DuyetHS : { DuyetSPV: { Trangthai: 0 } })
+        const DuyetHS = !status ? JSON.parse(flagCandidate.DuyetHS) : ([2, 3].includes(status) ? flagCandidate.DuyetHS : { DuyetSPV: { Nguoiduyet: user.profile.id, Trangthai: 0 } })
         const LichPV = !secondStep ? JSON.parse(flagCandidate.LichPV) : {
             ...JSON.parse(flagCandidate.LichPV),
             Danhgia: firstRate,
@@ -212,7 +213,7 @@ const InfoCandidate = ({ open, handleClose }) => {
                             <Grid item xs={12}>
                                 <Typography variant="h4" className={classes.sub__title}>
                                     Lịch phỏng vấn
-                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={disabledCreate || disabledField || !isApproved || flagCandidate.Trangthai == 2}>
+                                    <IconButton size="large" onClick={() => { setIsCreating(true) }} disabled={!disabledBasicInfo || disabledCreate || disabledField || flagCandidate.Trangthai == 2 || (isApproved && isApproved.status != 1)}>
                                         <InsertInvitationIcon />
                                     </IconButton>
                                 </Typography>

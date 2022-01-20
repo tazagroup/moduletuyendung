@@ -85,7 +85,6 @@ const NotificationButton = () => {
             }
             const response = await noticesAPI.updateNotice(bodyData)
             dispatch(updateNotice(response.data))
-            setAnchorEl(null)
         }
         const handleHide = () => {
             const bodyData = {

@@ -362,6 +362,7 @@ const Table = () => {
             const calendar = JSON.parse(item.LichPV)?.VongPV
             const judge = JSON.parse(item.DanhgiaHS)
             const check = JSON.parse(item.DuyetHS)
+            console.log(judge)
             return {
                 "Vị trí": position.find(opt => opt.id == ticket.Vitri)?.Thuoctinh,
                 "Họ tên": profile.Hoten,
@@ -374,15 +375,15 @@ const Table = () => {
                 "Bước 3": approve?.XNPV ? convertValue(approve.XNPV.status) : "",
                 "Bước 4": calendar ? convertValue(calendar[0].Trangthai) : "",
                 "Bước 5": calendar && calendar.length > 1 ? convertValue(calendar.slice(-1)[0].Trangthai) : "",
-                "Bước 6": convertValue(Object.keys(judge).length !== 0 ? 1 : 0),
-                "Bước 7": convertValue(Object.keys(check).length >= 2 ? check.DuyetQL.Trangthai : 0),
-                "Bước 8": convertValue(Object.keys(check).length == 3 ? check.DuyetTD.Trangthai : 0),
+                "Bước 6": Object.keys(judge).length !== 0 ? convertValue(Object.keys(judge).length !== 0 ? 1 : 0) : "",
+                "Bước 7": Object.keys(check).length >= 2 ? convertValue(check.DuyetQL.Trangthai) : "",
+                "Bước 8": Object.keys(check).length >= 2 ? convertValue(check.DuyetTD.Trangthai) : "",
                 "Trạng thái": convertValue(item.Trangthai)
             }
         })
-        const workSheet = XLSX.utils.json_to_sheet(data)
+        const workSheet = XLSX.utils.json_to_sheet(dataExcel)
         const workBook = XLSX.utils.book_new()
-        XLSX.utils.book_append_sheet(workBook, workSheet, "Yêu cầu tuyển dụng")
+        XLSX.utils.book_append_sheet(workBook, workSheet, "Hồ sơ ứng viên")
         //buffer
         let buf = XLSX.write(workBook, { bookType: "xlsx", type: "buffer" })
         //binary

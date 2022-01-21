@@ -11,6 +11,7 @@ import Avatar from '@mui/material/Avatar';
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 //API
+import candidatesAPI from 'api/candidatesAPI'
 import noticesAPI from 'api/noticesAPI'
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -29,7 +30,7 @@ const CustomTooltip = styled(({ className, ...props }) => (
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: '#f5f5f9',
         color: 'rgba(0, 0, 0, 0.87)',
-        maxWidth: 220,
+        maxWidth: 275,
         fontSize: 12,
         border: '1px solid #dadde9',
     },
@@ -38,9 +39,13 @@ const NotificationButton = () => {
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
     const settings = useSelector(state => state.fuse.guides.dataSetting)
+    const positions = useSelector(state => state.fuse.tickets.position)
+    const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const dataCandidate = useSelector(state => state.fuse.candidates.dataCandidate)
     const dataNotice = useSelector(state => state.fuse.notices.dataNotice)
     const renderNotice = dataNotice.filter(item => item.attributes.Dadoc == 0)
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [flagData, setFlagData] = React.useState(null)
     const [value, setValue] = useState(0)
     const open = Boolean(anchorEl);
     const handleClick = (e) => {
@@ -67,16 +72,49 @@ const NotificationButton = () => {
             isFetching = false
         }
     }, [])
+    useEffect(() => {
+        let isFetch = true
+        async function fetchData() {
+            if (dataCandidate.length == 0) {
+                const response = await candidatesAPI.getCandidate()
+                const result = response.data.map(item => item.attributes)
+                setFlagData([...result])
+            }
+        }
+        if (isFetch) {
+            fetchData()
+        }
+        return () => isFetch = false
+    }, [])
     const NoticeItem = ({ item }) => {
         const main = item.attributes
         const content = JSON.parse(main?.Noidung)
-        var id = content
-        var mainText = ""
-        var mainStep = ""
+        let ticket = null
+        let id = content
+        let mainText = ""
+        let mainStep = ""
+        let mainPosition = ""
+        let mainSalary = ""
         if (typeof (content) == 'object') {
             id = content.id
             mainText = content?.text
             mainStep = content?.step
+        }
+        if (main.idModule == 3) {
+            ticket = dataTicket.find(opt => opt.key == content.id)
+        }
+        else if (main.idModule == 4) {
+            const candidate = flagData.find(opt => opt.id == content?.id)
+            if (candidate) {
+                ticket = dataTicket.find(opt => opt.key == candidate.idTicket)
+            }
+        }
+        if (ticket && [3, 4].includes(main.idModule)) {
+            const salary = JSON.parse(ticket?.LuongDK)
+            mainPosition = positions.find(opt => opt.id == ticket.Vitri).Thuoctinh
+            const min = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(salary.min)
+            const max = salary.max ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(salary.max) : null
+            mainSalary = max ? `${min}-${max}` : `${min}`
         }
         const handleUpdate = async (e) => {
             const bodyData = {
@@ -116,7 +154,13 @@ const NotificationButton = () => {
                             <Link to={{ pathname: linkURL }} target="_blank" rel='noopener noreferrer' style={{ minWidth: "50px" }}>{`#${id}`}</Link>
                     }
                     {mainStep ? (
-                        <CustomTooltip title={mainStep}>
+                        <CustomTooltip title={(
+                            <>
+                                <p>{mainStep}</p>
+                                {mainPosition && <p>Vị trí:{mainPosition}</p>}
+                                {mainSalary && <p>Mức lương:{mainSalary}</p>}
+                            </>
+                        )}>
                             <p>{mainText}</p>
                         </CustomTooltip>
                     ) : (

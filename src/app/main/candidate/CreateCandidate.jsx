@@ -107,7 +107,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             "idNhan": ticket.idTao,
             "idModule": 4,
             "Loai": 1,
-            "Noidung": JSON.stringify({ id: bodyData.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
+            "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
             "idTao": user.profile.id
         }
         noticesAPI.postNotice(noticeData)

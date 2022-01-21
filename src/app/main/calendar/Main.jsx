@@ -25,6 +25,7 @@ const TextTooltip = styled(({ className, ...props }) => (
   `);
 const Main = () => {
     const dispatch = useDispatch()
+    const user = JSON.parse(localStorage.getItem("profile"))
     const calendar = useSelector(state => state.fuse.candidates.dataCandidate)
     const [openModal, setOpenModal] = useState(false)
     const [calendarData, setCalendarData] = useState(null)
@@ -39,7 +40,10 @@ const Main = () => {
         }
         setIsLoading(false)
     }, [])
-    const data = [].concat.apply([], calendar.map(item => JSON.parse(item?.LichPV).VongPV)).filter(item => item);
+    let data = [].concat.apply([], calendar.map(item => JSON.parse(item?.LichPV).VongPV)).filter(item => item);
+    if (!user.profile.PQTD.includes(2, 3)) {
+        data = data.filter(item => item.Nguoiduyet == user.profile.id)
+    }
     const result = data.filter(item => item != undefined).map(({ ThoigianPV, Title }) => {
         return {
             title: Title,

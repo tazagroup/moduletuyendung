@@ -394,16 +394,19 @@ const Table = () => {
     const handleCheck = () => {
         const flag = data
         const result = flag.filter(item => {
-            const lastStage = JSON.parse(item.LichPV).VongPV.slice(-1)[0]
+            const lastStage = JSON.parse(item.LichPV)
             const DuyetHS = JSON.parse(item.DuyetHS)
             const approveStep = Object.keys(DuyetHS).slice(-1)
             const currentApprove = DuyetHS[approveStep[0]]
             const XacnhanHS = JSON.parse(item.XacnhanHS)
             const checkStep = Object.keys(XacnhanHS).slice(-1)
             const currentCheck = XacnhanHS[checkStep[0]]
-            if (currentCheck.Trangthai == 0) return (currentCheck.Nguoiduyet == user.profile.id)
+            if (currentCheck.status == 0) return (currentCheck.Nguoiduyet == user.profile.id)
             else if (currentApprove.Trangthai == 0) return (currentApprove.Nguoiduyet == user.profile.id)
-            else if (lastStage.Trangthai == 0) return (lastStage.Nguoiduyet == user.profile.id)
+            else if (Object.keys(lastStage).length != 0) {
+                const current = lastStage.VongPV.slice(-1)[0]
+                return (current.status == 0 && lastStage.Nguoiduyet == user.profile.id)
+            }
             return false
         })
         dispatch(refreshDataCandidate([...result]))

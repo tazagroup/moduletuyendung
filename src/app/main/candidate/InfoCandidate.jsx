@@ -3,9 +3,10 @@ import React, { useState, useEffect, Fragment } from 'react'
 import { useSelector, useDispatch } from "react-redux"
 import { updateCandidate, updateFlagCandidate } from "app/store/fuse/candidateSlice"
 import { openDialog } from 'app/store/fuse/dialogSlice';
+import { setDataType } from 'app/store/fuse/guideSlice'
 //MUI
 import { makeStyles, TextField } from '@material-ui/core';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Tooltip, FormControl, Autocomplete, IconButton, InputLabel, Select, MenuItem } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, Autocomplete, IconButton, InputLabel, Select, MenuItem } from '@mui/material';
 import { Grid, Typography } from '@mui/material';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
 import Box from '@mui/material/Box';
@@ -27,7 +28,7 @@ import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 //API
 import candidatesAPI from 'api/candidatesAPI'
-
+import guidesAPI from 'api/guideAPI'
 const useStyles = makeStyles({
     field: {
         marginTop: "15px !important"
@@ -61,6 +62,7 @@ const InfoCandidate = ({ open, handleClose }) => {
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
+    const type = useSelector(state => state.fuse.guides.dataType)
     const user = JSON.parse(localStorage.getItem("profile"))
     const profile = JSON.parse(flagCandidate.Profile)
     const dispatch = useDispatch()
@@ -105,8 +107,16 @@ const InfoCandidate = ({ open, handleClose }) => {
         setTicket(flag)
         setTickets(tickets)
         return () => {
-
         }
+    }, [])
+    useEffect(() => {
+        let isFetch = true;
+        async function fetchData() {
+            const response = await guidesAPI.getType()
+            dispatch(setDataType(JSON.parse(response.data.attributes.Dulieu)))
+        }
+        if (isFetch && type.length == 0) { fetchData() }
+        return () => isFetch = false
     }, [])
     const handleTicketChange = (e, newValue) => {
         setTicket(newValue)
@@ -352,7 +362,8 @@ const InfoCandidate = ({ open, handleClose }) => {
                     open={isCreating}
                     candidate={flagCandidate}
                     position={getPositionById(ticket.Vitri)}
-                    handleClose={() => { setIsCreating(false) }} />
+                    handleClose={() => { setIsCreating(false) }}
+                />
             }
         </Fragment>
     )

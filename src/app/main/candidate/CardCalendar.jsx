@@ -4,7 +4,6 @@ import { useSelector, useDispatch, batch } from "react-redux"
 import { updateFlagCandidate, updateCandidate } from 'app/store/fuse/candidateSlice'
 import { openDialog } from 'app/store/fuse/dialogSlice';
 //MUI
-import { styled } from '@mui/material/styles';
 import {
   Card, CardHeader, CardContent, CardActions,
   Collapse,
@@ -13,10 +12,13 @@ import {
   Menu,
   MenuItem,
   FormControl,
-  Select
+  Select,
+  styled
 } from '@mui/material'
+import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EventBusyIcon from '@mui/icons-material/EventBusy';
 //COMPONENTS
 import ModalDeny from './ModalDeny'
 import EditCalendar from './EditCalendar';
@@ -32,12 +34,23 @@ const ExpandMore = styled((props) => {
     duration: theme.transitions.duration.shortest,
   }),
 }));
-
+const CustomTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: '#f5f5f9',
+    color: 'rgba(0, 0, 0, 0.87)',
+    maxWidth: 220,
+    fontSize: 12,
+    border: '1px solid #dadde9',
+  },
+}));
 export default function CardCalendar({ item }) {
   const dispatch = useDispatch()
   const user = JSON.parse(localStorage.getItem("profile"))
   const users = useSelector(state => state.fuse.tickets.users)
   const currentEdit = useSelector(state => state.fuse.candidates.flagCandidate)
+  const dataType = useSelector(state => state.fuse.guides.dataType)
   const [expanded, setExpanded] = useState(false);
   const [value, setValue] = useState(item.Trangthai)
   const [isEditing, setIsEditing] = useState(false)
@@ -45,6 +58,7 @@ export default function CardCalendar({ item }) {
   const open = Boolean(anchorEl);
   const time = new Date(item[`ThoigianPV`])
   const isApproved = item.Nguoiduyet == user.profile.id
+  const flagItem = item?.flag
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
@@ -100,6 +114,14 @@ export default function CardCalendar({ item }) {
   const getNameById = (id) => {
     return users.find(item => item.id == id)?.name
   }
+  const FlagCalendar = () => {
+    return flagItem.map((item, index) => {
+      const flagTime = new Date(item)
+      return (
+        <div key={index}>{flagTime.toLocaleDateString("en-GB")} - {flagTime.toLocaleString("en-US", { hour: 'numeric', minute: 'numeric', hour12: false })}</div>
+      )
+    })
+  }
   return (
     <>
       <Card sx={{ maxWidth: 345 }}>
@@ -115,9 +137,19 @@ export default function CardCalendar({ item }) {
         <CardContent>
           <Typography sx={{ fontSize: 15 }} color="text.secondary">
             Thời gian : <span>{time.toLocaleDateString("en-GB")} - {time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: false })}</span>
+            {flagItem && (
+              <CustomTooltip title={<FlagCalendar />}>
+                <IconButton>
+                  <EventBusyIcon />
+                </IconButton>
+              </CustomTooltip>
+            )}
           </Typography>
           <Typography sx={{ fontSize: 15 }} color="text.secondary">
             Người phỏng vấn : <span>{getNameById(item.Nguoiduyet)}</span>
+          </Typography>
+          <Typography sx={{ fontSize: 15 }} color="text.secondary">
+            Hình thức : <span>{dataType.find(opt => opt.id == item?.Type)?.Thuoctinh}</span>
           </Typography>
         </CardContent>
         <CardActions disableSpacing>

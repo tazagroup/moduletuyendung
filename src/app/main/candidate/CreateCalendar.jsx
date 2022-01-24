@@ -4,7 +4,8 @@ import { showMessage } from 'app/store/fuse/messageSlice';
 import { updateFlagCandidate, updateCandidate } from 'app/store/fuse/candidateSlice'
 import { useDispatch, useSelector, batch } from 'react-redux';
 //MUI
-import { makeStyles, TextField } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
+import { TextField, Autocomplete } from '@mui/material';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControl, Grid } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import Flatpickr from "react-flatpickr";
@@ -31,12 +32,14 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
     const dispatch = useDispatch()
     const users = useSelector(state => state.fuse.tickets.users)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const dataType = useSelector(state => state.fuse.guides.dataType)
     const calendar = JSON.parse(candidate.LichPV)
     const user = JSON.parse(localStorage.getItem("profile"))
     const classes = useStyles()
     const [selectedDate, setSelectedDate] = useState(new Date())
     const [censor, setCensor] = useState(null)
     const [note, setNote] = useState('')
+    const [type, setType] = useState(null)
     const arrayCensor = (Object.keys(calendar).length == 0) ?
         users.filter(item => { if (item.PQTD) { return item.PQTD.includes(2) } })
         : users.filter(item => item.id == dataTicket.find(opt => opt.key == candidate.idTicket).idTao)
@@ -65,6 +68,8 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
             Danhgia: "",
             Ghichu: note,
             Title: title,
+            Type: type.id,
+            flag: []
         }
         flag['VongPV'].push(newRound)
         const bodyData = {
@@ -131,6 +136,27 @@ const CreateCalendar = ({ open, handleClose, candidate, position }) => {
                                 onChange={(dateSelect) => handleChangeDate(dateSelect)}
                             />
                         </FormControl>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Autocomplete
+                            disablePortal
+                            id="combo-box-demo"
+                            value={type}
+                            onChange={(e, newValue) => { setType(newValue) }}
+                            style={{ lineHeight: "20px", fontSize: "15px" }}
+                            options={dataType}
+                            getOptionLabel={option => `${option[`Thuoctinh`]}`}
+                            getOptionDisabled={option => type?.Thuoctinh == option.Thuoctinh}
+                            renderOption={(props, option) => {
+                                return (
+                                    <li {...props} key={option.id} style={{ fontSize: "13px" }}>
+                                        {option[`Thuoctinh`]}
+                                    </li>
+                                )
+                            }}
+                            fullWidth={true}
+                            renderInput={(params) => <TextField {...params} InputLabelProps={{ shrink: true }} label={"Hình thức phỏng vấn"} variant="standard" />}
+                        />
                     </Grid>
                     <Grid item xs={12}>
                         <Tinymce value={note} onChange={(e) => { setNote(e) }} label={"ghi chú"} />

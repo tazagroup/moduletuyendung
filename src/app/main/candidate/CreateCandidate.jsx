@@ -20,8 +20,9 @@ import InputField from "../CustomField/InputField"
 import DateField from "../CustomField/DateField"
 import NumberFormat from 'react-number-format';
 import AutocompleteField from './../CustomField/Autocomplete'
-
+import AutocompleteObjField from '../CustomField/AutocompleteObj';
 // API
+import axios from 'axios';
 import { storage } from "../../services/firebaseService/fireBase"
 import candidatesAPI from 'api/candidatesAPI';
 import noticesAPI from 'api/noticesAPI'
@@ -51,6 +52,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const dispatch = useDispatch()
     const classes = useStyles()
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
+    const users = useSelector(state => state.fuse.tickets.users)
     const mainSource = useSelector(state => state.fuse.tickets.source)
     const position = useSelector(state => state.fuse.tickets.position)
     const [user, setUser] = useState(JSON.parse(localStorage.getItem("profile")))
@@ -61,6 +63,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
     const [isFileEmpty, setIsFileEmpty] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [source, setSource] = useState(null)
+    const [valueCensor, setValueCensor] = useState(null)
     const arraySource = ticket != "" ? JSON.parse(ticket.Pheduyet)[3].CPTD.map(item => mainSource.find(opt => opt.id == item.Nguon).Thuoctinh) : []
     useEffect(async () => {
         //GET THE CURRENT TICKETS
@@ -68,6 +71,9 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         setTickets(tickets)
         return () => { }
     }, [])
+    const handleChangeCensor = (event, newValue) => {
+        setValueCensor(newValue)
+    }
     const getPositionById = (id) => {
         return position.find(item => item.id == id)?.Thuoctinh
     }
@@ -94,7 +100,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             idTicket: ticket.key,
             Profile: JSON.stringify(profile),
             LichPV: JSON.stringify({}),
-            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: ticket.idTao, status: 0 } }),
+            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: valueCensor.id, status: 0 } }),
             DuyetHS: JSON.stringify({}),
             DanhgiaHS: JSON.stringify({}),
             idTao: user.profile.id
@@ -104,7 +110,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         handleClose();
         const noticeData = {
             "idGui": user.profile.id,
-            "idNhan": ticket.idTao,
+            "idNhan": valueCensor.id,
             "idModule": 4,
             "Loai": 1,
             "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
@@ -227,6 +233,15 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
                                 }}
                                 onChange={handleUploadFile}
                                 fullWidth
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <AutocompleteObjField
+                                value={valueCensor}
+                                options={users.filter(item => item.PQTD && (item.PQTD.includes(1) || item.PQTD.includes(5)))}
+                                onChange={handleChangeCensor}
+                                field="name"
+                                label="Quản lí phê duyệt"
                             />
                         </Grid>
                     </Grid>

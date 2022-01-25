@@ -401,8 +401,8 @@ const Table = () => {
             const XacnhanHS = JSON.parse(item.XacnhanHS)
             const checkStep = Object.keys(XacnhanHS).slice(-1)
             const currentCheck = XacnhanHS[checkStep[0]]
-            if (currentCheck.status == 0) return (currentCheck.Nguoiduyet == user.profile.id)
-            else if (currentApprove.Trangthai == 0) return (currentApprove.Nguoiduyet == user.profile.id)
+            if (currentCheck?.status == 0) return (currentCheck.Nguoiduyet == user.profile.id)
+            else if (currentApprove?.Trangthai == 0) return (currentApprove.Nguoiduyet == user.profile.id)
             else if (Object.keys(lastStage).length != 0) {
                 const current = lastStage.VongPV.slice(-1)[0]
                 return (current.status == 0 && lastStage.Nguoiduyet == user.profile.id)

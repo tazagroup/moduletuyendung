@@ -29,6 +29,7 @@ const Main = () => {
     const calendar = useSelector(state => state.fuse.candidates.dataCandidate)
     const [openModal, setOpenModal] = useState(false)
     const [calendarData, setCalendarData] = useState(null)
+    const [ticketData, setTicketData] = useState(null)
     const [isLoading, setIsLoading] = useState(true)
     useEffect(async () => {
         if (calendar.length == 0) {
@@ -40,9 +41,23 @@ const Main = () => {
         }
         setIsLoading(false)
     }, [])
-    let data = [].concat.apply([], calendar.map(item => JSON.parse(item?.LichPV).VongPV)).filter(item => item);
-    if (!user.profile.PQTD.includes(2, 3)) {
-        data = data.filter(item => item.Nguoiduyet == user.profile.id)
+    useEffect(async () => {
+        const response = await ticketsAPI.getTicket()
+        const result = response.data.map(item => item.attributes)
+        setTicketData(result)
+    }, [])
+    let data = [].concat.apply([], calendar.map(item => {
+        const Nguoitao = (ticketData || []).find(opt => item.idTicket == opt.id)?.idTao
+        const result = JSON.parse(item?.LichPV).VongPV || []
+        result.map(item2 => item2['Nguoitao'] = Nguoitao)
+        return result
+    })).filter(item => item);
+    const roles = [2, 3, 5]
+    const isSeeAll = roles.map(item => user.profile.PQTD.includes(item)).filter(opt => opt).length >= 1
+    if (!isSeeAll) {
+        data = data.filter(item => {
+            return (item.Nguoiduyet || item.Nguoitao == user.profile.id)
+        })
     }
     const result = data.filter(item => item != undefined).map(({ ThoigianPV, Title }) => {
         return {
@@ -60,7 +75,7 @@ const Main = () => {
             <FullCalendar
                 plugins={[daygridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
                 allDayText="Cả ngày"
-                dayMaxEvents={4}
+                dayMaxEvents={3}
                 noEventsContent="Không có lịch phỏng vấn"
                 buttonText={{
                     today: 'Hôm nay',

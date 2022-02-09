@@ -1,13 +1,15 @@
 import React from 'react'
+import { storage } from "../../services/firebaseService/fireBase"
 import { Editor } from '@tinymce/tinymce-react';
 const Tinymce = (props) => {
     const { value, onChange, label, disabled = false } = props;
+    const [isLoading, setIsLoading] = React.useState(false)
     return (
         <>
             <Editor
                 apiKey="1cdi3qs7qw7nogvpu6poxqc6z7bf4a4hurwyao0kdbd741dl"
                 value={value}
-                disabled={disabled}
+                disabled={isLoading || disabled}
                 init={{
                     placeholder: `Nhập ${label} `,
                     height: "480",
@@ -25,20 +27,19 @@ const Tinymce = (props) => {
                         var input = document.createElement('input');
                         input.setAttribute('type', 'file');
                         input.setAttribute('accept', 'image/*');
-
                         input.onchange = function () {
+                            setIsLoading(true)
                             var file = this.files[0];
-                            var reader = new FileReader();
-                            reader.onload = function () {
-                                var id = 'blobid' + (new Date()).getTime();
-                                var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                                var base64 = reader.result.split(',')[1];
-                                var blobInfo = blobCache.create(id, file, base64);
-                                blobCache.add(blobInfo);
-                                /* call the callback and populate the Title field with the file name */
-                                cb(blobInfo.blobUri(), { title: file.name });
-                            };
-                            reader.readAsDataURL(file);
+                            const uploadFile = storage.ref(`files/${file.name}`).put(file);
+                            uploadFile.on("state_changed", (snapshot) => {
+                            },
+                                (error) => console.log(error),
+                                () => {
+                                    storage.ref("files").child(file.name).getDownloadURL().then((url) => {
+                                        cb(url)
+                                        setIsLoading(false)
+                                    })
+                                })
                         };
                         input.click();
                     },
@@ -47,7 +48,6 @@ const Tinymce = (props) => {
             alignleft aligncenter alignright | \
             bullist numlist outdent indent | help'
                 }}
-
                 onEditorChange={onChange}
             />
         </>

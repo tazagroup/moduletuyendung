@@ -65,14 +65,15 @@ const CustomInput = (props) => {
     return <TextField {...props} InputLabelProps={{ shrink: true }} />
 }
 const arrayReason = ["Tuyển mới", "Thay thế", "Dự phòng nhân lực", "Khác"]
-const arraySource = ["Facebook", "ITViec", "TopCV"]
 const arrayType = ["Thanh toán tiền mặt", "Chuyển khoản"]
 const ModalEditItem = ({ item, open, handleClose }) => {
     const dispatch = useDispatch()
     const classes = useStyles()
     const position = useSelector(state => state.fuse.tickets.position)
+    const sources = useSelector(state => state.fuse.tickets.source)
     const steps = JSON.parse(item['Pheduyet'])
     const salary = JSON.parse(item.LuongDK)
+    const [sourceArray, setSourceArray] = useState(sources.map(item => item.Thuoctinh))
     const [valuePosition, setValuePosition] = useState(position.find(flag => flag.id == item.Vitri))
     const [selectedDate, setSelectedDate] = useState(item.TGThuviec)
     const [selectedDate4, setSelectedDate4] = useState(steps[3] && steps[3].NTC || "")
@@ -253,7 +254,7 @@ const ModalEditItem = ({ item, open, handleClose }) => {
                                     {/* Nguồn mua  */}
                                     <Grid item xs={12} md={3}>
                                         <SelectField
-                                            label="Nguồn mua" value={item.Nguon} arrayItem={arraySource}
+                                            label="Nguồn mua" value={item.Nguon} arrayItem={sourceArray}
                                             handleChange={(e) => handleChangeSource(e, index)}
                                             disabled={steps.length === 7}
                                         />

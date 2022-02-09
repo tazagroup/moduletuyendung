@@ -54,6 +54,7 @@ const ModalCreateItem = ({ data, open, handleClose }) => {
     const form = useForm({
         defaultValues: {
             SLHT: 0,
+            SLHT: 0,
             SLCT: 0,
             TGThuviec: 1,
         },

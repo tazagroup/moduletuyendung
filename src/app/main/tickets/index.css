@@ -122,6 +122,7 @@ li.menu__item {
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    max-height: 80px;
 }
 
 /* CUSTOM RENDER CELL  */

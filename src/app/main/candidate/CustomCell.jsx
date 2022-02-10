@@ -38,11 +38,16 @@ const CustomTooltip = styled(({ className, ...props }) => (
         border: '1px solid #dadde9',
     },
 }));
-export const CustomStatus = ({ item, field, censor }) => {
+export const CustomStatus = ({ item, field, censor, error = null }) => {
     const dispatch = useDispatch()
     const user = JSON.parse(localStorage.getItem("profile"))
     let users = useSelector(state => state.fuse.tickets.users)
     users = users.filter(opt => opt.PQTD)
+    let reasons = useSelector(state => state.fuse.guides.dataReason)
+    let errorText = ""
+    if (error) {
+        errorText = reasons.find(item => item.id == error)?.Thuoctinh
+    }
     const position = useSelector(state => state.fuse.tickets.position)
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
     const [anchorEl, setAnchorEl] = useState(null);
@@ -67,7 +72,7 @@ export const CustomStatus = ({ item, field, censor }) => {
         else if (status == 1) variable = <CheckCircleIcon className="icon__table__candidate success" />
         else variable = <CancelIcon className="icon__table__candidate warning" />
         return (
-            <TextTooltip title={status != 0 ? (status == 1 ? "Đã duyệt" : "Từ chối") : `Chờ xử lí:${name}`}>
+            <TextTooltip title={status != 0 ? (status == 1 ? "Đã duyệt" : `Từ chối:${error ? errorText : ""}`) : `Chờ xử lí:${name}`}>
                 {variable}
             </TextTooltip>
         )

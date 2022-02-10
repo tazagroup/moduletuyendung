@@ -7,12 +7,6 @@ const candidatesSlice = createSlice({
         flagDataCandidate: [],
         dashboardCandidate: [],
         flagCandidate: {},
-        reason: [
-            { id: 1, Thuoctinh: "Kĩ năng không tốt" },
-            { id: 2, Thuoctinh: "Thái độ không tốt" },
-            { id: 3, Thuoctinh: "Hình thức không tốt" },
-            { id: 4, Thuoctinh: "Không liên lạc được" },
-        ],
     },
     reducers: {
         setDataCandidate: (state, action) => {
@@ -34,7 +28,14 @@ const candidatesSlice = createSlice({
             const flagDashboard = { ...attributes }
             attributes['key'] = attributes.id
             attributes['id'] = state.dataCandidate.length == 0 ? 0 : state.dataCandidate.length
-            state.dataCandidate.push(attributes)
+            state.dataCandidate.unshift(attributes)
+            state.dataCandidate = state.dataCandidate.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item
+                }
+            })
             state.flagDataCandidate = [...state.dataCandidate].sort((a, b) => new Date(b.Ngaytao) - new Date(a.Ngaytao))
             flagDashboard['key'] = attributes.id
             flagDashboard['id'] = state.dashboardCandidate.length == 0 ? 0 : state.dashboardCandidate.length
@@ -64,10 +65,17 @@ const candidatesSlice = createSlice({
         removeCandidate: (state, action) => {
             const flag = state.dataCandidate.map(item => item.key)
             const flag2 = state.dashboardCandidate.map(item => item.key)
-            const index = flag.indexOf(action.payload.key)
-            const index2 = flag2.indexOf(action.payload.key)
+            const index = flag.indexOf(action.payload.id)
+            const index2 = flag2.indexOf(action.payload.id)
             //REMOVE
             state.dataCandidate.splice(index, 1)
+            state.dataCandidate = state.dataCandidate.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item,
+                }
+            })
             //REMOVE FROM DASHBOARD
             state.dashboardCandidate.splice(index2, 1)
         },

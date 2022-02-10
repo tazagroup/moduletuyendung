@@ -100,7 +100,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             idTicket: ticket.key,
             Profile: JSON.stringify(profile),
             LichPV: JSON.stringify({}),
-            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: valueCensor.id, status: 0 } }),
+            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: valueCensor ? valueCensor.id : user.profile.id, status: 0 } }),
             DuyetHS: JSON.stringify({}),
             DanhgiaHS: JSON.stringify({}),
             idTao: user.profile.id
@@ -108,15 +108,17 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         const response = await candidatesAPI.postCandidate(bodyData)
         dispatch(addCandidate(response.data))
         handleClose();
-        const noticeData = {
-            "idGui": user.profile.id,
-            "idNhan": valueCensor.id,
-            "idModule": 4,
-            "Loai": 1,
-            "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
-            "idTao": user.profile.id
+        if (valueCensor) {
+            const noticeData = {
+                "idGui": user.profile.id,
+                "idNhan": valueCensor.id,
+                "idModule": 4,
+                "Loai": 1,
+                "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
+                "idTao": user.profile.id
+            }
+            noticesAPI.postNotice(noticeData)
         }
-        noticesAPI.postNotice(noticeData)
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]

@@ -5,6 +5,7 @@ import history from '@history';
 import { BrowserRouter, Router, Switch } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import withAppProviders from './withAppProviders';
+import guidesAPI from 'api/guideAPI'
 // import axios from 'axios';
 
 /**
@@ -23,6 +24,7 @@ const App = () => {
       }
     })
   }, [])
+
   return (
     <Router history={history}>
       <FuseTheme>

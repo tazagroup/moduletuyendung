@@ -6,11 +6,15 @@ const guidesSlice = createSlice({
         dataGuide: [],
         dataSetting: [],
         dataType: [],
+        dataReason: []
     },
     reducers: {
         setDataGuide: (state, action) => {
             const flagArray = action.payload.map(item => item.attributes)
             state.dataGuide = [...flagArray]
+        },
+        setDataReason: (state, action) => {
+            state.dataReason = action.payload
         },
         addDataGuide: (state, action) => {
             const flag = [...state.dataGuide]
@@ -36,6 +40,6 @@ const guidesSlice = createSlice({
     },
 });
 
-export const { setDataGuide, setDataSetting, setDataType, addDataGuide, updateDataGuide, removeDataGuide } = guidesSlice.actions;
+export const { setDataGuide, setDataSetting, setDataType, addDataGuide, updateDataGuide, removeDataGuide,setDataReason } = guidesSlice.actions;
 
 export default guidesSlice.reducer;

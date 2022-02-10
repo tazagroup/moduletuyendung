@@ -9,11 +9,11 @@ import { Button, Select, MenuItem, Grid, FormControl, InputLabel } from "@mui/ma
 import SweetAlert from 'react-bootstrap-sweetalert';
 //API
 import candidatesAPI from 'api/candidatesAPI'
+import guidesAPI from 'api/guideAPI'
 const ModalDeny = ({ item, field }) => {
     const dispatch = useDispatch()
-    const errorList = useSelector(state => state.fuse.candidates.reason)
-    const labels = errorList.map(item => item.Thuoctinh)
     const [reason, setReason] = useState('')
+    const labels = useSelector(state => state.fuse.guides.dataReason)
     const handleConfirm = async () => {
         const flag = JSON.parse(item['XacnhanHS'])
         const XacnhanHS = {
@@ -22,7 +22,7 @@ const ModalDeny = ({ item, field }) => {
         }
         const bodyData = {
             ...item,
-            Lydo: errorList.find(opt => opt.Thuoctinh == reason).id,
+            Lydo: labels.find(opt => opt.Thuoctinh == reason).id,
             XacnhanHS: JSON.stringify(XacnhanHS),
             LichPV: field == "XNPV" ? JSON.stringify({}) : item.LichPV,
             Trangthai: 2,
@@ -69,7 +69,7 @@ const ModalDeny = ({ item, field }) => {
                                 style={{ fontSize: "15px" }}
                             >
                                 {labels && labels.map((item, index) => (
-                                    <MenuItem key={index} value={item}>{item}</MenuItem>
+                                    <MenuItem key={index} value={item.Thuoctinh}>{item.Thuoctinh}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>

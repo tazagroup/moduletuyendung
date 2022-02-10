@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom"
 import { useDispatch, useSelector, batch } from 'react-redux';
 import { setDataTicket, setSource } from 'app/store/fuse/ticketsSlice';
 import { setDataCandidate, updateFlagCandidate, refreshDataCandidate, removeCandidate } from 'app/store/fuse/candidateSlice';
+import { setDataReason } from 'app/store/fuse/guideSlice'
 //MUI
 import MaterialTable, { MTableAction } from '@material-table/core';
 import { Tooltip, Menu, MenuItem } from '@mui/material/';
@@ -30,7 +31,7 @@ import Swal from 'sweetalert2';
 //API
 import ticketsAPI from 'api/ticketsAPI';
 import candidatesAPI from 'api/candidatesAPI';
-
+import guidesAPI from 'api/guideAPI'
 const TextTooltip = styled(({ className, ...props }) => (
     <Tooltip {...props} componentsProps={{ tooltip: { className: className } }} />
 ))(`
@@ -166,7 +167,7 @@ const Table = () => {
             title: "Duyệt hồ sơ", field: "Duyet",
             render: rowData => {
                 const item = JSON.parse(rowData['XacnhanHS'])?.Duyet
-                return <CustomStatus censor={item?.Nguoiduyet} item={item?.status} field="Duyet" />
+                return <CustomStatus censor={item?.Nguoiduyet} item={item?.status} error={rowData?.Lydo} field="Duyet" />
             }
         },
         {
@@ -175,7 +176,7 @@ const Table = () => {
                 const item = JSON.parse(rowData['XacnhanHS'])?.XNPV
                 const status = [2, 3].includes(JSON.parse(rowData['DanhgiaHS'])?.Trangthai)
                 const check = JSON.parse(rowData['XacnhanHS']).hasOwnProperty('XNPV') && !status
-                return check ? <CustomStatus censor={item?.Nguoiduyet} item={item?.status} field="XNPV" /> : <ClearIcon />
+                return check ? <CustomStatus censor={item?.Nguoiduyet} item={item?.status} error={rowData?.Lydo} field="XNPV" /> : <ClearIcon />
             }
         },
         {
@@ -281,6 +282,21 @@ const Table = () => {
         return () => {
         }
     }, [isLoading])
+    useEffect(() => {
+        let flag = true;
+        async function getData() {
+            const response = await guidesAPI.getError()
+            const data = JSON.parse(response.data.attributes.Dulieu)
+            const result = data.map(item => {
+                return { id: item.id, Thuoctinh: item.Thuoctinh }
+            })
+            dispatch(setDataReason(result))
+        }
+        if (flag) {
+            getData()
+        }
+        return () => flag = false
+    }, [])
     //FILTER TO ID
     useEffect(() => {
         if (idParam) {

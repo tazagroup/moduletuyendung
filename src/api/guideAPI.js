@@ -13,6 +13,10 @@ const guidesAPI = {
         const url = "/hrms/caidats/38"
         return axiosClient.get(url)
     },
+    getError() {
+        const url = "/hrms/caidats/39"
+        return axiosClient.get(url)
+    },
     postGuides(data) {
         const url = "/hrms/huongdans"
         return axiosClient.post(url, data)

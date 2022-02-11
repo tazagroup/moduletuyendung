@@ -108,17 +108,15 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
         const response = await candidatesAPI.postCandidate(bodyData)
         dispatch(addCandidate(response.data))
         handleClose();
-        if (valueCensor) {
-            const noticeData = {
-                "idGui": user.profile.id,
-                "idNhan": valueCensor.id,
-                "idModule": 4,
-                "Loai": 1,
-                "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
-                "idTao": user.profile.id
-            }
-            noticesAPI.postNotice(noticeData)
+        const noticeData = {
+            "idGui": user.profile.id,
+            "idNhan": valueCensor ? valueCensor.id : ticket.idTao,
+            "idModule": 4,
+            "Loai": 1,
+            "Noidung": JSON.stringify({ id: response.data.attributes.key, text: "Bước 2", step: "Duyệt hồ sơ" }),
+            "idTao": user.profile.id
         }
+        noticesAPI.postNotice(noticeData)
     }
     const handleUploadFile = (e) => {
         const file = e.target.files[0]

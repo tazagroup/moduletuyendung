@@ -108,3 +108,7 @@ svg.calendar__icon {
     width: unset !important;
     height: unset !important;
 }
+
+textarea:focus{
+    outline:unset;
+}

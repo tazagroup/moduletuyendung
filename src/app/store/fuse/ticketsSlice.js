@@ -3,6 +3,7 @@ import { ConvertPermissionArray } from './../../main/utils/index'
 const ticketsSlice = createSlice({
     name: 'tickets',
     initialState: {
+        flagRenderTicket: [],
         dashboardTicket: [],
         dataTicket: [],
         flagTicket: [],
@@ -17,6 +18,14 @@ const ticketsSlice = createSlice({
             attributes['key'] = attributes.id
             state.dataTicket.unshift(attributes)
             state.dataTicket = state.dataTicket.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item
+                }
+            })
+            state.flagRenderTicket.unshift(attributes)
+            state.flagRenderTicket = state.flagRenderTicket.map((item, index) => {
                 delete item.id
                 return {
                     id: index,
@@ -78,12 +87,26 @@ const ticketsSlice = createSlice({
             state.dashboardTicket[`${index2}`] = attributes
             state.dashboardTicket[`${index2}`].key = attributes.id
             delete state.dashboardTicket[`${index2}`].id
+            //UPDATE RENDER
+            const index3 = state.flagRenderTicket.findIndex(item => item.key === attributes.id)
+            const flag3 = {
+                ...state.flagRenderTicket[`${index3}`],
+                ...attributes
+            }
+            delete flag3.id
+            flag3.id = state.flagRenderTicket[`${index3}`].id
+            state.flagRenderTicket[`${index3}`] = {
+                ...flag,
+                Pheduyet: attributes['Pheduyet']
+            }
         },
         removeTicket: (state, action) => {
             const flag = state.dataTicket.map(item => item.key)
             const flag2 = state.dashboardTicket.map(item => item.key)
+            const flag3 = state.flagRenderTicket.map(item => item.key)
             const index = flag.indexOf(action.payload.key)
             const index2 = flag2.indexOf(action.payload.key)
+            const index3 = flag3.indexOf(action.payload.key)
             //REMOVE
             state.dataTicket.splice(index, 1)
             state.dataTicket = state.dataTicket.map((item, index) => {
@@ -96,6 +119,15 @@ const ticketsSlice = createSlice({
             state.flagTicket = [...state.dataTicket]
             //REMOVE FROM DASHBOARD
             state.dashboardTicket.splice(index2, 1)
+            //RENDER
+            state.flagRenderTicket.splice(index3, 1)
+            state.flagRenderTicket = state.flagRenderTicket.map((item, index) => {
+                delete item.id
+                return {
+                    id: index,
+                    ...item
+                }
+            })
         },
         setSource: (state, action) => {
             const { attributes } = action.payload
@@ -103,10 +135,13 @@ const ticketsSlice = createSlice({
         },
         setUsers: (state, action) => {
             state.users = action.payload
+        },
+        setFlagTicket: (state, action) => {
+            state.flagRenderTicket = action.payload
         }
     },
 });
 
-export const { addTicket, refreshTicket, setDataTicket, updateTicket, setSource, removeTicket, setUsers } = ticketsSlice.actions;
+export const { addTicket, refreshTicket, setDataTicket, updateTicket, setSource, removeTicket, setUsers, setFlagTicket } = ticketsSlice.actions;
 
 export default ticketsSlice.reducer;

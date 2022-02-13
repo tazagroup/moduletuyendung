@@ -3,12 +3,11 @@ import { useLocation } from "react-router-dom"
 //REDUX
 import { useDispatch, useSelector, batch } from 'react-redux';
 import { setDataTicket, setSource } from 'app/store/fuse/ticketsSlice';
-import { setDataCandidate, updateFlagCandidate, refreshDataCandidate, removeCandidate } from 'app/store/fuse/candidateSlice';
+import candidateSlice, { setDataCandidate, updateFlagCandidate, refreshDataCandidate, removeCandidate, setFlagRender } from 'app/store/fuse/candidateSlice';
 import { setDataReason } from 'app/store/fuse/guideSlice'
 //MUI
 import MaterialTable, { MTableAction } from '@material-table/core';
-import { Tooltip, Menu, MenuItem } from '@mui/material/';
-import { styled } from '@mui/material/styles'
+import { Tooltip, Menu, MenuItem, TextField, FormControl, Select, Checkbox, ListItemText, styled } from '@mui/material/';
 import ClearIcon from '@mui/icons-material/Clear';
 import IconButton from '@mui/material/IconButton';
 import AddBoxIcon from '@mui/icons-material/AddBox';
@@ -37,6 +36,47 @@ const TextTooltip = styled(({ className, ...props }) => (
 ))(`
       font-size: .8em;
   `);
+const CustomFilter = (props) => {
+    const ITEM_HEIGHT = 48;
+    const ITEM_PADDING_TOP = 8;
+    const MenuProps = {
+        PaperProps: {
+            style: {
+                maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+            }
+        }
+    };
+    const value = props.columnDef.tableData.filterValue || []
+    return (
+        <>
+            <FormControl sx={{ m: 1, width: props.width, marginTop: "15.5px" }} variant="standard">
+                <Select
+                    labelId="demo-multiple-checkbox-label"
+                    id="demo-multiple-checkbox"
+                    multiple
+                    value={value}
+                    onChange={(event) => {
+                        const { target: { value } } = event;
+                        props.onFilterChanged(props.columnDef.tableData.id, value);
+                    }}
+                    renderValue={(selected) => {
+                        return ""
+                    }}
+                    MenuProps={MenuProps}
+                >
+                    {props.data.map((item, index) => (
+                        <MenuItem key={index} value={item.id}>
+                            <Checkbox
+                                checked={value.indexOf(item.id) > -1}
+                            />
+                            <ListItemText primary={`${item.value}`} />
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+        </>
+    )
+}
 const Table = () => {
     const search = useLocation().search
     const queryParams = new URLSearchParams(search)
@@ -47,11 +87,14 @@ const Table = () => {
     let data = useSelector(state => state.fuse.candidates.dataCandidate)
     data = idParam ? data.filter(item => item.key == idParam) : data
     const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
+    const flagRender = useSelector(state => state.fuse.candidates.flagRender)
     const flagDataCandidate = useSelector(state => state.fuse.candidates.flagDataCandidate)
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket).filter(item => item.Trangthai == 2)
     const position = useSelector(state => state.fuse.tickets.position)
     const source = useSelector(state => state.fuse.tickets.source)
+    const [flagData, setFlagData] = useState(null)
     const [rowData, setRowData] = useState(null)
+    const [editData, setEditData] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
@@ -59,7 +102,8 @@ const Table = () => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [initialData, setInitialData] = useState({})
     const open = Boolean(anchorEl)
-    const tableRef = useRef();
+    const tableRef = useRef(null);
+
     const headers = [
         {
             title: "#", field: "key", align: "center", hiddenByColumnsButton: true,
@@ -136,6 +180,16 @@ const Table = () => {
                 const profile = JSON.parse(rowData.Profile)
                 return (<div>{profile?.Hoten}</div>)
             },
+            filterComponent: ({ columnDef, onFilterChanged }) => (
+                <TextField
+                    id="standard-basic"
+                    variant="standard"
+                    onChange={(e) => {
+                        onFilterChanged(columnDef.tableData.id, e.target.value);
+                    }}
+                    style={{ marginTop: 2, minWidth: 140 }}
+                />
+            ),
             customFilterAndSearch: (term, rowData) => {
                 const profile = JSON.parse(rowData.Profile).Hoten
                 return profile.includes(term)
@@ -167,7 +221,16 @@ const Table = () => {
             title: "Duyệt hồ sơ", field: "Duyet",
             render: rowData => {
                 const item = JSON.parse(rowData['XacnhanHS'])?.Duyet
-                return <CustomStatus censor={item?.Nguoiduyet} item={item?.status} error={rowData?.Lydo} field="Duyet" />
+                return <CustomStatus censor={item?.Nguoiduyet} item={item?.status} error={JSON.parse(rowData?.Lydo)?.id} field="Duyet" />
+            },
+            filterComponent: (props) => {
+                const data = [{ id: 0, value: "Chờ xử lí" }, { id: 1, value: "Duyệt" }, { id: 2, value: "Từ chối" }]
+                return <CustomFilter {...props} data={data} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length == 3) return true
+                const item = JSON.parse(rowData['XacnhanHS'])?.Duyet?.status
+                return term.includes(item)
             }
         },
         {
@@ -176,11 +239,33 @@ const Table = () => {
                 const item = JSON.parse(rowData['XacnhanHS'])?.XNPV
                 const status = [2, 3].includes(JSON.parse(rowData['DanhgiaHS'])?.Trangthai)
                 const check = JSON.parse(rowData['XacnhanHS']).hasOwnProperty('XNPV') && !status
-                return check ? <CustomStatus censor={item?.Nguoiduyet} item={item?.status} error={rowData?.Lydo} field="XNPV" /> : <ClearIcon />
+                return check ? <CustomStatus censor={item?.Nguoiduyet} item={item?.status} error={JSON.parse(rowData?.Lydo)?.id} field="XNPV" /> : <ClearIcon />
+            },
+            filterComponent: (props) => {
+                const data = [{ id: 0, value: "Chờ xử lí" }, { id: 1, value: "Duyệt" }, { id: 2, value: "Từ chối" }]
+                return <CustomFilter {...props} data={data} />
+            },
+            customFilterAndSearch: (term, rowData) => {
+                if (term.length == 3) return true
+                const item = JSON.parse(rowData['XacnhanHS'])?.XNPV?.Trangthai
+                return term.includes(item)
             }
         },
         {
-            title: "Trạng thái", field: "Trangthai", lookup: { 0: "Đang xử lí", 1: "Đạt", 2: "Loại" }
+            title: "Trạng thái", field: "Trangthai", lookup: { 0: "Đang xử lí", 1: "Đạt", 2: "Loại" },
+            render: rowData => {
+                const item = rowData.Trangthai
+                const text = (item == 1 ? "Đạt" : "Đang xử lí")
+                return item == 2 ? (
+                    <TextTooltip title={JSON.parse(rowData.Lydo).text}>
+                        <div>
+                            Loại
+                        </div>
+                    </TextTooltip>
+                ) : (
+                    <div>{text}</div>
+                )
+            }
         },
         {
             title: "Hồ sơ", field: "CV",
@@ -304,13 +389,6 @@ const Table = () => {
             dispatch(refreshDataCandidate(data))
         }
     }, [idParam])
-    useEffect(() => {
-        if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
-            dispatch(updateFlagCandidate(rowData))
-        }
-        return () => {
-        }
-    }, [rowData])
     //HIDDEN COLUMNS
     useEffect(() => {
         localStorage.setItem("hidden2", hiddenColumns);
@@ -354,6 +432,8 @@ const Table = () => {
 
     }
     const handleRefresh = () => {
+        tableRef.current.dataManager.currentPage = 0;
+        dispatch(setFlagRender(null))
         setIsFiltering(false)
         dispatch(refreshDataCandidate([]))
         setTimeout(() => {
@@ -364,7 +444,8 @@ const Table = () => {
         if (JSON.stringify(rowData) != JSON.stringify(flagCandidate)) {
             dispatch(updateFlagCandidate(rowData))
         }
-        setRowData(rowData)
+        dispatch(setFlagRender(tableRef.current?.state?.data))
+        setEditData(rowData)
     }
     const convertValue = (value) => {
         return value != 0 ? (value == 1 ? "Đã duyệt" : "Từ chối") : "Đang xử lí"
@@ -378,7 +459,6 @@ const Table = () => {
             const calendar = JSON.parse(item.LichPV)?.VongPV
             const judge = JSON.parse(item.DanhgiaHS)
             const check = JSON.parse(item.DuyetHS)
-            console.log(judge)
             return {
                 "Vị trí": position.find(opt => opt.id == ticket.Vitri)?.Thuoctinh,
                 "Họ tên": profile.Hoten,
@@ -429,9 +509,9 @@ const Table = () => {
     }
     return isLoading ? <FuseLoading /> :
         <Fragment>
-            {rowData ? <Status /> : <FlagStatus />}
+            {rowData ? <Status editData={editData} /> : <FlagStatus />}
             <MaterialTable
-                data={data}
+                data={flagRender ? (flagRender.length != 0 ? flagRender : data) : data}
                 initialFormData={initialData}
                 tableRef={tableRef}
                 title={<>
@@ -527,7 +607,7 @@ const Table = () => {
                     filtering: isFiltering,
                     toolbarButtonAlignment: "left",
                     rowStyle: rowData => {
-                        let selected = flagCandidate && flagCandidate.tableData?.id === rowData.tableData.id;
+                        let selected = editData && editData.tableData?.id === rowData.tableData.id;
                         return {
                             backgroundColor: selected ? "#3b5998" : "#FFF",
                             color: selected ? "#fff" : "#000",
@@ -556,6 +636,7 @@ const Table = () => {
                 />}
             {isEditing &&
                 <InfoCandidate
+                    editData={editData}
                     open={isEditing}
                     handleClose={() => { setIsEditing(false) }}
                 />}

@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 //REDUX
 import { useDispatch, useSelector, batch } from 'react-redux';
 import { updateCandidate, updateFlagCandidate } from 'app/store/fuse/candidateSlice'
 import { closeDialog } from 'app/store/fuse/dialogSlice';
 //MUI
-import { Button, Select, MenuItem, Grid, FormControl, InputLabel } from "@mui/material"
+import Button from "@mui/material/Button"
+import Select from "@mui/material/Select"
+import MenuItem from "@mui/material/MenuItem"
+import Grid from "@mui/material/Grid"
+import FormControl from "@mui/material/FormControl"
+import InputLabel from '@mui/material/InputLabel'
+import TextareaAutosize from '@mui/material/TextareaAutosize';
 //COMPONENTS
 import SweetAlert from 'react-bootstrap-sweetalert';
 //API
@@ -13,6 +19,7 @@ import guidesAPI from 'api/guideAPI'
 const ModalDeny = ({ item, field }) => {
     const dispatch = useDispatch()
     const [reason, setReason] = useState('')
+    const textReason = useRef('')
     const labels = useSelector(state => state.fuse.guides.dataReason)
     const handleConfirm = async () => {
         const flag = JSON.parse(item['XacnhanHS'])
@@ -22,7 +29,7 @@ const ModalDeny = ({ item, field }) => {
         }
         const bodyData = {
             ...item,
-            Lydo: labels.find(opt => opt.Thuoctinh == reason).id,
+            Lydo: JSON.stringify({ id: labels.find(opt => opt.Thuoctinh == reason).id, text: textReason.current.value }),
             XacnhanHS: JSON.stringify(XacnhanHS),
             LichPV: field == "XNPV" ? JSON.stringify({}) : item.LichPV,
             Trangthai: 2,
@@ -66,12 +73,18 @@ const ModalDeny = ({ item, field }) => {
                                 value={reason}
                                 label="Lí do từ chối"
                                 onChange={(e) => { setReason(e.target.value) }}
-                                style={{ fontSize: "15px" }}
+                                style={{ fontSize: "15px", marginBottom: 15 }}
                             >
                                 {labels && labels.map((item, index) => (
                                     <MenuItem key={index} value={item.Thuoctinh}>{item.Thuoctinh}</MenuItem>
                                 ))}
                             </Select>
+                            <TextareaAutosize
+                                ref={textReason}
+                                aria-label="empty textarea"
+                                placeholder="Lý do từ chối"
+                                style={{ width: "100%", border: "1px solid #cdcdcd", padding: "10px 15px", borderRadius: 5 }}
+                            />
                         </FormControl>
                     </Grid>
                 </Grid>

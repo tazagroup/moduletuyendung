@@ -82,10 +82,11 @@ const CustomAutocompleteEdit = (props) => {
     const compareArray = main == "candidate" ? positionCandidate : positionTicket
     const result = sortCount(compareArray)
     const options = result.map(item => {
-        if (Number(item) in positionId) {
+        if (positionId.includes(Number(item))) {
             return position.find(item2 => Number(item2.id) == Number(item))
         }
     })
+    console.log(options)
     //FILTER TO POSITION
     //Functions
     const countElement = (array, field, value) => {

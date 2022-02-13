@@ -37,8 +37,8 @@ const CustomTooltip = styled(({ className, ...props }) => (
         border: '1px solid #dadde9',
     },
 }));
-const Status = () => {
-    const data = useSelector(state => state.fuse.candidates.flagCandidate)
+const Status = (props) => {
+    const data = props.editData
     const XacnhanHS = JSON.parse(data.XacnhanHS)
     const LichPV = JSON.parse(data.LichPV).VongPV
     const DanhgiaHS = JSON.parse(data.DanhgiaHS)

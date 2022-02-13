@@ -58,8 +58,8 @@ const schema = yup.object().shape({
     Email: yup.string().email("Vui lòng nhập đúng định dạng").required("Vui lòng nhập tên ứng viên"),
     Phone: yup.string().required("Vui lòng nhập số điện thoại"),
 });
-const InfoCandidate = ({ open, handleClose }) => {
-    const flagCandidate = useSelector(state => state.fuse.candidates.flagCandidate)
+const InfoCandidate = ({ editData, open, handleClose }) => {
+    const flagCandidate = editData
     const dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const type = useSelector(state => state.fuse.guides.dataType)
@@ -117,6 +117,9 @@ const InfoCandidate = ({ open, handleClose }) => {
         }
         if (isFetch && type.length == 0) { fetchData() }
         return () => isFetch = false
+    }, [])
+    useEffect(() => {
+        dispatch(updateFlagCandidate(editData))
     }, [])
     const handleTicketChange = (e, newValue) => {
         setTicket(newValue)

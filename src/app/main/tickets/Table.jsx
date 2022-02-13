@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom"
 import MaterialTable, { MTableAction } from '@material-table/core';
 //REDUX
 import { useDispatch, useSelector, batch } from 'react-redux';
-import { setDataTicket, refreshTicket, setSource, removeTicket } from 'app/store/fuse/ticketsSlice';
+import { setDataTicket, refreshTicket, setSource, removeTicket, setFlagTicket } from 'app/store/fuse/ticketsSlice';
 //ICON
 import AddBoxIcon from '@mui/icons-material/AddBox';
 import IconButton from '@mui/material/IconButton';
@@ -87,10 +87,12 @@ export default function Table() {
     const dispatch = useDispatch()
     let dataTicket = useSelector(state => state.fuse.tickets.dataTicket)
     dataTicket = idParam ? dataTicket.filter(item => item.key == idParam) : dataTicket
+    const renderTicket = useSelector(state => state.fuse.tickets.flagRenderTicket)
     const flagTicket = useSelector(state => state.fuse.tickets.flagTicket)
     const position = useSelector(state => state.fuse.tickets.position)
     const users = useSelector(state => state.fuse.tickets.users)
     const user = JSON.parse(localStorage.getItem("profile"))
+    const [flagData, setFlagData] = useState(null)
     const [rowData, setRowData] = useState({})
     const [initialData, setInitialData] = useState({})
     const [dataStatus, setDataStatus] = useState(null)
@@ -454,6 +456,9 @@ export default function Table() {
         })
     }
     const handleRefresh = () => {
+        tableRef.current.dataManager.currentPage = 0;
+        setDataStatus(null)
+        dispatch(setFlagTicket(null))
         setIsFiltering(false)
         dispatch(refreshTicket([]))
         setTimeout(() => {
@@ -505,6 +510,10 @@ export default function Table() {
         })
         dispatch(refreshTicket([...approveArray]))
     }
+    const handleRowClick = (rowData) => {
+        dispatch(setFlagTicket(tableRef.current?.state?.data))
+        setDataStatus(rowData)
+    }
     //FILTER RANGE NUMBER
     const salary = [
         { id: 1, name: "5 triệu - 7 triệu", minPrice: 5000000, maxPrice: 7000000 },
@@ -520,7 +529,7 @@ export default function Table() {
                 <TicketStatusFlag />
             }
             <MaterialTable
-                data={dataTicket}
+                data={renderTicket ? (renderTicket.length != 0 ? renderTicket : dataTicket) : dataTicket}
                 tableRef={tableRef}
                 title={<>
                     <TextTooltip title="Tạo hồ sơ tuyển dụng">
@@ -620,7 +629,7 @@ export default function Table() {
                     }
                 }}
                 icons={{ ViewColumn: ViewColumnIcon, }}
-                onRowClick={(event, rowData) => { setDataStatus(rowData) }}
+                onRowClick={(event, rowData) => { handleRowClick(rowData) }}
                 onChangeColumnHidden={(r) => {
                     const index = hiddenColumns.findIndex(item => item === r.field)
                     if (index !== -1) {

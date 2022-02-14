@@ -94,7 +94,6 @@ const Table = () => {
     const source = useSelector(state => state.fuse.tickets.source)
     const [flagData, setFlagData] = useState(null)
     const [rowData, setRowData] = useState(null)
-    const [editData, setEditData] = useState(null)
     const [isFiltering, setIsFiltering] = useState(false)
     const [isCreating, setIsCreating] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
@@ -445,7 +444,6 @@ const Table = () => {
             dispatch(updateFlagCandidate(rowData))
         }
         dispatch(setFlagRender(tableRef.current?.state?.data))
-        setEditData(rowData)
     }
     const convertValue = (value) => {
         return value != 0 ? (value == 1 ? "Đã duyệt" : "Từ chối") : "Đang xử lí"
@@ -509,7 +507,7 @@ const Table = () => {
     }
     return isLoading ? <FuseLoading /> :
         <Fragment>
-            {rowData ? <Status editData={editData} /> : <FlagStatus />}
+            {rowData ? <Status /> : <FlagStatus />}
             <MaterialTable
                 data={flagRender ? (flagRender.length != 0 ? flagRender : data) : data}
                 initialFormData={initialData}
@@ -607,7 +605,7 @@ const Table = () => {
                     filtering: isFiltering,
                     toolbarButtonAlignment: "left",
                     rowStyle: rowData => {
-                        let selected = editData && editData.tableData?.id === rowData.tableData.id;
+                        let selected = flagCandidate && flagCandidate.tableData?.id === rowData.tableData.id;
                         return {
                             backgroundColor: selected ? "#3b5998" : "#FFF",
                             color: selected ? "#fff" : "#000",
@@ -636,7 +634,6 @@ const Table = () => {
                 />}
             {isEditing &&
                 <InfoCandidate
-                    editData={editData}
                     open={isEditing}
                     handleClose={() => { setIsEditing(false) }}
                 />}

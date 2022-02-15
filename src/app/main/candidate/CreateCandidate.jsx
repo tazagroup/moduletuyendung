@@ -100,7 +100,7 @@ const CreateCandidate = ({ open, item = "", handleClose }) => {
             idTicket: ticket.key,
             Profile: JSON.stringify(profile),
             LichPV: JSON.stringify({}),
-            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: valueCensor ? valueCensor.id : user.profile.id, status: 0 } }),
+            XacnhanHS: JSON.stringify({ Duyet: { Nguoiduyet: valueCensor ? valueCensor.id : ticket.idTao, status: 0 } }),
             DuyetHS: JSON.stringify({}),
             DanhgiaHS: JSON.stringify({}),
             idTao: user.profile.id
